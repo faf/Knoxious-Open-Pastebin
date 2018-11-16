@@ -155,12 +155,6 @@ $CONFIG['pb_line_highlight'] = FALSE;
 $CONFIG['pb_line_highlight_style'] = FALSE;
 # $CONFIG['pb_line_highlight_style'] = 'background-color: #FFFFAA; font-weight: bolder; color: #000000;';
 
-// Path to jQuery (if you want to use it)
-// jQuery adds tiger-stripes, effects, AJAX and resize textbox
-// Note that URLs are accepted!
-$CONFIG['pb_jQuery'] = FALSE;
-# $CONFIG['pb_jQuery'] = "path/to/jQuery.js";
-
 // Date Format (see PHP.net's entry on date();)
 $CONFIG['pb_datetime'] = "Y-m-d H:i:s";
 
