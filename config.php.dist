@@ -180,7 +180,7 @@ $CONFIG['pb_editing'] = FALSE;
 // recommend 512Kb to be the Maximum however 1Mb is do-able.
 $CONFIG['pb_max_bytes'] = 524288;
 
-// Put a warning on User posted videos and images (TRUE or FALSE)
+// Put a warning on User posted images (TRUE or FALSE)
 // This is default on outgoing links!!!
 $CONFIG['pb_media_warn'] = FALSE;
 
@@ -196,18 +196,6 @@ $CONFIG['pb_image_extensions'] = array("jpg", "gif", "png");
 // Maximum size of Images in bytes, FALSE for None.
 $CONFIG['pb_image_maxsize'] = 2097152; 
 # (2Mb, you will need to change your php.ini to accomodate higher!)
-
-// Enable Video embedding? (TRUE or FALSE)
-$CONFIG['pb_video'] = FALSE;
-
-// Enable FlowPlayer for playing .flv/mp4 files? (Path or FALSE) Can be a URL.
-// This must include (renamed) flowplayer.swf, flowplayer.controls.swf, flowplayer.min.js
-// http://flowplayer.org
-$CONFIG['pb_flowplayer'] = FALSE;
-# $CONFIG['pb_flowplayer'] = "path/to/flowplayer.swf";
-
-// Embedded Video Size (in Pixels)
-$CONFIG['pb_video_size'] = array('width' => 600, 'height' => 338);
 
 // Allow URL Shortening/Redirection Service? (TRUE or FALSE)
 $CONFIG['pb_url'] = FALSE;

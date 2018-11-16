@@ -405,7 +405,7 @@ class db
                 $data['Lifespan'] = time() + ($this->config['pb_lifespan'][$data['Lifespan']] * 60 * 60 * 24);
         }
 
-        $paste = array('ID' => $id , 'Subdomain' => $data['Subdomain'] , 'Datetime' => time() + $data['Time_offset'] , 'Author' => $data['Author'] , 'Protection' => $data['Protect'] , 'Syntax' => $data['Syntax'] , 'Parent' => $data['Parent'] , 'Image' => $data['Image'] , 'ImageTxt' => $this->cleanHTML($data['ImageTxt']) , 'URL' => $data['URL'] , 'Video' => $this->cleanHTML($data['Video']) , 'Lifespan' => $data['Lifespan'] , 'IP' => base64_encode($data['IP']) , 'Data' => $this->cleanHTML($data['Content']) , 'GeSHI' => $this->cleanHTML($data['GeSHI']) , 'Style' => $this->cleanHTML($data['Style']));
+        $paste = array('ID' => $id , 'Subdomain' => $data['Subdomain'] , 'Datetime' => time() + $data['Time_offset'] , 'Author' => $data['Author'] , 'Protection' => $data['Protect'] , 'Syntax' => $data['Syntax'] , 'Parent' => $data['Parent'] , 'Image' => $data['Image'] , 'ImageTxt' => $this->cleanHTML($data['ImageTxt']) , 'URL' => $data['URL'] , 'Lifespan' => $data['Lifespan'] , 'IP' => base64_encode($data['IP']) , 'Data' => $this->cleanHTML($data['Content']) , 'GeSHI' => $this->cleanHTML($data['GeSHI']) , 'Style' => $this->cleanHTML($data['Style']));
 
         if (($paste['Protection'] > 0 && $this->config['pb_private']) || ($paste['Protection'] > 0 && $arbLifespan))
             $id = "!" . $id;
@@ -415,7 +415,7 @@ class db
         switch ($this->dbt) {
             case "mysql":
                 $this->connect();
-                $query = "INSERT INTO " . $this->config['mysql_connection_config']['db_table'] . " (ID, Subdomain, Datetime, Author, Protection, Syntax, Parent, Image, ImageTxt, URL, Video, Lifespan, IP, Data, GeSHI, Style) VALUES ('" . $paste['ID'] . "', '" . $paste['Subdomain'] . "', '" . $paste['Datetime'] . "', '" . $paste['Author'] . "', " . (int) $paste['Protection'] . ", '" . $paste['Syntax'] . "', '" . $paste['Parent'] . "', '" . $paste['Image'] . "', '" . $paste['ImageTxt'] . "', '" . $paste['URL'] . "', '" . $paste['Video'] . "', '" . (int) $paste['Lifespan'] . "', '" . $paste['IP'] . "', '" . $paste['Data'] . "', '" . $paste['GeSHI'] . "', '" . $paste['Style'] . "')";
+                $query = "INSERT INTO " . $this->config['mysql_connection_config']['db_table'] . " (ID, Subdomain, Datetime, Author, Protection, Syntax, Parent, Image, ImageTxt, URL, Lifespan, IP, Data, GeSHI, Style) VALUES ('" . $paste['ID'] . "', '" . $paste['Subdomain'] . "', '" . $paste['Datetime'] . "', '" . $paste['Author'] . "', " . (int) $paste['Protection'] . ", '" . $paste['Syntax'] . "', '" . $paste['Parent'] . "', '" . $paste['Image'] . "', '" . $paste['ImageTxt'] . "', '" . $paste['URL'] . "', '" . (int) $paste['Lifespan'] . "', '" . $paste['IP'] . "', '" . $paste['Data'] . "', '" . $paste['GeSHI'] . "', '" . $paste['Style'] . "')";
                 $result = mysql_query($query);
                 break;
             case "txt":
@@ -785,34 +785,6 @@ class bin
         return $output;
     }
 
-    public function flowplayer($javascript = FALSE)
-    {
-        if ($this->db->config['pb_flowplayer'] == FALSE)
-            return false;
-
-        $jsMin = str_ireplace("flowplayer.swf", "flowplayer.min.js", $this->db->config['pb_flowplayer']);
-
-        if (preg_match("/^(http|https|ftp):\/\/(.*?)/", $this->db->config['pb_flowplayer'])) {
-            $headers = @get_headers($this->db->config['pb_flowplayer']);
-            $jsHeaders = @get_headers($jsMin);
-            if (preg_match("|200|", $headers[0]) && preg_match("|200|", $jsHeaders[0])) {
-                if ($javascript)
-                    return $jsMin;
-                else
-                    return $this->db->config['pb_flowplayer'];
-            } else
-                return false;
-        } else {
-            if (file_exists($this->db->config['pb_flowplayer']) && file_exists($jsMin)) {
-                if ($javascript)
-                    return $jsMin;
-                else
-                    return $this->db->config['pb_flowplayer'];
-            } else
-                return false;
-        }
-    }
-
     public function generateRandomString($length)
     {
         $checkArray = array('install' , 'api' , 'defaults' , 'recent' , 'raw' , 'moo' , 'subdomain' , 'forbidden' , 0);
@@ -1126,7 +1098,7 @@ class bin
         if (gmdate('U') > $pasteData['Lifespan'])
             return false;
 
-        if ($pasteData['URL'] != NULL && $this->db->config['pb_url'] && ! $this->generateVideoEmbedCode($pasteData['URL']))
+        if ($pasteData['URL'] != NULL && $this->db->config['pb_url'])
             return $pasteData['URL'];
         else
             return false;
@@ -1180,83 +1152,6 @@ class bin
     public function cookieName()
     {
         return strtoupper(sha1(str_rot13(md5($_SERVER['REMOTE_ADDR'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))));
-    }
-
-    public function generateVideoEmbedCode($url)
-    {
-        $type = array();
-        $type['youtube'] = stristr($url, "youtube.com");
-        $type['vimeo'] = stristr($url, "vimeo.com");
-        $type['dailymotion'] = stristr($url, "dailymotion.com");
-        $type['flv'] = $this->stristr_array($url, array('.flv' , '.f4v' , 'mp4' , 'm4v' , 'm4p'));
-        $is = NULL;
-
-        if (! $this->db->config['pb_video'])
-            return false;
-
-        if ($type['youtube']) {
-            $output = "<object width=\"" . $this->db->config['pb_video_size']['width'] . "\" height=\"" . $this->db->config['pb_video_size']['height'] . "\"><param name=\"movie\" value=\"http://youtube.com/v/{VIDEO}\"></param><embed src=\"http://youtube.com/v/{VIDEO}\" type=\"application/x-shockwave-flash\" width=\"" . $this->db->config['pb_video_size']['width'] . "\" height=\"" . $this->db->config['pb_video_size']['height'] . "\"></embed></object>";
-            $is = "youtube";
-        }
-        if ($type['vimeo']) {
-            $output = "<object width=\"" . $this->db->config['pb_video_size']['width'] . "\" height=\"" . $this->db->config['pb_video_size']['height'] . "\"><param name=\"allowfullscreen\" value=\"true\" /><param name=\"allowscriptaccess\" value=\"always\" /><param name=\"movie\" value=\"http://vimeo.com/moogaloop.swf?clip_id={VIDEO}&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1\" /><embed src=\"http://vimeo.com/moogaloop.swf?clip_id={VIDEO}&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1\" type=\"application/x-shockwave-flash\" allowfullscreen=\"true\" allowscriptaccess=\"always\" width=\"" . $this->db->config['pb_video_size']['width'] . "\" height=\"" . $this->db->config['pb_video_size']['height'] . "\"></embed></object>";
-            $is = "vimeo";
-        }
-        if ($type['dailymotion']) {
-            $output = "<object width=\"" . $this->db->config['pb_video_size']['width'] . "\" height=\"" . $this->db->config['pb_video_size']['height'] . "\"><param name=\"movie\" value=\"http://www.dailymotion.com/swf/{VIDEO}\" /><param name=\"allowFullScreen\" value=\"true\" /><param name=\"allowScriptAccess\" value=\"always\" /><embed src=\"http://www.dailymotion.com/swf/{VIDEO}\" type=\"application/x-shockwave-flash\" width=\"" . $this->db->config['pb_video_size']['width'] . "\" height=\"" . $this->db->config['pb_video_size']['height'] . "\" allowFullScreen=\"true\" allowScriptAccess=\"always\"></embed></object>";
-            $is = "dailymotion";
-        }
-        if ($this->flowplayer()) {
-            if ($type['flv']) {
-                $output = "	<a 
-											href=\"{VIDEO}\"
-											style=\"display: block; width: " . $this->db->config['pb_video_size']['width'] . "px; height: " . $this->db->config['pb_video_size']['height'] . "px;\"
-											id=\"player\"
-										>
-										</a>
-
-										<script type=\"text/javascript\">
-											flowplayer(\"player\", \"" . $this->flowplayer() . "\");
-										</script>";
-                $is = "flv";
-            }
-        }
-
-        if ($is == NULL)
-            return false;
-
-        switch ($is) {
-            case "youtube":
-                $vidID = str_replace("http://www.youtube.com/watch?v=", "", $url);
-                $vidID = str_replace("http://youtube.com/watch?v=", "", $vidID);
-                if (stristr($vidID, "&")) {
-                    $explode = explode("&", $vidID);
-                    $vidID = $explode[0];
-                }
-                break;
-            case "vimeo":
-                $vidID = str_replace("http://vimeo.com/", "", $url);
-                $vidID = str_replace("http://www.vimeo.com/", "", $vidID);
-                if (stristr($vidID, "#")) {
-                    $explode = explode("#", $vidID, 2);
-                    $vidID = $explode[1];
-                }
-                break;
-            case "dailymotion":
-                $vidID = str_replace("http://dailymotion.com/", "", $url);
-                $vidID = str_replace("http://www.dailymotion.com/", "", $vidID);
-                if (stristr($vidID, "_")) {
-                    $explode = explode("_", $vidID);
-                    $vidID = $explode[0];
-                }
-
-                break;
-            case "flv":
-                $vidID = $url;
-                break;
-        }
-
-        return str_replace("{VIDEO}", $vidID, $output);
     }
 }
 
@@ -1463,16 +1358,6 @@ if ($requri == "defaults") {
     else
         $defaults['highlight'] = 0;
 
-    if ($CONFIG['pb_video'])
-        $defaults['video'] = 1;
-    else
-        $defaults['video'] = 0;
-
-    if ($bin->flowplayer())
-        $defaults['flv_video'] = 1;
-    else
-        $defaults['flv_video'] = 0;
-
     if ($CONFIG['pb_private'])
         $defaults['privacy'] = 1;
     else
@@ -1524,8 +1409,6 @@ if ($requri == "defaults") {
 					"jQuery":		' . $defaults['ajax'] . ',
 					"syntax":		' . $defaults['syntax'] . ',
 					"line_highlight":	' . $defaults['highlight'] . ',
-					"video":		' . $defaults['video'] . ',
-					"flv_video":		' . $defaults['flv_video'] . ',
 					"url_format":		' . $defaults['ex_url'] . ',
 					"lifespan":		' . $defaults['lifespan'] . ',
 					"privacy":		' . $defaults['privacy'] . '
@@ -1622,11 +1505,6 @@ if ($requri == "api") {
         if (@$_POST['pasteEnter'] == NULL && strlen(@$_FILES['pasteImage']['name']) > 4 && $CONFIG['pb_images'])
             $_POST['pasteEnter'] = "Image file (" . $_FILES['pasteImage']['name'] . ") uploaded...";
 
-        $videoSRC = $bin->generateVideoEmbedCode($postedURL);
-
-        if ($videoSRC || ! $CONFIG['pb_url'])
-            $exclam = NULL;
-
         if (! $CONFIG['pb_url'])
             $postedURL = NULL;
 
@@ -1641,7 +1519,7 @@ if ($requri == "api") {
             $geshiStyle = NULL;
         }
 
-        $paste = array('ID' => $pasteID , 'Subdomain' => $bin->db->config['subdomain'] , 'Author' => $bin->checkAuthor(@$_POST['author']) , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Image' => $imageUpload , 'ImageTxt' => "Image file (" . @$_FILES['pasteImage']['name'] . ") uploaded..." , 'URL' => $postedURL , 'Video' => $videoSRC , 'Lifespan' => $_POST['lifespan'] , 'Protect' => $_POST['privacy'] , 'Syntax' => $_POST['highlighter'] , 'Parent' => $requri , 'Content' => @$_POST['pasteEnter'] , 'GeSHI' => $geshiCode , 'Style' => $geshiStyle);
+        $paste = array('ID' => $pasteID , 'Subdomain' => $bin->db->config['subdomain'] , 'Author' => $bin->checkAuthor(@$_POST['author']) , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Image' => $imageUpload , 'ImageTxt' => "Image file (" . @$_FILES['pasteImage']['name'] . ") uploaded..." , 'URL' => $postedURL , 'Lifespan' => $_POST['lifespan'] , 'Protect' => $_POST['privacy'] , 'Syntax' => $_POST['highlighter'] , 'Parent' => $requri , 'Content' => @$_POST['pasteEnter'] , 'GeSHI' => $geshiCode , 'Style' => $geshiStyle);
 
         if (@$_POST['pasteEnter'] == @$_POST['originalPaste'] && strlen($_POST['pasteEnter']) > 10) {
             $result = array('ID' => 0 , 'error' => '"E01c"' , 'message' => "Please don't just repost what has already been said!");
@@ -1713,7 +1591,6 @@ if ($requri == "api") {
 									"image":		"' . $pasted['Image_path'] . '",
 									"image_text":		"' . $pasted['ImageTxt'] . '",
 									"link":			"' . $pasted['URL'] . '",
-									"video":		"' . $pasted['Video'] . '",
 									"lifespan":		' . $pasted['Lifespan'] . ',
 									"data":			"' . urlencode($db->dirtyHTML($pasted['Data'])) . '",
 									"geshi":		"' . urlencode($pasted['GeSHI']) . '",
@@ -1735,7 +1612,6 @@ if ($requri == "api") {
 									"image":		0,
 									"image_text":		0,
 									"link":			0,
-									"video":		0,
 									"lifespan":		0,
 									"data":			"This paste has either expired or doesn\'t exist!",
 									"data_html":		"' . $db->dirtyHTML("<!-- This paste has either expired or doesn't exist!  -->") . '",
@@ -1785,7 +1661,7 @@ echo $bin->titleID($requri);
 <meta name="Description"
 	content="A quick, simple, multi-purpose pastebin." />
 <meta name="Keywords"
-	content="simple quick pastebin image hosting video linking embedding url shortening syntax highlighting" />
+	content="simple quick pastebin image hosting linking embedding url shortening syntax highlighting" />
 <meta name="Robots"
 	content="<?php
 echo $bin->robotPrivacy($requri);
@@ -2170,10 +2046,6 @@ ul#postList {
 	border: 1px solid #CCCCCC;
 }
 
-#video {
-	text-align: center;
-}
-
 @media print {
 	body {
 		background: #fff;
@@ -2241,9 +2113,6 @@ ul#postList {
 </style>
 		<?php
 }
-
-if ($bin->flowplayer())
-    echo "<script src=\"" . $bin->flowplayer(TRUE) . "\" type=\"text/javascript\"></script>";
 
 /* begin JS */
 
@@ -2803,11 +2672,6 @@ if ($requri != "install" && @$_POST['submit']) {
     if (@$_POST['pasteEnter'] == NULL && strlen(@$_FILES['pasteImage']['name']) > 4 && $CONFIG['pb_images'] && $imageUpload)
         $_POST['pasteEnter'] = "Image file (" . $_FILES['pasteImage']['name'] . ") uploaded...";
 
-    $videoSRC = $bin->generateVideoEmbedCode($postedURL);
-
-    if ($videoSRC || ! $CONFIG['pb_url'])
-        $exclam = NULL;
-
     if (! $CONFIG['pb_url'])
         $postedURL = NULL;
 
@@ -2822,7 +2686,7 @@ if ($requri != "install" && @$_POST['submit']) {
         $geshiStyle = NULL;
     }
 
-    $paste = array('ID' => $pasteID , 'Author' => $bin->checkAuthor(@$_POST['author']) , 'Subdomain' => $bin->db->config['subdomain'] , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Image' => $imageUpload , 'ImageTxt' => "Image file (" . @$_FILES['pasteImage']['name'] . ") uploaded..." , 'URL' => $postedURL , 'Video' => $videoSRC , 'Syntax' => $_POST['highlighter'] , 'Lifespan' => $_POST['lifespan'] , 'Protect' => $_POST['privacy'] , 'Parent' => $requri , 'Content' => @$_POST['pasteEnter'] , 'GeSHI' => $geshiCode , 'Style' => $geshiStyle);
+    $paste = array('ID' => $pasteID , 'Author' => $bin->checkAuthor(@$_POST['author']) , 'Subdomain' => $bin->db->config['subdomain'] , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Image' => $imageUpload , 'ImageTxt' => "Image file (" . @$_FILES['pasteImage']['name'] . ") uploaded..." , 'URL' => $postedURL , 'Syntax' => $_POST['highlighter'] , 'Lifespan' => $_POST['lifespan'] , 'Protect' => $_POST['privacy'] , 'Parent' => $requri , 'Content' => @$_POST['pasteEnter'] , 'GeSHI' => $geshiCode , 'Style' => $geshiStyle);
 
     if (@$_POST['pasteEnter'] == @$_POST['originalPaste'] && strlen($_POST['pasteEnter']) > 10)
         die("<div class=\"error\">Please don't just repost what has already been said!</div></div></body></html>");
@@ -2853,7 +2717,7 @@ if ($requri != "install" && $CONFIG['pb_recent_posts'] && substr($requri, - 1) !
             foreach ($recentPosts as $paste_) {
                 $rel = NULL;
                 $exclam = NULL;
-                if ($paste_['URL'] != NULL && $CONFIG['pb_url'] && ! $bin->generateVideoEmbedCode($paste_['URL'])) {
+                if ($paste_['URL'] != NULL && $CONFIG['pb_url']) {
                     $exclam = "!";
                     $rel = " rel=\"link\"";
                 }
@@ -2865,15 +2729,6 @@ if ($requri != "install" && $CONFIG['pb_recent_posts'] && substr($requri, - 1) !
                         $exclam = NULL;
 
                     $rel = " rel=\"image\"";
-                }
-
-                if ($paste_['Video'] != NULL && $CONFIG['pb_video'] && $bin->generateVideoEmbedCode($paste_['URL'])) {
-                    if ($CONFIG['pb_media_warn'])
-                        $exclam = "!";
-                    else
-                        $exclam = NULL;
-
-                    $rel = " rel=\"video\"";
                 }
 
                 echo "<li id=\"" . $paste_['ID'] . "\" class=\"postItem\"><a href=\"" . $bin->linker($paste_['ID']) . $exclam . "\"" . $rel . ">" . stripslashes($paste_['Author']) . "</a><br />" . $bin->event($paste_['Datetime']) . " ago.</li>";
@@ -2946,8 +2801,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 
         if (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image']))
             $pasteSize = $bin->humanReadableFilesize(filesize($db->setDataPath($pasted['Image'])));
-        elseif ($pasted['Video'] && $CONFIG['pb_video'])
-            $pasteSize = $bin->humanReadableFilesize(mb_strlen($pasted['Video']));
         else
             $pasteSize = $bin->humanReadableFilesize(mb_strlen($pasted['Data']['Orig']));
 
@@ -2972,20 +2825,17 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
         if (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image']))
             echo "<div id=\"imageContainer\"><a href=\"" . $bin->linker() . $db->setDataPath($pasted['Image']) . "\" rel=\"external\"><img src=\"" . $bin->linker() . $db->setDataPath($pasted['Image']) . "\" alt=\"" . $pasted['ImageTxt'] . "\" class=\"pastedImage\" /></a></div>";
 
-        if ($pasted['Video'] && $CONFIG['pb_video'])
-            echo "<div class=\"spacer\">&nbsp;</div><div id=\"video\">" . stripslashes($pasted['Video']) . "</div><div class=\"spacer\">&nbsp;</div>";
-
         if (strlen($pasted['Parent']) > 0)
             echo "<div class=\"warn\"><strong>This is an edit of</strong> <a href=\"" . $bin->linker($pasted['Parent']) . "\">" . $bin->linker($pasted['Parent']) . "</a></div>";
 
-        if (! $bin->highlight() || (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])) || ($pasted['Video'] && $CONFIG['pb_video']) || $pasted['Syntax'] == "plaintext")
+        if (! $bin->highlight() || (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])) || $pasted['Syntax'] == "plaintext")
             echo "<div id=\"styleBar\"><strong>Toggle</strong> <a href=\"#\" onclick=\"return toggleExpand();\">Expand</a> &nbsp;  <a href=\"#\" onclick=\"return toggleWrap();\">Wrap</a> &nbsp; <a href=\"#\" onclick=\"return toggleStyle();\">Style</a> &nbsp; <a href=\"" . $bin->linker($pasted['ID'] . '@raw') . "\">Raw</a></div>";
         else
             echo "<div id=\"styleBar\"><strong>Toggle</strong> <a href=\"#\" onclick=\"return toggleExpand();\">Expand</a> &nbsp;  <a href=\"#\" onclick=\"return toggleWrap();\">Wrap</a> &nbsp; <a href=\"" . $bin->linker($pasted['ID'] . '@raw') . "\">Raw</a></div>";
 
         echo "<div class=\"spacer\">&nbsp;</div>";
 
-        if (! $bin->highlight() || (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])) || ($pasted['Video'] && $CONFIG['pb_video']) || $pasted['Syntax'] == "plaintext") {
+        if (! $bin->highlight() || (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])) || $pasted['Syntax'] == "plaintext") {
             echo "<div id=\"retrievedPaste\"><div id=\"lineNumbers\"><ol id=\"orderedList\" class=\"monoText\">";
             $lines = explode("\n", $pasted['Data']['Dirty']);
             foreach ($lines as $line)
@@ -3197,7 +3047,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 
     if (count($stage) > 3) {
         echo "<li>Creating Database Tables. ";
-        $structure = "CREATE TABLE IF NOT EXISTS " . $CONFIG['mysql_connection_config']['db_table'] . " (ID varchar(255), Subdomain varchar(100), Datetime bigint, Author varchar(255), Protection int, Syntax varchar(255) DEFAULT 'plaintext', Parent longtext, Image longtext, ImageTxt longtext, URL longtext, Video longtext, Lifespan int, IP varchar(225), Data longtext, GeSHI longtext, Style longtext, INDEX (id)) ENGINE = INNODB CHARACTER SET utf8 COLLATE utf8_general_ci";
+        $structure = "CREATE TABLE IF NOT EXISTS " . $CONFIG['mysql_connection_config']['db_table'] . " (ID varchar(255), Subdomain varchar(100), Datetime bigint, Author varchar(255), Protection int, Syntax varchar(255) DEFAULT 'plaintext', Parent longtext, Image longtext, ImageTxt longtext, URL longtext, Lifespan int, IP varchar(225), Data longtext, GeSHI longtext, Style longtext, INDEX (id)) ENGINE = INNODB CHARACTER SET utf8 COLLATE utf8_general_ci";
         if ($db->dbt == "mysql") {
             if (! mysql_query($structure, $db->link) && ! $CONFIG['mysql_connection_config']['db_existing']) {
                 echo "<span class=\"error\">Structure failed</span> - Check Config in index.php (Does the table already exist?)";
@@ -3348,16 +3198,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     else
         $service['highlight'] = array('style' => 'error' , 'status' => 'Disabled' , 'tip' => NULL);
 
-    if ($CONFIG['pb_video'])
-        $service['video'] = array('style' => 'success' , 'status' => 'Enabled' , 'tip' => " If you post a URL that links to a video on YouTube, Vimeo or DailyMotion the pastebin will embed the video into the page for easy viewing!");
-    else
-        $service['video'] = array('style' => 'error' , 'status' => 'Disabled' , 'tip' => NULL);
-
-    if ($bin->flowplayer())
-        $service['flowplayer'] = array('style' => 'success' , 'status' => 'Enabled');
-    else
-        $service['flowplayer'] = array('style' => 'error' , 'status' => 'Disabled');
-
     $uploadForm = NULL;
 
     if ($bin->jQuery())
@@ -3373,7 +3213,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($CONFIG['pb_name']) . "</h1>" . $bin->setTagline($CONFIG['pb_tagline']) . "<div id=\"result\"></div>
 				<div id=\"formContainer\">
 				<div><span id=\"showInstructions\">[ <a href=\"#\" onclick=\"return toggleInstructions();\">more info</a> ]</span><span id=\"showSubdomain\">" . $subdomainClicker . "</span>
-				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['images']['style'] . "\">" . $service['images']['status'] . "</span> Image hosting</li><li><span class=\"" . $service['image_download']['style'] . "\">" . $service['image_download']['status'] . "</span> Copy image from URL</li><li><span class=\"" . $service['video']['style'] . "\">" . $service['video']['status'] . "</span> Video Embedding (YouTube, Vimeo &amp; DailyMotion)</li><li><span class=\"" . $service['flowplayer']['style'] . "\">" . $service['flowplayer']['status'] . "</span> Flash player for flv/mp4 files.</li><li><span class=\"" . $service['url']['style'] . "\">" . $service['url']['status'] . "</span> URL Shortening/Redirection</li><li><span class=\"" . $service['jQuery']['style'] . "\">" . $service['jQuery']['status'] . "</span> Visual Effects</li><li><span class=\"" . $service['jQuery']['style'] . "\">" . $service['jQuery']['status'] . "</span> AJAX Posting</li><li><span class=\"" . $service['api']['style'] . "\">" . $service['api']['status'] . "</span> API</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish" . $service['images']['tip'] . " then hit submit!" . $service['url']['tip'] . "" . $service['video']['tip'] . "" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div>" . $service['api']['tip'] . "<div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
+				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['images']['style'] . "\">" . $service['images']['status'] . "</span> Image hosting</li><li><span class=\"" . $service['image_download']['style'] . "\">" . $service['image_download']['status'] . "</span> Copy image from URL</li><li><span class=\"" . $service['url']['style'] . "\">" . $service['url']['status'] . "</span> URL Shortening/Redirection</li><li><span class=\"" . $service['jQuery']['style'] . "\">" . $service['jQuery']['status'] . "</span> Visual Effects</li><li><span class=\"" . $service['jQuery']['style'] . "\">" . $service['jQuery']['status'] . "</span> AJAX Posting</li><li><span class=\"" . $service['api']['style'] . "\">" . $service['api']['status'] . "</span> API</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish" . $service['images']['tip'] . " then hit submit!" . $service['url']['tip'] . "" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div>" . $service['api']['tip'] . "<div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
 					<form id=\"pasteForm\" action=\"" . $bin->linker() . "\" method=\"post\" name=\"pasteForm\" enctype=\"multipart/form-data\">
 						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Paste your text" . $service['url']['str'] . " here!" . $service['highlight']['tip'] . "</label>
 						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" " . $event . "=\"return checkIfURL(this);\"></textarea></div>
@@ -3432,9 +3272,9 @@ Manning</a>, 2010.</div>
 </div>
 <?php
 
-if (($requri && $requri != "install") && (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])) || ($pasted['Video'] && $CONFIG['pb_video']) && ! $bin->jQuery())
+if (($requri && $requri != "install") && (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])))
     echo "<script type=\"text/javascript\">setTimeout(\"toggleWrap()\", 1000); setTimeout(\"toggleStyle()\", 1000);</script>";
-elseif (($requri && $requri != "install") && (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])) || ($pasted['Video'] && $CONFIG['pb_video']) && $bin->jQuery())
+elseif (($requri && $requri != "install") && (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])))
     echo "<script type=\"text/javascript\">$(document).ready(function() { setTimeout(\"toggleWrap()\", 1000); setTimeout(\"toggleStyle()\", 1000); });</script>";
 else
     echo "<!-- End of Document -->";
