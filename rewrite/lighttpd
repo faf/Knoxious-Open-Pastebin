@@ -1,4 +1,3 @@
-url.rewrite-if-not-file = (     
+url.rewrite-if-not-file = (
 	"^/(.+)" => "/index.php?i=$1"
 )
-
