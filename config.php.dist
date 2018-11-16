@@ -161,12 +161,6 @@ $CONFIG['pb_line_highlight_style'] = FALSE;
 $CONFIG['pb_jQuery'] = FALSE;
 # $CONFIG['pb_jQuery'] = "path/to/jQuery.js";
 
-// Path to _clipboard.swf (allows copying)
-// http://knoxious.co.uk/Knoxious+Pastebin/index.html#_clipboard
-// Note that swfobject.js is also required in the same Directory
-$CONFIG['pb_clipboard'] = FALSE;
-# $CONFIG['pb_clipboard'] = "path/to/_clipboard.swf";
-
 // Date Format (see PHP.net's entry on date();)
 $CONFIG['pb_datetime'] = "Y-m-d H:i:s";
 

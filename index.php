@@ -785,35 +785,6 @@ class bin
         return $output;
     }
 
-    public function _clipboard()
-    {
-        if ($this->db->config['pb_clipboard'] == FALSE)
-            return false;
-
-        $this->db->config['cbdir'] = dirname($this->db->config['pb_clipboard']);
-        $cbdir = $this->db->config['cbdir'];
-
-        if (strlen($cbdir) < 2)
-            $cbdir = ".";
-
-        if (preg_match("/^(http|https|ftp):\/\/(.*?)/", $this->db->config['pb_clipboard'])) {
-            $headers = @get_headers($this->db->config['pb_clipboard']);
-            if (preg_match("|200|", $headers[0])) {
-                $jsHeaders = @get_headers($cbdir . "/swfobject.js");
-                if (preg_match("|200|", $jsHeaders[0]))
-                    return true;
-                else
-                    return false;
-            } else
-                return false;
-        } else {
-            if (file_exists($this->db->config['pb_clipboard']) && file_exists($cbdir . "/swfobject.js"))
-                return true;
-            else
-                return false;
-        }
-    }
-
     public function flowplayer($javascript = FALSE)
     {
         if ($this->db->config['pb_flowplayer'] == FALSE)
@@ -1462,11 +1433,6 @@ if ($requri == "defaults") {
     else
         $defaults['api_adaptor'] = 0;
 
-    if ($bin->_clipboard())
-        $defaults['clipboard'] = '"' . $CONFIG['pb_clipboard'] . '"';
-    else
-        $defaults['clipboard'] = 0;
-
     if ($CONFIG['pb_images'])
         $defaults['images'] = $CONFIG['pb_image_maxsize'];
     else
@@ -1551,7 +1517,6 @@ if ($requri == "defaults") {
 					"editing": 		' . $defaults['editing'] . ',
 					"api":			' . $defaults['api'] . ',
 					"api_adaptor":		' . $defaults['api_adaptor'] . ',
-					"clipboard":		' . $defaults['clipboard'] . ',
 					"images":		' . $defaults['images'] . ',
 					"image_extensions":	' . $defaults['ex_ext'] . ',
 					"image_download":	' . $defaults['image_download'] . ',
@@ -1899,17 +1864,6 @@ pre {
 	background-color: #F3F3F3;
 }
 
-.copyText {
-	color: #336699;
-	text-decoration: underline;
-	cursor: pointer;
-	cursor: hand;
-}
-
-._clipboardBar {
-	text-align: right;
-}
-
 .plainText {
 	font-family: Arial, Helvetica, sans-serif;
 	border: none;
@@ -2216,22 +2170,6 @@ ul#postList {
 	border: 1px solid #CCCCCC;
 }
 
-#_clipboard_replace {
-	visibility: hidden;
-}
-
-#_clipboardURI_replace {
-	visibility: hidden;
-}
-
-#_copyText {
-	visibility: hidden;
-}
-
-#_copyURL {
-	visibility: hidden;
-}
-
 #video {
 	text-align: center;
 }
@@ -2286,31 +2224,6 @@ ul#postList {
 		display: none;
 	}
 	#styleBar {
-		display: none;
-	}
-	#_clipboard_replace {
-		display: none;
-	}
-	#_clipboardURI_replace {
-		display: none;
-	}
-	#_clipboard {
-		display: none;
-	}
-	#_clipboardURI {
-		display: none;
-	}
-	#_copyText {
-		display: none;
-	}
-	#_copyURL {
-		display: none;
-	}
-	._clipboardBar {
-		display: none;
-		width: auto;
-	}
-	.copyText {
 		display: none;
 	}
 	.spacer {
@@ -2778,181 +2691,7 @@ if ($bin->jQuery()) {
 		<?php
 }
 
-if ($bin->_clipboard()) {
-    ?>
-<script type="text/javascript"
-	src="<?php
-    echo $db->config['cbdir'] . "/swfobject.js";
-    ?>"></script>
-<script type="text/javascript">
-function findPosX(obj) {
-	var curleft = 0;
-	if(obj.offsetParent)
-		while(1) {
-          		curleft += obj.offsetLeft;
-			if(!obj.offsetParent)
-            			break;
-          		obj = obj.offsetParent;
-        	}
-    	else if(obj.x)
-        	curleft += obj.x;
-    	return curleft;
-}
-
-function findPosY(obj) {
-	var curtop = 0;
-    	if(obj.offsetParent)
-        	while(1) {
-          		curtop += obj.offsetTop;
-          		if(!obj.offsetParent)
-            			break;
-          		obj = obj.offsetParent;
-        	}
-    	else if(obj.y)
-        	curtop += obj.y;
-    	return curtop;
-}
-
-function findWidth(obj) {
-	var w = obj.width;
-	if(!w)
-		w = obj.offsetWidth;
-	return w;
-}
-function findHeight(obj) {
-	var h = obj.height;
-	if(!h)
-		h = obj.offsetHeight;
-	return h;
-}
-function formSend(id, target) {   
-	var originalText = eval(target).value;
-	document.getElementById(id).textToCopy(originalText);    
-}
-
-function setCopyVars(){
-	document.pasteForm.originalPaste.value = document.pasteForm.pasteEnter.value;
-}
-
-function flashReady(id, target) {
-		setCopyVars();
-		formSend(id, target);
-	<?php
-    if (! @$_POST['submit']) {
-        ?>
-		document.getElementById("_copyText").style.visibility = "visible";
-		setTimeout("document.getElementById('_copyText').style.display = 'inline'", 500);
-	<?php
-    }
-    ?>
-		document.getElementById("_copyURL").style.visibility = "visible";
-		setTimeout("document.getElementById('_copyURL').style.display = 'inline'", 500);
-}
-
-function sizeFlash() {
-	var divWidth = findWidth(document.getElementById("_copyText"));
-	var divHeight = findHeight(document.getElementById("_copyText"));
-	var divWidthURL = findWidth(document.getElementById("_copyURL"));
-	var divHeightURL = findHeight(document.getElementById("_copyURL"));
-
-	var flashvars = {
-	  id: "_clipboard",
-	  theTarget: "document.pasteForm.originalPaste",
-	  width: divWidth,
-	  height: divHeight
-	};
-	var params = {
-	  menu: "false",
-	  wmode: "transparent",
-	  allowScriptAccess: "always"
-	};
-	var attributes = {
-	  id: "_clipboard",
-	  name: "_clipboard"
-	};
-
-	var flashvarsURI = {
-	  id: "_clipboardURI",
-	  theTarget: "document.pasteForm.thisURI",
-	  width: divWidthURL,
-	  height: divHeightURL
-	};
-	var paramsURI = {
-	  menu: "false",
-	  wmode: "transparent",
-	  allowScriptAccess: "always"
-	};
-	var attributesURI = {
-	  id: "_clipboardURI",
-	  name: "_clipboardURI"
-	};
-
-	swfobject.embedSWF("<?php
-    echo $CONFIG['pb_clipboard'];
-    ?>", "_clipboard_replace", divWidth, divHeightURL, "10.0.0", "expressInstall.swf", flashvars, params, attributes);
-	swfobject.embedSWF("<?php
-    echo $CONFIG['pb_clipboard'];
-    ?>", "_clipboardURI_replace", divWidthURL, divHeightURL, "10.0.0", "expressInstall.swf", flashvarsURI, paramsURI, attributesURI);
-
-	repositionFlash("_clipboard", "_copyText");
-	repositionFlash("_clipboardURI", "_copyURL");
-}
-
-<?php
-    if (! $bin->jQuery()) {
-        if ($CONFIG['pb_url']) {
-            ?>
-function checkIfURL(checkMe){
-	var checking = checkMe.value;
-	var regExpression = new RegExp();
-	regExpression.compile('^[A-Za-z]+://[A-Za-z0-9-_]+\\.[A-Za-z0-9-_%&\?\/\!.=]+$');
-	if(regExpression.test(checking)){
-		checkMe.setAttribute("id", "urlField");
-		document.getElementById('foundURL').style.display = "block";
-		document.getElementById('fileUploadContainer').style.visibility = "hidden";
-		document.getElementById('highlightContainer').style.visibility = "hidden";
-		return false;
-	}
-	else {
-		if(checkMe.id != "pasteEnter")
-			checkMe.setAttribute("id", "pasteEnter");
-
-		document.getElementById('foundURL').style.display = "none";
-		document.getElementById('fileUploadContainer').style.visibility = "visible";
-		document.getElementById('highlightContainer').style.visibility = "visible";
-		return false;
-	}
-}
-<?php
-        } else {
-            ?>
-function checkIfURL(checkMe){
-	return false;
-}
-<?php
-        }
-        echo $_commonJS;
-        ?>
-<?php
-    }
-    ?>
-
-function repositionFlash(id, zeTarget) {
-	var restyle = document.getElementById(id).style;
-	restyle.position = 'absolute';
-	restyle.zIndex = 99;
-	restyle.left = findPosX(document.getElementById(zeTarget)) + "px";
-	restyle.top = findPosY(document.getElementById(zeTarget)) + "px";
-	restyle.cursor = "pointer";
-	restyle.cursor = "hand";
-}
-function confirmCopy(id){
-	alert("Data has been copied to your clipboard!");
-}
-</script>
-<?php
-} else {
-    if (! $bin->jQuery()) {
+if (! $bin->jQuery()) {
         ?>
 <script type="text/javascript">
 <?php
@@ -2990,16 +2729,10 @@ function checkIfURL(checkMe){
 </script>
 <?php
         /* end JS */
-    }
 }
 ?>
 	</head>
-<body
-	<?php
-if ($bin->_clipboard() && ($requri || @$_POST['submit']) && $requri != "install" && substr($requri, - 1) != "!") {
-    echo " onload=\"sizeFlash();\"";
-}
-?>>
+<body>
 <div id="siteWrapper">
 <?php
 if ($requri != "install" && ! $db->connect())
@@ -3095,10 +2828,7 @@ if ($requri != "install" && @$_POST['submit']) {
         die("<div class=\"error\">Please don't just repost what has already been said!</div></div></body></html>");
 
     if (strlen(@$_POST['pasteEnter']) > 10 && $imageUpload && mb_strlen($paste['Content']) <= $CONFIG['pb_max_bytes'] && $db->insertPaste($paste['ID'], $paste)) {
-        if ($bin->_clipboard())
-            die("<div class=\"result\"><div class=\"success\">Your paste has been successfully recorded!</div><div class=\"confirmURL\">URL to your paste is <a href=\"" . $bin->linker($paste['ID']) . $exclam . "\">" . $bin->linker($paste['ID']) . "</a> &nbsp; <span class=\"copyText\" id=\"_copyURL\">Copy URL</span><span id=\"_copyText\" style=\"visibility: hidden;\">&nbsp;</span></div></div><form id=\"pasteForm\" name=\"pasteForm\" action=\"" . $bin->linker($pasted['ID']) . "\" method=\"post\"><input type=\"hidden\" name=\"originalPaste\" id=\"originalPaste\" value=\"" . $bin->linker($paste['ID']) . "\" /><input type=\"hidden\" name=\"thisURI\" id=\"thisURI\" value=\"" . $bin->linker($paste['ID']) . "\" /></form><div class=\"spacer\">&nbsp;</div><div class=\"spacer\"><span id=\"_clipboard_replace\">YOU NEED FLASH!</span> &nbsp; <span id=\"_clipboardURI_replace\">YOU NEED FLASH!</span></div></div></body></html>");
-        else
-            die("<div class=\"result\"><div class=\"success\">Your paste has been successfully recorded!</div><div class=\"confirmURL\">URL to your paste is <a href=\"" . $bin->linker($paste['ID']) . $exclam . "\">" . $bin->linker($paste['ID']) . "</a></div></div></div></body></html>");
+        die("<div class=\"result\"><div class=\"success\">Your paste has been successfully recorded!</div><div class=\"confirmURL\">URL to your paste is <a href=\"" . $bin->linker($paste['ID']) . $exclam . "\">" . $bin->linker($paste['ID']) . "</a></div></div></div></body></html>");
     } else {
         echo "<div class=\"error\">Hmm, something went wrong.</div>";
         if (strlen(@$_FILES['pasteImage']['name']) > 4 && $_SERVER['CONTENT_LENGTH'] > $CONFIG['pb_image_maxsize'] && $CONFIG['pb_images'])
@@ -3253,10 +2983,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
         else
             echo "<div id=\"styleBar\"><strong>Toggle</strong> <a href=\"#\" onclick=\"return toggleExpand();\">Expand</a> &nbsp;  <a href=\"#\" onclick=\"return toggleWrap();\">Wrap</a> &nbsp; <a href=\"" . $bin->linker($pasted['ID'] . '@raw') . "\">Raw</a></div>";
 
-        if ($bin->_clipboard())
-            echo "<div class=\"_clipboardBar\"><span class=\"copyText\" id=\"_copyText\">Copy Contents</span> &nbsp; <span class=\"copyText\" id=\"_copyURL\">Copy URL</span></div>";
-        else
-            echo "<div class=\"spacer\">&nbsp;</div>";
+        echo "<div class=\"spacer\">&nbsp;</div>";
 
         if (! $bin->highlight() || (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])) || ($pasted['Video'] && $CONFIG['pb_video']) || $pasted['Syntax'] == "plaintext") {
             echo "<div id=\"retrievedPaste\"><div id=\"lineNumbers\"><ol id=\"orderedList\" class=\"monoText\">";
@@ -3585,11 +3312,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     else
         $service['api'] = array('style' => 'error' , 'status' => 'Disabled' , 'tip' => NULL);
 
-    if ($bin->_clipboard())
-        $service['clipboard'] = array('style' => 'success' , 'status' => 'Enabled');
-    else
-        $service['clipboard'] = array('style' => 'error' , 'status' => 'Disabled');
-
     if ($CONFIG['pb_images'])
         $service['images'] = array('style' => 'success' , 'status' => 'Enabled' , 'tip' => ', you can even upload a ' . $bin->humanReadableFilesize($CONFIG['pb_image_maxsize']) . ' image,');
     else
@@ -3651,7 +3373,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($CONFIG['pb_name']) . "</h1>" . $bin->setTagline($CONFIG['pb_tagline']) . "<div id=\"result\"></div>
 				<div id=\"formContainer\">
 				<div><span id=\"showInstructions\">[ <a href=\"#\" onclick=\"return toggleInstructions();\">more info</a> ]</span><span id=\"showSubdomain\">" . $subdomainClicker . "</span>
-				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['clipboard']['style'] . "\">" . $service['clipboard']['status'] . "</span> Copy to Clipboard</li><li><span class=\"" . $service['images']['style'] . "\">" . $service['images']['status'] . "</span> Image hosting</li><li><span class=\"" . $service['image_download']['style'] . "\">" . $service['image_download']['status'] . "</span> Copy image from URL</li><li><span class=\"" . $service['video']['style'] . "\">" . $service['video']['status'] . "</span> Video Embedding (YouTube, Vimeo &amp; DailyMotion)</li><li><span class=\"" . $service['flowplayer']['style'] . "\">" . $service['flowplayer']['status'] . "</span> Flash player for flv/mp4 files.</li><li><span class=\"" . $service['url']['style'] . "\">" . $service['url']['status'] . "</span> URL Shortening/Redirection</li><li><span class=\"" . $service['jQuery']['style'] . "\">" . $service['jQuery']['status'] . "</span> Visual Effects</li><li><span class=\"" . $service['jQuery']['style'] . "\">" . $service['jQuery']['status'] . "</span> AJAX Posting</li><li><span class=\"" . $service['api']['style'] . "\">" . $service['api']['status'] . "</span> API</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish" . $service['images']['tip'] . " then hit submit!" . $service['url']['tip'] . "" . $service['video']['tip'] . "" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div>" . $service['api']['tip'] . "<div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
+				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['images']['style'] . "\">" . $service['images']['status'] . "</span> Image hosting</li><li><span class=\"" . $service['image_download']['style'] . "\">" . $service['image_download']['status'] . "</span> Copy image from URL</li><li><span class=\"" . $service['video']['style'] . "\">" . $service['video']['status'] . "</span> Video Embedding (YouTube, Vimeo &amp; DailyMotion)</li><li><span class=\"" . $service['flowplayer']['style'] . "\">" . $service['flowplayer']['status'] . "</span> Flash player for flv/mp4 files.</li><li><span class=\"" . $service['url']['style'] . "\">" . $service['url']['status'] . "</span> URL Shortening/Redirection</li><li><span class=\"" . $service['jQuery']['style'] . "\">" . $service['jQuery']['status'] . "</span> Visual Effects</li><li><span class=\"" . $service['jQuery']['style'] . "\">" . $service['jQuery']['status'] . "</span> AJAX Posting</li><li><span class=\"" . $service['api']['style'] . "\">" . $service['api']['status'] . "</span> API</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish" . $service['images']['tip'] . " then hit submit!" . $service['url']['tip'] . "" . $service['video']['tip'] . "" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div>" . $service['api']['tip'] . "<div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
 					<form id=\"pasteForm\" action=\"" . $bin->linker() . "\" method=\"post\" name=\"pasteForm\" enctype=\"multipart/form-data\">
 						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Paste your text" . $service['url']['str'] . " here!" . $service['highlight']['tip'] . "</label>
 						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" " . $event . "=\"return checkIfURL(this);\"></textarea></div>
@@ -3709,8 +3431,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 Manning</a>, 2010.</div>
 </div>
 <?php
-if ($bin->_clipboard() && $requri && $requri != "install")
-    echo "<div><span id=\"_clipboard_replace\">YOU NEED FLASH!</span> &nbsp; <span id=\"_clipboardURI_replace\">&nbsp;</span></div>";
 
 if (($requri && $requri != "install") && (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])) || ($pasted['Video'] && $CONFIG['pb_video']) && ! $bin->jQuery())
     echo "<script type=\"text/javascript\">setTimeout(\"toggleWrap()\", 1000); setTimeout(\"toggleStyle()\", 1000);</script>";
