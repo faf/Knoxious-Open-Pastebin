@@ -1,22 +1,11 @@
 <?php
-
 /*
- *	Knoxious Open Pastebin		 v 1.1.15
- * ============================================================================
+ * This file is a part of Simpliest Pastebin.
  *
- *	Copyright (c) 2009-2010 Xan Manning (http://xan-manning.co.uk/)
+ * Copyright 2009-2011 the original author or authors.
  *
- * 	Released under the terms of the MIT License.
- * 	See the MIT for details (http://opensource.org/licenses/mit-license.php).
- *
- *
- *	A quick to set up, rapid install, two-file pastebin!
- *	(or at least can be)
- *
- *	Supports text and image hosting, url and video linking.
- *
- *	URL: 		http://xan-manning.co.uk/
- *	EXAMPLE: 	http://pzt.me/
+ * Licensed under the terms of the MIT License.
+ * See the MIT for details (https://opensource.org/licenses/MIT).
  *
  */
 

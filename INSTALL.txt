@@ -1,0 +1,10 @@
+INSTALLATION
+------------------------------------------------------------------------------
+
+1. Copy config.php.dist to config.php
+2. Change the $CONFIG variables in config.php
+3. Upload config.php and index.php to your server
+5. (Temporary) Chmod the containing folder to 0777
+6. Visit http(s)://yoursite/path/to/pastebin/index.php
+7. Watch the installation result (and fix the errors if any)
+8. Chmod the folder to 0755.
