@@ -1553,18 +1553,10 @@ echo $bin->setTitle($CONFIG['pb_name']);
 ?> &raquo; <?php
 echo $bin->titleID($requri);
 ?></title>
-<link rel="icon" type="image/vnd.microsoft.icon" href="favicon.ico" />
-<link rel="icon" type="image/png" href="favicon.png" />
-<meta name="generator" content="Knoxious Pastebin">
-<meta name="Description"
-	content="A quick, simple, multi-purpose pastebin." />
-<meta name="Keywords"
-	content="simple quick pastebin image hosting linking embedding url shortening syntax highlighting" />
 <meta name="Robots"
 	content="<?php
 echo $bin->robotPrivacy($requri);
 ?>" />
-<meta name="Author" content="Xan Manning, Knoxious.co.uk" />
 <link rel="stylesheet" type="text/css" href="<?php echo $CONFIG['pb_style']; ?>" media="screen, print" />
 
 <?php
