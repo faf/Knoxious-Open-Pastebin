@@ -133,9 +133,8 @@ $CONFIG['pb_hexlike_id'] = FALSE;
 $CONFIG['pb_api_adaptor'] = FALSE;
 # $CONFIG['pb_api_adaptor'] = "path/to/adaptor.php";
 
-// Use alternate Pastebin stylesheet, FALSE uses default
-// Note that URLs are accepted!
-$CONFIG['pb_style'] = FALSE;
+// URL of the Pastebin stylesheet
+$CONFIG['pb_style'] = 'css/main.css';
 # $CONFIG['pb_style'] = "path/to/sheet.css";
 
 // Use Syntax Highlighting
