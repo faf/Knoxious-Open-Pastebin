@@ -565,7 +565,7 @@ class bin
 
     public function generateID($id = FALSE, $iterations = 0)
     {
-        $checkArray = array('install' , 'api' , 'defaults' , 'recent' , 'raw' , 'moo' , 'subdomain' , 'forbidden');
+        $checkArray = array('install' , 'defaults' , 'recent' , 'raw' , 'subdomain' , 'forbidden');
 
         if ($iterations > 0 && $iterations < 4 && $id != FALSE)
             $id = $this->generateRandomString($this->db->getLastID());
@@ -682,17 +682,6 @@ class bin
             return false;
     }
 
-    public function adaptor()
-    {
-        if ($this->db->config['pb_api_adaptor'] == FALSE)
-            return false;
-
-        if (file_exists($this->db->config['pb_api_adaptor']))
-            return true;
-        else
-            return false;
-    }
-
     public function highlightPath()
     {
         if ($this->highlight())
@@ -768,7 +757,7 @@ class bin
 
     public function generateRandomString($length)
     {
-        $checkArray = array('install' , 'api' , 'defaults' , 'recent' , 'raw' , 'moo' , 'subdomain' , 'forbidden' , 0);
+        $checkArray = array('install' , 'defaults' , 'recent' , 'raw' , 'subdomain' , 'forbidden' , 0);
 
         $characters = "0123456789abcdefghijklmnopqrstuvwxyz";
         if ($this->db->config['pb_hexlike_id'])
@@ -1222,16 +1211,6 @@ if ($requri == "defaults") {
     else
         $defaults['editing'] = 0;
 
-    if ($CONFIG['pb_api'])
-        $defaults['api'] = '"' . $bin->linker('api') . '"';
-    else
-        $defaults['api'] = 0;
-
-    if ($bin->adaptor() && $CONFIG['pb_api'])
-        $defaults['api_adaptor'] = '"' . $bin->linker() . $CONFIG['pb_api_adaptor'] . '"';
-    else
-        $defaults['api_adaptor'] = 0;
-
     if ($CONFIG['pb_images'])
         $defaults['images'] = $CONFIG['pb_image_maxsize'];
     else
@@ -1299,8 +1278,6 @@ if ($requri == "defaults") {
 					"text": 		1,
 					"max_paste_size":	' . $defaults['max_paste_size'] . ',
 					"editing": 		' . $defaults['editing'] . ',
-					"api":			' . $defaults['api'] . ',
-					"api_adaptor":		' . $defaults['api_adaptor'] . ',
 					"images":		' . $defaults['images'] . ',
 					"image_extensions":	' . $defaults['ex_ext'] . ',
 					"image_download":	' . $defaults['image_download'] . ',
@@ -1314,213 +1291,6 @@ if ($requri == "defaults") {
 
     print_r($JSON);
     die('	}' . $callback[1]);
-}
-
-if ($requri == "api") {
-    $acceptTokens = $bin->token();
-
-    if (! $CONFIG['pb_api'] && ! in_array($_POST['ajax_token'], $acceptTokens))
-        die('	{
-				"id":			0,
-				"url":			"' . $bin->linker() . '",
-				"error":		"E0x",
-				"message":		"API Disabled!"
-				}');
-
-    $bin->cleanUp($CONFIG['pb_recent_posts']);
-
-    if (! isset($reqhash)) {
-
-        if (@$_POST['email'] != "")
-            $result = array('error' => '"E01c"' , 'message' => "Spam protection activated.");
-
-        $pasteID = $bin->generateID();
-
-        if (@$_POST['urlField'])
-            $postedURL = htmlspecialchars($_POST['urlField']);
-        elseif (preg_match('/^((ht|f)(tp|tps)|mailto|irc|skype|git|svn|cvs|aim|gtalk|feed):/', @$_POST['pasteEnter']) && count(explode("\n", $_POST['pasteEnter'])) < 2)
-            $postedURL = htmlspecialchars($_POST['pasteEnter']);
-        else
-            $postedURL = NULL;
-
-        $requri = @$_POST['parent'];
-
-        $imgHost = @$_POST['imageUrl'];
-
-        $_POST['pasteEnter'] = @$_POST['pasteEnter'];
-
-        $exclam = NULL;
-
-        if (! $_POST['lifespan'])
-            $_POST['lifespan'] = 0;
-
-        if ($postedURL != NULL) {
-            $_POST['pasteEnter'] = $postedURL;
-            $exclam = "!";
-            $postedURLInfo = pathinfo($postedURL);
-
-            if ($CONFIG['pb_url'])
-                $_FILES['pasteImage'] = NULL;
-        }
-
-        $imageUpload = FALSE;
-        $uploadAttempt = FALSE;
-
-        if (strlen(@$_FILES['pasteImage']['name']) > 4 && $CONFIG['pb_images']) {
-            $imageUpload = $db->uploadFile($_FILES['pasteImage'], $pasteID);
-            if ($imageUpload != FALSE) {
-                $postedURL = NULL;
-            }
-            $uploadAttempt = TRUE;
-        }
-
-        if (in_array(strtolower($postedURLInfo['extension']), $CONFIG['pb_image_extensions']) && $CONFIG['pb_images'] && $CONFIG['pb_download_images'] && ! $imageUpload) {
-            $imageUpload = $db->downTheImg($postedURL, $pasteID);
-            if ($imageUpload != FALSE) {
-                $postedURL = NULL;
-                $exclam = NULL;
-            }
-            $uploadAttempt = TRUE;
-        }
-
-        if ($imgHost) {
-            $imgHostInfo = pathinfo($imgHost);
-            $_POST['pasteEnter'] = $imgHost;
-
-            if (in_array(strtolower($imgHostInfo['extension']), $CONFIG['pb_image_extensions']) && $CONFIG['pb_images'] && $CONFIG['pb_download_images']) {
-                $imageUpload = $db->downTheImg($imgHost, $pasteID);
-                if ($imageUpload != FALSE) {
-                    $postedURL = NULL;
-                    $exclam = NULL;
-                }
-                $uploadAttempt = TRUE;
-            }
-        }
-
-        if (! $imageUpload && ! $uploadAttempt)
-            $imageUpload = TRUE;
-
-        if (@$_POST['pasteEnter'] == NULL && strlen(@$_FILES['pasteImage']['name']) > 4 && $CONFIG['pb_images'])
-            $_POST['pasteEnter'] = "Image file (" . $_FILES['pasteImage']['name'] . ") uploaded...";
-
-        if (! $CONFIG['pb_url'])
-            $postedURL = NULL;
-
-        if ($bin->highlight() && $_POST['highlighter'] != "plaintext" && $_POST['highlighter'] != NULL) {
-            $geshi->set_language($_POST['highlighter']);
-            $geshi->set_source($bin->noHighlight(@$_POST['pasteEnter']));
-            $geshi->highlight_lines_extra($bin->highlightNumbers(@$_POST['pasteEnter']));
-            $geshiCode = $geshi->parse_code();
-            $geshiStyle = $geshi->get_stylesheet();
-        } else {
-            $geshiCode = NULL;
-            $geshiStyle = NULL;
-        }
-
-        $paste = array('ID' => $pasteID , 'Subdomain' => $bin->db->config['subdomain'] , 'Author' => $bin->checkAuthor(@$_POST['author']) , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Image' => $imageUpload , 'ImageTxt' => "Image file (" . @$_FILES['pasteImage']['name'] . ") uploaded..." , 'URL' => $postedURL , 'Lifespan' => $_POST['lifespan'] , 'Protect' => $_POST['privacy'] , 'Syntax' => $_POST['highlighter'] , 'Parent' => $requri , 'Content' => @$_POST['pasteEnter'] , 'GeSHI' => $geshiCode , 'Style' => $geshiStyle);
-
-        if (@$_POST['pasteEnter'] == @$_POST['originalPaste'] && strlen($_POST['pasteEnter']) > 10) {
-            $result = array('ID' => 0 , 'error' => '"E01c"' , 'message' => "Please don't just repost what has already been said!");
-            $JSON = '
-								{
-									"id":			' . $result['ID'] . ',
-									"url":			"' . $bin->linker($paste['ID']) . $exclam . '",
-									"error":		' . $result['error'] . ',
-									"message":		"' . $result['message'] . '"
-							';
-
-            print_r($JSON);
-            die('	}');
-        }
-
-        if (strlen(@$_POST['pasteEnter']) > 10 && $imageUpload && mb_strlen($paste['Content']) <= $CONFIG['pb_max_bytes'] && $db->insertPaste($paste['ID'], $paste)) {
-            $result = array('ID' => '"' . $paste['ID'] . '"' , 'error' => '0' , 'message' => "Success!");
-        } else {
-            if (strlen(@$_FILES['pasteImage']['name']) > 4 && $_SERVER['CONTENT_LENGTH'] > $CONFIG['pb_image_maxsize'] && $CONFIG['pb_images'])
-                $result = array('ID' => 0 , 'error' => '"E02b"' , 'message' => "File is too big.");
-            elseif (strlen(@$_FILES['pasteImage']['name']) > 4 && $CONFIG['pb_images'])
-                $result = array('ID' => 0 , 'error' => '"E02a"' , 'message' => "Invalid file format.");
-            elseif (strlen(@$_FILES['pasteImage']['name']) > 4 && ! $CONFIG['pb_images'])
-                $result = array('ID' => 0 , 'error' => '"E02d"' , 'message' => "Image hosting disabled.");
-            else
-                $result = array('ID' => 0 , 'error' => '"E01a"' , 'message' => "Invalid POST request. Pasted text must be between 10 characters and " . $bin->humanReadableFilesize($CONFIG['pb_max_bytes']));
-        }
-
-        $JSON = '
-							{
-								"id":			' . $result['ID'] . ',
-								"url":			"' . $bin->linker($paste['ID']) . $exclam . '",
-								"error":		' . $result['error'] . ',
-								"message":		"' . $result['message'] . '"
-							';
-
-        print_r($JSON);
-        die('	}');
-    } else {
-        if ($reqhash == "recent") {
-            $recentPosts = $bin->getLastPosts($CONFIG['pb_recent_posts']);
-            $JSON = '{ "recent": [';
-
-            if (count($recentPosts) > 0) {
-                foreach ($recentPosts as $paste)
-                    $JSON .= '{ "id": "' . $paste['ID'] . '", "author": "' . $paste['Author'] . '", "datetime": ' . $paste['Datetime'] . ' }';
-            }
-            print_r($JSON);
-            die('] }');
-        }
-
-        if ($pasted = $db->readPaste($reqhash)) {
-
-            if ($db->dbt == "mysql")
-                $pasted = $pasted[0];
-
-            if (strlen($pasted['Image']) > 3)
-                $pasted['Image_path'] = $bin->linker() . $db->setDataPath($pasted['Image']);
-
-            $JSON = '
-								{
-									"id":			"' . $pasted['ID'] . '",
-									"url":			"' . $bin->linker($pasted['ID']) . '",
-									"author":		"' . $pasted['Author'] . '",
-									"datetime": 		' . $pasted['Datetime'] . ',
-									"protection":		' . $pasted['Protection'] . ',
-									"syntax": 		"' . $pasted['Syntax'] . '",
-									"parent":		"' . $pasted['Parent'] . '",
-									"image":		"' . $pasted['Image_path'] . '",
-									"image_text":		"' . $pasted['ImageTxt'] . '",
-									"link":			"' . $pasted['URL'] . '",
-									"lifespan":		' . $pasted['Lifespan'] . ',
-									"data":			"' . urlencode($db->dirtyHTML($pasted['Data'])) . '",
-									"geshi":		"' . urlencode($pasted['GeSHI']) . '",
-									"style":		"' . urlencode($pasted['Style']) . '"
-							';
-
-            print_r($JSON);
-            die('	}');
-        } else {
-            $JSON = '
-								{
-									"id":			0,
-									"url":			"' . $bin->linker($reqhash) . '",
-									"author":		0,
-									"datetime": 		0,
-									"protection":		0,
-									"syntax": 		0,
-									"parent":		0,
-									"image":		0,
-									"image_text":		0,
-									"link":			0,
-									"lifespan":		0,
-									"data":			"This paste has either expired or doesn\'t exist!",
-									"data_html":		"' . $db->dirtyHTML("<!-- This paste has either expired or doesn't exist!  -->") . '",
-									"geshi":		0,
-									"style":		0
-							';
-
-            print_r($JSON);
-            die('	}');
-        }
-    }
 }
 
 if ($requri != "install" && $requri != NULL && $bin->checkIfRedir($requri) != false && substr($requri, - 1) != "!" && ! $_POST['adminProceed']) {
@@ -2302,11 +2072,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     else
         $service['editing'] = array('style' => 'error' , 'status' => 'Disabled');
 
-    if ($CONFIG['pb_api'])
-        $service['api'] = array('style' => 'success' , 'status' => 'Enabled' , 'tip' => '<div class="spacer">&nbsp;</div><div><strong>Developer API</strong></div><div>To create a new paste submit using <strong>POST</strong> to <a href="' . $bin->linker('api') . '">' . $bin->linker('api') . '</a> - The response is in JSON format. For server settings visit <a href="' . $bin->linker('defaults') . '">' . $bin->linker('defaults') . '</a>.</div>');
-    else
-        $service['api'] = array('style' => 'error' , 'status' => 'Disabled' , 'tip' => NULL);
-
     if ($CONFIG['pb_images'])
         $service['images'] = array('style' => 'success' , 'status' => 'Enabled' , 'tip' => ', you can even upload a ' . $bin->humanReadableFilesize($CONFIG['pb_image_maxsize']) . ' image,');
     else
@@ -2350,7 +2115,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($CONFIG['pb_name']) . "</h1>" . $bin->setTagline($CONFIG['pb_tagline']) . "<div id=\"result\"></div>
 				<div id=\"formContainer\">
 				<div><span id=\"showInstructions\">[ <a href=\"#\" onclick=\"return toggleInstructions();\">more info</a> ]</span><span id=\"showSubdomain\">" . $subdomainClicker . "</span>
-				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['images']['style'] . "\">" . $service['images']['status'] . "</span> Image hosting</li><li><span class=\"" . $service['image_download']['style'] . "\">" . $service['image_download']['status'] . "</span> Copy image from URL</li><li><span class=\"" . $service['url']['style'] . "\">" . $service['url']['status'] . "</span> URL Shortening/Redirection</li><li><span class=\"" . $service['api']['style'] . "\">" . $service['api']['status'] . "</span> API</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish" . $service['images']['tip'] . " then hit submit!" . $service['url']['tip'] . "" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div>" . $service['api']['tip'] . "<div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
+				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['images']['style'] . "\">" . $service['images']['status'] . "</span> Image hosting</li><li><span class=\"" . $service['image_download']['style'] . "\">" . $service['image_download']['status'] . "</span> Copy image from URL</li><li><span class=\"" . $service['url']['style'] . "\">" . $service['url']['status'] . "</span> URL Shortening/Redirection</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish" . $service['images']['tip'] . " then hit submit!" . $service['url']['tip'] . "" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div><div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
 					<form id=\"pasteForm\" action=\"" . $bin->linker() . "\" method=\"post\" name=\"pasteForm\" enctype=\"multipart/form-data\">
 						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Paste your text" . $service['url']['str'] . " here!" . $service['highlight']['tip'] . "</label>
 						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" " . $event . "=\"return checkIfURL(this);\"></textarea></div>
