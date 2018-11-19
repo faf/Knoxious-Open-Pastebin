@@ -63,8 +63,8 @@ $CONFIG['pb_tagline'] = FALSE;
 
 // Hashing algorithm, (Default: MD5)
 // For a full list, consult the function hash_algos();
-$CONFIG['pb_algo'] = "md5";
-# $CONFIG['pb_algo'] = "sha256";
+#$CONFIG['pb_algo'] = "md5";
+$CONFIG['pb_algo'] = "sha256";
 
 // Pastebin Admin Password, strong one is mucho recommended!
 // If a plaintext password is acceptable then use the following
