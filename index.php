@@ -163,7 +163,7 @@ echo $bin->titleID($requri);
 echo $bin->robotPrivacy($requri);
 ?>" />
 <link rel="stylesheet" type="text/css" href="<?php echo $CONFIG['pb_style']; ?>" media="screen, print" />
-<script type="text/javascript" scr="js/main.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript">
 <?php
 if ($CONFIG['pb_url']) {
