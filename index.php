@@ -21,8 +21,8 @@ else
     $CONFIG['pb_protocol'] = "http";
 
 /* Start Pastebin */
-if (substr(phpversion(), 0, 3) < 5.2)
-    die('PHP 5.2 is required to run this pastebin! This version is ' . phpversion() . '. Please contact your host!');
+if (substr(phpversion(), 0, 3) < 5.3)
+    die('PHP 5.3 is required to run this pastebin! This version is ' . phpversion() . '. Please contact your host!');
 
 if ($CONFIG['pb_gzip'])
     ob_start("ob_gzhandler");
