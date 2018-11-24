@@ -1922,11 +1922,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     echo "</div>";
 }
 ?>
-	<div class="spacer">&nbsp;</div>
-<div class="spacer">&nbsp;</div>
-<div id="copyrightInfo">Written by <a href="http://xan-manning.co.uk/">Xan
-Manning</a>, 2010.</div>
-</div>
+
 <?php
 
 if (($requri && $requri != "install") && (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])))

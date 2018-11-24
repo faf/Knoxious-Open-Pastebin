@@ -205,16 +205,6 @@ div#pastebin {
 	width: 100%;
 }
 
-#copyrightInfo {
-	color: #999999;
-	font-size: xx-small;
-	position: fixed;
-	bottom: 0px;
-	right: 10px;
-	padding-bottom: 10px;
-	text-align: left;
-}
-
 ul#postList {
 	padding: 0;
 	margin-left: 0;
@@ -406,14 +396,6 @@ ul#postList {
 	}
 	#recentPosts {
 		display: none;
-	}
-	#copyrightInfo {
-		position: relative;
-		top: 0px;
-		right: 0px;
-		width: auto;
-		padding: 1%;
-		text-align: right;
 	}
 	#retrievedPaste {
 		border: none;
