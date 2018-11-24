@@ -1,3 +1,13 @@
+/*
+ * This file is a part of Simpliest Pastebin.
+ *
+ * Copyright 2009-2011 the original author or authors.
+ *
+ * Licensed under the terms of the MIT License.
+ * See the MIT for details (https://opensource.org/licenses/MIT).
+ *
+ */
+
 var tab = '    ';
 
 function catchTab(evt) {
