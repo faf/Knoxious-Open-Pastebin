@@ -155,25 +155,6 @@ class Bin
         }
     }
 
-    public function highlight()
-    {
-        if ($this->db->config['pb_syntax'] == FALSE)
-            return false;
-
-        if (file_exists($this->db->config['pb_syntax']))
-            return true;
-        else
-            return false;
-    }
-
-    public function highlightPath()
-    {
-        if ($this->highlight())
-            return dirname($this->db->config['pb_syntax']) . "/";
-        else
-            return false;
-    }
-
     public function lineHighlight()
     {
         if ($this->db->config['pb_line_highlight'] == FALSE || strlen($this->db->config['pb_line_highlight']) < 1)
@@ -217,25 +198,6 @@ class Bin
                 $output[] = $line;
         }
         $output = implode("\n", $output);
-        return $output;
-    }
-
-    public function highlightNumbers($data)
-    {
-        if ($this->lineHighlight() == FALSE)
-            return false;
-
-        $output = array();
-        $n = 0;
-        $lines = explode("\n", $data);
-        foreach ($lines as $line) {
-            $n ++;
-
-            $len = strlen($this->lineHighlight());
-
-            if (substr($line, 0, $len) == $this->lineHighlight())
-                $output[] = $n;
-        }
         return $output;
     }
 

@@ -243,25 +243,12 @@ ul#postList {
     display: block;
 }
 
-#highlightContainer {
-    margin-bottom: 5px;
-}
-
 #lifespanContainer {
     margin-bottom: 5px;
 }
 
 #privacyContainer {
     margin-bottom: 5px;
-}
-
-#highlightContainer>select {
-    width: 33%;
-    background-color: #ffffff;
-    border-top: 1px solid #cccccc;
-    border-bottom: 1px solid #cccccc;
-    border-left: none;
-    border-right: none;
 }
 
 #lifespanContainer>select {
@@ -280,11 +267,6 @@ ul#postList {
     border-bottom: 1px solid #cccccc;
     border-left: none;
     border-right: none;
-}
-
-#highlightContainer>label {
-    width: 200px;
-    display: block;
 }
 
 #lifespanContainer>label {

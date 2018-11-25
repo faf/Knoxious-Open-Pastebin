@@ -88,12 +88,6 @@ $CONFIG['pb_hexlike_id'] = FALSE;
 $CONFIG['pb_style'] = 'css/main.css';
 # $CONFIG['pb_style'] = "path/to/sheet.css";
 
-// Use Syntax Highlighting
-// This requires GeSHI
-// http://qbnz.com/highlighter/index.php
-$CONFIG['pb_syntax'] = FALSE;
-# $CONFIG['pb_syntax'] = "path/to/geshi.php";
-
 // Enable Line Highlighting
 // Looks for a 2-6 character long highlight string, FALSE for Disabled.
 $CONFIG['pb_line_highlight'] = FALSE;
