@@ -94,11 +94,6 @@ $CONFIG['pb_line_highlight'] = FALSE;
 # $CONFIG['pb_line_highlight'] = "@@";
 # $CONFIG['pb_line_highlight'] = "!!";
 
-// Add a custom line highlight style?
-// Lets you change the color of how a line is highlighted
-$CONFIG['pb_line_highlight_style'] = FALSE;
-# $CONFIG['pb_line_highlight_style'] = 'background-color: #FFFFAA; font-weight: bolder; color: #000000;';
-
 // Date Format (see PHP.net's entry on date();)
 $CONFIG['pb_datetime'] = "Y-m-d H:i:s";
 
