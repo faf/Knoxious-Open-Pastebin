@@ -389,25 +389,6 @@ class Bin
         return $print;
     }
 
-    public function checkIfRedir($reqURI)
-    {
-        if (strlen($reqURI) < 1)
-            return false;
-
-        $pasteData = $this->db->readPaste($reqURI);
-
-        if (strstr($pasteData['URL'], $this->linker()))
-            $pasteData['URL'] = $pasteData['URL'] . "!";
-
-        if ($pasteData['Lifespan'] == 0)
-            $pasteData['Lifespan'] = time() + time();
-
-        if (gmdate('U') > $pasteData['Lifespan'])
-            return false;
-
-        return false;
-    }
-
     public function humanReadableFilesize($size)
     {
         // Snippet from: http://www.jonasjohn.de/snippets/php/readable-filesize.htm

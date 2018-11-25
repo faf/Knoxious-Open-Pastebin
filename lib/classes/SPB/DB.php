@@ -193,7 +193,7 @@ class DB
                 $data['Lifespan'] = time() + ($this->config['pb_lifespan'][$data['Lifespan']] * 60 * 60 * 24);
         }
 
-        $paste = array('ID' => $id , 'Datetime' => time() + $data['Time_offset'] , 'Author' => $data['Author'] , 'Protection' => $data['Protect'] , 'Syntax' => $data['Syntax'] , 'Parent' => $data['Parent'] , 'URL' => $data['URL'] , 'Lifespan' => $data['Lifespan'] , 'IP' => base64_encode($data['IP']) , 'Data' => $this->cleanHTML($data['Content']) , 'GeSHI' => $this->cleanHTML($data['GeSHI']) , 'Style' => $this->cleanHTML($data['Style']));
+        $paste = array('ID' => $id , 'Datetime' => time() + $data['Time_offset'] , 'Author' => $data['Author'] , 'Protection' => $data['Protect'] , 'Syntax' => $data['Syntax'] , 'Parent' => $data['Parent'] , 'Lifespan' => $data['Lifespan'] , 'IP' => base64_encode($data['IP']) , 'Data' => $this->cleanHTML($data['Content']) , 'GeSHI' => $this->cleanHTML($data['GeSHI']) , 'Style' => $this->cleanHTML($data['Style']));
 
         if (($paste['Protection'] > 0 && $this->config['pb_private']) || ($paste['Protection'] > 0 && $arbLifespan))
             $id = "!" . $id;
