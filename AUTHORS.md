@@ -1,4 +1,7 @@
-# Authors and contributors
+# Author and maintainer of Simpliest Pastebin
+* [Fedor A. Fetisov](https://github.com/faf/)
+
+# Authors and contributors of the original code
 
 * [Xan Manning](https://github.com/xanmanning/)
 * [Matt Klich](https://github.com/elementalvoid)

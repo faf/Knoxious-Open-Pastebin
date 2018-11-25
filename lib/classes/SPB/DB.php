@@ -2,7 +2,7 @@
 /*
  * This file is a part of Simpliest Pastebin.
  *
- * Copyright 2009-2011 the original author or authors.
+ * Copyright 2009-2018 the original author or authors.
  *
  * Licensed under the terms of the MIT License.
  * See the MIT for details (https://opensource.org/licenses/MIT).
@@ -63,7 +63,7 @@ class DB
     public function setDataPath($filename = FALSE, $justPath = FALSE)
     {
         if (! $filename)
-            return $this->config['txt_config']['db_folder'];
+            return $this->config['data_dir'];
 
         $filename = str_replace("!", "", $filename);
 
@@ -73,13 +73,13 @@ class DB
 
         $info = pathinfo($filename);
 
-        $path = $this->config['txt_config']['db_folder'] . "/" . substr($filename, 0, 1);
+        $path = $this->config['data_dir'] . "/" . substr($filename, 0, 1);
 
-        if (! file_exists($path) && is_writable($this->config['txt_config']['db_folder'])) {
+        if (! file_exists($path) && is_writable($this->config['data_dir'])) {
             mkdir($path);
-            chmod($path, $this->config['txt_config']['dir_mode']);
+            chmod($path, $this->config['dir_bitmask']);
             $this->write("FORBIDDEN", $path . "/index.html");
-            chmod($path . "/index.html", $this->config['txt_config']['file_mode']);
+            chmod($path . "/index.html", $this->config['file_bitmask']);
         }
 
         for ($i = 1; $i <= $this->config['max_folder_depth'] - 1; $i ++) {
@@ -90,9 +90,9 @@ class DB
 
             if (! file_exists($path) && is_writable($parent)) {
                 mkdir($path);
-                chmod($path, $this->config['txt_config']['dir_mode']);
+                chmod($path, $this->config['dir_bitmask']);
                 $this->write("FORBIDDEN", $path . "/index.html");
-                chmod($path . "/index.html", $this->config['txt_config']['file_mode']);
+                chmod($path . "/index.html", $this->config['file_bitmask']);
             }
         }
 
@@ -104,7 +104,7 @@ class DB
 
     public function connect()
     {
-        if (! is_writeable($this->setDataPath() . "/" . $this->config['txt_config']['db_index']) || ! is_writeable($this->setDataPath()))
+        if (! is_writeable($this->setDataPath() . "/" . $this->config['index_file']) || ! is_writeable($this->setDataPath()))
             $output = FALSE;
         else
             $output = TRUE;
@@ -122,7 +122,7 @@ class DB
 
         $result = array();
         if (! file_exists($this->setDataPath($id))) {
-            $index = $this->deserializer($this->read($this->setDataPath() . "/" . $this->config['txt_config']['db_index']));
+            $index = $this->deserializer($this->read($this->setDataPath() . "/" . $this->config['index_file']));
             if (in_array($id, $index))
                 $this->dropPaste($id, TRUE);
             return false;
@@ -142,7 +142,7 @@ class DB
         if (file_exists($this->setDataPath($id)))
             $result = unlink($this->setDataPath($id));
 
-        $index = $this->deserializer($this->read($this->setDataPath() . "/" . $this->config['txt_config']['db_index']));
+        $index = $this->deserializer($this->read($this->setDataPath() . "/" . $this->config['index_file']));
         if (in_array($id, $index)) {
             $key = array_keys($index, $id);
         } elseif (in_array("!" . $id, $index)) {
@@ -154,7 +154,7 @@ class DB
             unset($index[$key]);
 
         $index = array_values($index);
-        $result = $this->write($this->serializer($index), $this->setDataPath() . "/" . $this->config['txt_config']['db_index']);
+        $result = $this->write($this->serializer($index), $this->setDataPath() . "/" . $this->config['index_file']);
 
         return $result;
     }
@@ -187,31 +187,31 @@ class DB
         elseif ($arbLifespan && $data['Lifespan'] == 0)
             $data['Lifespan'] = 0;
         else {
-            if ((($this->config['pb_lifespan'][$data['Lifespan']] == FALSE || $this->config['pb_lifespan'][$data['Lifespan']] == 0) && $this->config['pb_infinity']) || ! $this->config['pb_lifespan'])
+            if ((($this->config['lifespan'][$data['Lifespan']] == FALSE || $this->config['lifespan'][$data['Lifespan']] == 0) && $this->config['infinity']) || ! $this->config['lifespan'])
                 $data['Lifespan'] = 0;
             else
-                $data['Lifespan'] = time() + ($this->config['pb_lifespan'][$data['Lifespan']] * 60 * 60 * 24);
+                $data['Lifespan'] = time() + ($this->config['lifespan'][$data['Lifespan']] * 60 * 60 * 24);
         }
 
         $paste = array('ID' => $id , 'Datetime' => time() + $data['Time_offset'] , 'Author' => $data['Author'] , 'Protection' => $data['Protect'] , 'Parent' => $data['Parent'] , 'Lifespan' => $data['Lifespan'] , 'IP' => base64_encode($data['IP']) , 'Data' => $this->cleanHTML($data['Content']));
 
-        if (($paste['Protection'] > 0 && $this->config['pb_private']) || ($paste['Protection'] > 0 && $arbLifespan))
+        if (($paste['Protection'] > 0 && $this->config['private']) || ($paste['Protection'] > 0 && $arbLifespan))
             $id = "!" . $id;
         else
             $paste['Protection'] = 0;
 
-        $index = $this->deserializer($this->read($this->setDataPath() . "/" . $this->config['txt_config']['db_index']));
+        $index = $this->deserializer($this->read($this->setDataPath() . "/" . $this->config['index_file']));
         $index[] = $id;
-        $this->write($this->serializer($index), $this->setDataPath() . "/" . $this->config['txt_config']['db_index']);
+        $this->write($this->serializer($index), $this->setDataPath() . "/" . $this->config['index_file']);
         $result = $this->write($this->serializer($paste), $this->setDataPath($paste['ID']));
-        chmod($this->setDataPath($paste['ID']), $this->config['txt_config']['file_mode']);
+        chmod($this->setDataPath($paste['ID']), $this->config['file_bitmask']);
 
         return $result;
     }
 
     public function checkID($id)
     {
-        $index = $this->deserializer($this->read($this->setDataPath() . "/" . $this->config['txt_config']['db_index']));
+        $index = $this->deserializer($this->read($this->setDataPath() . "/" . $this->config['index_file']));
         if (in_array($id, $index) || in_array("!" . $id, $index))
             $output = TRUE;
         else
@@ -222,16 +222,16 @@ class DB
 
     public function getLastID()
     {
-        if (! is_int($this->config['pb_id_length']))
-            $this->config['pb_id_length'] = 1;
-        if ($this->config['pb_id_length'] > 32)
-            $this->config['pb_id_length'] = 32;
+        if (! is_int($this->config['id_length']))
+            $this->config['id_length'] = 1;
+        if ($this->config['id_length'] > 32)
+            $this->config['id_length'] = 32;
 
-        $index = $this->deserializer($this->read($this->setDataPath() . "/" . $this->config['txt_config']['db_index']));
+        $index = $this->deserializer($this->read($this->setDataPath() . "/" . $this->config['index_file']));
         $index = array_reverse($index);
         $output = strlen(str_replace("!", NULL, $index[0]));
         if ($output < 1)
-            $output = $this->config['pb_id_length'];
+            $output = $this->config['id_length'];
 
         return $output;
     }

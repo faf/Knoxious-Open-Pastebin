@@ -2,7 +2,7 @@
 /*
  * This file is a part of Simpliest Pastebin.
  *
- * Copyright 2009-2011 the original author or authors.
+ * Copyright 2009-2018 the original author or authors.
  *
  * Licensed under the terms of the MIT License.
  * See the MIT for details (https://opensource.org/licenses/MIT).
@@ -92,10 +92,10 @@ class Bin
         if (! $id)
             $id = $this->generateRandomString($this->db->getLastID());
 
-        if ($id == $this->db->config['txt_config']['db_index'] || in_array($id, $checkArray))
+        if ($id == $this->db->config['index_file'] || in_array($id, $checkArray))
             $id = $this->generateRandomString($this->db->getLastID());
 
-        if ($this->db->config['pb_rewrite'] && (is_dir($id) || file_exists($id)))
+        if ($this->db->config['rewrite_enabled'] && (is_dir($id) || file_exists($id)))
             $id = $this->generateID($id, $iterations + 1);
 
         if (! $this->db->checkID($id) && ! in_array($id, $checkArray))
@@ -107,17 +107,17 @@ class Bin
     public function checkAuthor($author = FALSE)
     {
         if ($author == FALSE)
-            return $this->db->config['pb_author'];
+            return $this->db->config['author'];
 
         if (preg_match('/^\s/', $author) || preg_match('/\s$/', $author) || preg_match('/^\s$/', $author))
-            return $this->db->config['pb_author'];
+            return $this->db->config['author'];
         else
             return addslashes($this->db->lessHTML($author));
     }
 
     public function getLastPosts($amount)
     {
-        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . "/" . $this->db->config['txt_config']['db_index']));
+        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . "/" . $this->db->config['index_file']));
         $index = array_reverse($index);
         $int = 0;
         $result = array();
@@ -138,16 +138,16 @@ class Bin
 
     public function lineHighlight()
     {
-        if ($this->db->config['pb_line_highlight'] == FALSE || strlen($this->db->config['pb_line_highlight']) < 1)
+        if ($this->db->config['line_highlight'] == FALSE || strlen($this->db->config['line_highlight']) < 1)
             return false;
 
-        if (strlen($this->db->config['pb_line_highlight']) > 6)
-            return substr($this->db->config['pb_line_highlight'], 0, 6);
+        if (strlen($this->db->config['line_highlight']) > 6)
+            return substr($this->db->config['line_highlight'], 0, 6);
 
-        if (strlen($this->db->config['pb_line_highlight']) == 1)
-            return $this->db->config['pb_line_highlight'] . $this->db->config['pb_line_highlight'];
+        if (strlen($this->db->config['line_highlight']) == 1)
+            return $this->db->config['line_highlight'] . $this->db->config['line_highlight'];
 
-        return $this->db->config['pb_line_highlight'];
+        return $this->db->config['line_highlight'];
     }
 
     public function filterHighlight($line)
@@ -187,7 +187,7 @@ class Bin
         $checkArray = array('install' , 'recent' , 'raw' , 0);
 
         $characters = "0123456789abcdefghijklmnopqrstuvwxyz";
-        if ($this->db->config['pb_hexlike_id'])
+        if ($this->db->config['hexlike_ids'])
             $characters = "0123456789abcdefabcdef";
 
         $output = "";
@@ -203,13 +203,13 @@ class Bin
 
     public function cleanUp($amount)
     {
-        if (! $this->db->config['pb_autoclean'])
+        if (! $this->db->config['autoclean'])
             return false;
 
         if (! file_exists('INSTALL_LOCK'))
             return false;
 
-        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . "/" . $this->db->config['txt_config']['db_index']));
+        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . "/" . $this->db->config['index_file']));
 
         if (is_array($index) && count($index) > $amount + 1)
             shuffle($index);
@@ -242,13 +242,13 @@ class Bin
         $dir = dirname($_SERVER['SCRIPT_NAME']);
 
         if (strlen($dir) > 1)
-            $now = $this->db->config['pb_protocol'] . "://" . $_SERVER['SERVER_NAME'] . $dir;
+            $now = $this->db->config['protocol'] . "://" . $_SERVER['SERVER_NAME'] . $dir;
         else
-            $now = $this->db->config['pb_protocol'] . "://" . $_SERVER['SERVER_NAME'];
+            $now = $this->db->config['protocol'] . "://" . $_SERVER['SERVER_NAME'];
 
         $file = basename($_SERVER['SCRIPT_NAME']);
 
-        switch ($this->db->config['pb_rewrite']) {
+        switch ($this->db->config['rewrite_enabled']) {
             case TRUE:
                 if ($id == FALSE)
                     $output = $now . "/";
@@ -273,8 +273,8 @@ class Bin
         if (count($salts) < 2)
             $salts = NULL;
 
-        if (! $this->db->config['pb_algo'])
-            $this->db->config['pb_algo'] = "md5";
+        if (! $this->db->config['algo'])
+            $this->db->config['algo'] = "md5";
 
         $hashedSalt = NULL;
 
@@ -287,14 +287,14 @@ class Bin
                 $hashedSalt[1] .= $salts[2][$i] . $salts[4][$i] . ($longIP + $i);
             }
 
-            $hashedSalt[0] = hash($this->db->config['pb_algo'], $hashedSalt[0]);
-            $hashedSalt[1] = hash($this->db->config['pb_algo'], $hashedSalt[1]);
+            $hashedSalt[0] = hash($this->db->config['algo'], $hashedSalt[0]);
+            $hashedSalt[1] = hash($this->db->config['algo'], $hashedSalt[1]);
         }
 
         if (is_array($hashedSalt))
-            $output = hash($this->db->config['pb_algo'], $hashedSalt[0] . $string . $hashedSalt[1]);
+            $output = hash($this->db->config['algo'], $hashedSalt[0] . $string . $hashedSalt[1]);
         else
-            $output = hash($this->db->config['pb_algo'], $string);
+            $output = hash($this->db->config['algo'], $string);
 
         return $output;
     }
@@ -361,7 +361,7 @@ class Bin
     public function token($generate = FALSE)
     {
         if ($generate == TRUE) {
-            $output = strtoupper(sha1(md5((int) date("G") . $_SERVER['REMOTE_ADDR'] . $this->db->config['pb_pass'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME'])));
+            $output = strtoupper(sha1(md5((int) date("G") . $_SERVER['REMOTE_ADDR'] . $this->db->config['admin_password'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME'])));
             return $output;
         }
 
@@ -373,7 +373,7 @@ class Bin
         if ((int) date("G") == 0)
             $time[0] = 23;
 
-        $output = array(strtoupper(sha1(md5($time[0] . $_SERVER['REMOTE_ADDR'] . $this->db->config['pb_pass'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))) , strtoupper(sha1(md5($time[1] . $_SERVER['REMOTE_ADDR'] . $this->db->config['pb_pass'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))) , strtoupper(sha1(md5($time[2] . $_SERVER['REMOTE_ADDR'] . $this->db->config['pb_pass'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))));
+        $output = array(strtoupper(sha1(md5($time[0] . $_SERVER['REMOTE_ADDR'] . $this->db->config['admin_password'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))) , strtoupper(sha1(md5($time[1] . $_SERVER['REMOTE_ADDR'] . $this->db->config['admin_password'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))) , strtoupper(sha1(md5($time[2] . $_SERVER['REMOTE_ADDR'] . $this->db->config['admin_password'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))));
         return $output;
     }
 

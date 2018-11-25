@@ -2,149 +2,144 @@
 /*
  * This file is a part of Simpliest Pastebin.
  *
- * Copyright 2009-2011 the original author or authors.
+ * Copyright 2009-2018 the original author or authors.
  *
  * Licensed under the terms of the MIT License.
  * See the MIT for details (https://opensource.org/licenses/MIT).
  *
  */
 
-if(ISINCLUDED != '1')
-	die('ACCESS DENIED!');
+if (ISINCLUDED != '1') {
+    die('ACCESS DENIED!');
+}
 
-/* Config, please read very carefully. */
-$CONFIG = array();
+/* Config, please read and edit very carefully. */
+$SPB_CONFIG = array(
 
 // Change the following to suit your needs.
 // File and directory permissions should work in most cases.
-$CONFIG['txt_config'] = array(
-	'db_folder'	=>	'data'		/* Name of the folder to store Data */,
-	'db_index'	=>	'INDEX'		/* Name of the index file */,
-	'dir_mode'	=>	0775		/* Directory CHMOD */,
-	'file_mode'	=>	0664		/* File CHMOD */
-);
+// Name of the folder to store data
+    'data_dir' => 'data',
+// Name of the index file
+    'index_file' => 'INDEX',
+// Permissions bitmask for directory
+    'dir_bitmask' => 0775,
+// Permissions bitmask for file
+    'file_bitmask' => 0664,
 
 // Maximum depth of folder structure
 // Example, 2 would be "./data/a/b" for the paste id "abcde"
 // 3 would be "./data/a/b/c" for the paste id "abcde". Leave if you are unsure!
 // Note this will always default to be AT LEAST 1.
 // NEVER CHANGE THIS ONCE INSTALLED!!!
-$CONFIG['max_folder_depth'] = 1;
+    'max_folder_depth' => 1,
 
-// Excellent, we should be connected to a database system now. So what now?
-// Let us define the name of our pastebin (the title)
+// Pastebin title, FALSE value uses the default "Pastebin on " . $_SERVER['SERVER_NAME']
+    'pastebin_title' => FALSE,
+#    'pastebin_title' => "My Pastebin!",
 
-// Pastebin Name (title), FALSE value uses the default "Pastebin on " . $_SERVER['SERVER_NAME']
-$CONFIG['pb_name'] = FALSE;
-# $CONFIG['pb_name'] = "My Pastebin!";
+// Pastebin tagline (Message under the name/title), FALSE leaves this blank
+    'tagline' => FALSE,
+#    'tagline' => 'Some very imporant message.',
 
-// Pastebin's Tagline (Message under the name/title), FALSE leaves this blank
-$CONFIG['pb_tagline'] = FALSE;
-
-// Hashing algorithm, (Default: MD5)
+// Hashing algorithm, (Default: SHA256)
 // For a full list, consult the function hash_algos();
-#$CONFIG['pb_algo'] = "md5";
-$CONFIG['pb_algo'] = "sha256";
+    'algo' => 'sha256',
 
 // Pastebin Admin Password, strong one is mucho recommended!
 // If a plaintext password is acceptable then use the following
-$CONFIG['pb_pass'] = hash($CONFIG['pb_algo'], "password");
+    'admin_password' => hash('sha256', 'password'),
 // Storing plaintext passwords is not recommended.
 // You should consider a hashed password using the algorithm chosen above
 // Example:
-//   echo hash("md5", "password") . "\n";
+//   echo hash('sha256', 'password') . "\n";
 // Then insert the output into the variable below and uncomment
-# $CONFIG['pb_pass'] = "5f4dcc3b5aa765d61d8327deb882cf99";
+#    'admin_password' => '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8',
 
 // Pastebin Salts, 4 sequences of random letters and numbers!
 // Please make them at least 6 characters or more!
-$CONFIG['pb_salts'] = array(	1 => "str001",
-				2 => "str002",
-				3 => "str003",
-				4 => "str004");
+    'salts' => array(
 
-// Apache/IIS Rewrite enabled? Needs to be like 
-// http://yourdomain.com/id forwards to http://yourdomain.com/index.php?i=id or
-// http://yourdomain.com/dir/id forwards to http://yourdomain.com/dir/index.php?i=id
+        1 => "str001",
+        2 => "str002",
+        3 => "str003",
+        4 => "str004"
+
+    ),
+
+// Apache/IIS Rewrite enabled? Needs to be like
+// https://example.com/id forwards to https://example.com/index.php?i=id or
+// https://example.com/dir/id forwards to https://example.com/dir/index.php?i=id
 // TRUE or FALSE
-$CONFIG['pb_rewrite'] = FALSE;
-# $CONFIG['pb_rewrite'] = TRUE;
+    'rewrite_enabled' => FALSE,
 
-// Enable GZip compression
-// WARNING: Requires more CPU
-$CONFIG['pb_gzip'] = FALSE;
-# $CONFIG['pb_gzip'] = TRUE;
+// Enable GZip compression (zlib extension is needed)
+    'gzip_content' => FALSE,
 
 // Starting ID length, when IDs have run out the script will automatically increment this
-// Number. Default is 1;
-$CONFIG['pb_id_length'] = 1;
-# $CONFIG['pb_id_length'] = 5;
+// Number. Default is 16
+    'id_length' => 16,
 
 // Hexlike IDs (only uses numbers 0-9, letters a-f)
-$CONFIG['pb_hexlike_id'] = FALSE;
-# $CONFIG['pb_hexlike_id'] = TRUE;
+    'hexlike_ids' => FALSE,
 
-// URL of the Pastebin stylesheet
-$CONFIG['pb_style'] = 'css/main.css';
-# $CONFIG['pb_style'] = "path/to/sheet.css";
+// URL of the Pastebin stylesheet (one can use own)
+    'stylesheet' => 'css/main.css',
 
 // Enable Line Highlighting
 // Looks for a 2-6 character long highlight string, FALSE for Disabled.
-$CONFIG['pb_line_highlight'] = FALSE;
-# $CONFIG['pb_line_highlight'] = "@@";
-# $CONFIG['pb_line_highlight'] = "!!";
+    'line_highlight' => FALSE,
+//    'line_highlight' => '@@',
 
 // Date Format (see PHP.net's entry on date();)
-$CONFIG['pb_datetime'] = "Y-m-d H:i:s";
+    'datetime_format' => "Y-m-d H:i:s",
 
 // Auto cleanup of posts that have expired?
-$CONFIG['pb_autoclean'] = FALSE;
+    'autoclean' => FALSE,
 
 // Number of Recent posts to display, FALSE for none!
 // This number also controls the Autoclean.
-$CONFIG['pb_recent_posts'] = 10;
-# $CONFIG['pb_recent_posts'] = FALSE;
+    'recent_posts' => FALSE,
+#    'recent_posts' => 10,
 
 // Allow editing of pastes? (TRUE or FALSE)
-$CONFIG['pb_editing'] = FALSE;
-# $CONFIG['pb_editing'] = TRUE;
+    'editing' => FALSE,
 
 // Maximum paste size in Bytes
-// recommend 512Kb to be the Maximum however 1Mb is do-able.
-$CONFIG['pb_max_bytes'] = 524288;
+    'max_bytes' => 524288,
 
-// Default Author Name (Anonymous usually a good start)
-$CONFIG['pb_author'] = "Anonymous";
+// Default Author Name
+    'author' => 'Anonymous',
 
 // Store a cookie for the authors name? (FALSE or time in seconds)
 // eg. 3600 == 1 hour, 86400 == 1 day
-$CONFIG['pb_author_cookie'] = FALSE;
-# $CONFIG['pb_author_cookie'] = 3600;
+    'author_cookie' => FALSE,
+#    'author_cookie' => 3600,
 
 // Paste Lifespan (age in days), array for multiple, FALSE for no expiry.
 // commented out is 1 week, 10 minutes, 1 hour, 1 day, 1 month and 1 year.
 // (Also no expiry) - Initial value is DEFAULT.
-$CONFIG['pb_lifespan'] = FALSE;
-# $CONFIG['pb_lifespan'] = array(7, 1/24/6, 1/24, 1, 30, 365);
-# $CONFIG['pb_lifespan'] = array(7);
+    'lifespan' => FALSE,
+#    'lifespan' => array(7, 1/24/6, 1/24, 1/24, 1, 30, 365),
+#    'lifespan' => array(7),
 
-// Enables no expiry, if you set $CONFIG['pb_lifespan'] to FALSE
+// Enables no expiry, if you set 'lifespan' to FALSE
 // you do not need to bother with this. (TRUE or FALSE)
-$CONFIG['pb_infinity'] = FALSE;
-# $CONFIG['pb_infinity'] = TRUE;
+    'infinity' => FALSE,
 
 // Make Infinity default? (TRUE or FALSE) This makes sure the post doesn't expire
-// by default. Requires $CONFIG['pb_infinity'] = TRUE;
-$CONFIG['pb_infinity_default'] = FALSE;
-# $CONFIG['pb_infinity_default'] = TRUE;
+// by default. Requires 'infinity' to be TRUE
+    'infinity_default' => FALSE,
 
 // Enables Private Posting (TRUE or FALSE)
-$CONFIG['pb_private'] = FALSE;
-# $CONFIG['pb_private'] = TRUE;
+    'private' => FALSE,
+
+// Protocol (one can use autodetection or hard encode a needed value)
+    'protocol' => (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https' : 'http',
+#    'protocol' => 'https',
+);
 
 // Error reporting? Time Limit? Memory Usage? Why not!
 @error_reporting(E_ALL ^ E_NOTICE);
 @set_time_limit(180);
 @ini_set('memory_limit', '128M');
-
-/* END Config, Nothing more to edit! */

@@ -2,7 +2,7 @@
 /*
  * This file is a part of Simpliest Pastebin.
  *
- * Copyright 2009-2011 the original author or authors.
+ * Copyright 2009-2018 the original author or authors.
  *
  * Licensed under the terms of the MIT License.
  * See the MIT for details (https://opensource.org/licenses/MIT).
@@ -15,26 +15,21 @@ require ("config.php");
 require_once("lib/classes/SPB/DB.php");
 require_once("lib/classes/SPB/Bin.php");
 
-if (strtolower(@$_SERVER['HTTPS']) == "on")
-    $CONFIG['pb_protocol'] = "https";
-else
-    $CONFIG['pb_protocol'] = "http";
-
 /* Start Pastebin */
 if (substr(phpversion(), 0, 3) < 5.3)
     die('PHP 5.3 is required to run this pastebin! This version is ' . phpversion() . '. Please contact your host!');
 
-if ($CONFIG['pb_gzip'])
+if ($SPB_CONFIG['gzip_content'])
     ob_start("ob_gzhandler");
 
-if ($CONFIG['pb_infinity'])
+if ($SPB_CONFIG['infinity'])
     $infinity = array('0');
 
-if ($CONFIG['pb_infinity'] && $CONFIG['pb_infinity_default'])
-    $CONFIG['pb_lifespan'] = array_merge((array) $infinity, (array) $CONFIG['pb_lifespan']);
+if ($SPB_CONFIG['infinity'] && $SPB_CONFIG['infinity_default'])
+    $SPB_CONFIG['lifespan'] = array_merge((array) $infinity, (array) $SPB_CONFIG['lifespan']);
 
-elseif ($CONFIG['pb_infinity'] && ! $CONFIG['pb_infinity_default'])
-    $CONFIG['pb_lifespan'] = array_merge((array) $CONFIG['pb_lifespan'], (array) $infinity);
+elseif ($SPB_CONFIG['infinity'] && ! $SPB_CONFIG['infinity_default'])
+    $SPB_CONFIG['lifespan'] = array_merge((array) $SPB_CONFIG['lifespan'], (array) $infinity);
 
 if (get_magic_quotes_gpc()) {
 
@@ -63,10 +58,10 @@ $requri = str_replace("?", "", $info[0]);
 if (! file_exists('./INSTALL_LOCK') && $requri != "install")
     header("Location: " . $_SERVER['PHP_SELF'] . "?install");
 
-if (file_exists('./INSTALL_LOCK') && $CONFIG['pb_rewrite'])
+if (file_exists('./INSTALL_LOCK') && $SPB_CONFIG['rewrite_enabled'])
     $requri = $_GET['i'];
 
-$CONFIG['requri'] = $requri;
+$SPB_CONFIG['requri'] = $requri;
 
 if (strstr($requri, "@")) {
     $tempRequri = explode('@', $requri, 2);
@@ -74,29 +69,29 @@ if (strstr($requri, "@")) {
     $reqhash = $tempRequri[1];
 }
 
-$db = new \SPB\DB($CONFIG);
+$db = new \SPB\DB($SPB_CONFIG);
 $bin = new \SPB\Bin($db);
 
-$CONFIG['pb_pass'] = $bin->hasher($CONFIG['pb_pass'], $CONFIG['pb_salts']);
-$db->config['pb_pass'] = $CONFIG['pb_pass'];
-$bin->db->config['pb_pass'] = $CONFIG['pb_pass'];
+$SPB_CONFIG['admin_password'] = $bin->hasher($SPB_CONFIG['admin_password'], $SPB_CONFIG['salts']);
+$db->config['admin_password'] = $SPB_CONFIG['admin_password'];
+$bin->db->config['admin_password'] = $SPB_CONFIG['admin_password'];
 
 $ckey = $bin->cookieName();
 
-if (@$_POST['author'] && is_numeric($CONFIG['pb_author_cookie']))
-    setcookie($ckey, $bin->checkAuthor(@$_POST['author']), time() + $CONFIG['pb_author_cookie']);
+if (@$_POST['author'] && is_numeric($SPB_CONFIG['author_cookie']))
+    setcookie($ckey, $bin->checkAuthor(@$_POST['author']), time() + $SPB_CONFIG['author_cookie']);
 
-$CONFIG['_temp_pb_author'] = $_COOKIE[$ckey];
+$SPB_CONFIG['_temp_author'] = $_COOKIE[$ckey];
 
 switch ($_COOKIE[$ckey]) {
     case NULL:
-        $CONFIG['_temp_pb_author'] = $CONFIG['pb_author'];
+        $SPB_CONFIG['_temp_author'] = $SPB_CONFIG['author'];
         break;
-    case $CONFIG['pb_author']:
-        $CONFIG['_temp_pb_author'] = $CONFIG['pb_author'];
+    case $SPB_CONFIG['author']:
+        $SPB_CONFIG['_temp_author'] = $SPB_CONFIG['author'];
         break;
     default:
-        $CONFIG['_temp_pb_author'] = $_COOKIE[$ckey];
+        $SPB_CONFIG['_temp_author'] = $_COOKIE[$ckey];
         break;
 }
 
@@ -110,7 +105,7 @@ if ($requri != "install" && $requri != NULL && substr($requri, - 1) != "!" && ! 
 
 $pasteinfo = array();
 if ($requri != "install")
-    $bin->cleanUp($CONFIG['pb_recent_posts']);
+    $bin->cleanUp($SPB_CONFIG['recent_posts']);
 
 ?>
 <!DOCTYPE html>
@@ -118,7 +113,7 @@ if ($requri != "install")
 <head>
 <meta charset="utf-8" />
 <title><?php
-echo $bin->setTitle($CONFIG['pb_name']);
+echo $bin->setTitle($SPB_CONFIG['pastebin_title']);
 ?> &raquo; <?php
 echo $bin->titleID($requri);
 ?></title>
@@ -126,7 +121,7 @@ echo $bin->titleID($requri);
 	content="<?php
 echo $bin->robotPrivacy($requri);
 ?>" />
-<link rel="stylesheet" type="text/css" href="<?php echo $CONFIG['pb_style']; ?>" media="screen, print" />
+<link rel="stylesheet" type="text/css" href="<?php echo $SPB_CONFIG['stylesheet']; ?>" media="screen, print" />
 <script type="text/javascript" src="js/main.js"></script>
 </head>
 <body>
@@ -139,7 +134,7 @@ elseif ($requri != "install" && $db->connect())
 else
     echo "<!-- No Check is required... -->";
 
-if (@$_POST['adminAction'] == "delete" && $bin->hasher(hash($CONFIG['pb_algo'], @$_POST['adminPass']), $CONFIG['pb_salts']) === $CONFIG['pb_pass']) {
+if (@$_POST['adminAction'] == "delete" && $bin->hasher(hash($SPB_CONFIG['algo'], @$_POST['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password']) {
     $db->dropPaste($requri);
     echo "<div class=\"success\">Paste, " . $requri . ", has been deleted!</div>";
     $requri = NULL;
@@ -160,17 +155,17 @@ if ($requri != "install" && @$_POST['submit']) {
     if (@$_POST['pasteEnter'] == @$_POST['originalPaste'] && strlen($_POST['pasteEnter']) > 10)
         die("<div class=\"error\">Please don't just repost what has already been said!</div></div></body></html>");
 
-    if (strlen(@$_POST['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $CONFIG['pb_max_bytes'] && $db->insertPaste($paste['ID'], $paste)) {
+    if (strlen(@$_POST['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && $db->insertPaste($paste['ID'], $paste)) {
         die("<div class=\"result\"><div class=\"success\">Your paste has been successfully recorded!</div><div class=\"confirmURL\">URL to your paste is <a href=\"" . $bin->linker($paste['ID']) . $exclam . "\">" . $bin->linker($paste['ID']) . "</a></div></div></div></body></html>");
     } else {
         echo "<div class=\"error\">Hmm, something went wrong.</div>";
-        echo "<div class=\"warn\">Pasted text must be between 10 characters and " . $bin->humanReadableFilesize($CONFIG['pb_max_bytes']) . "</div>";
+        echo "<div class=\"warn\">Pasted text must be between 10 characters and " . $bin->humanReadableFilesize($SPB_CONFIG['max_bytes']) . "</div>";
     }
 }
 
-if ($requri != "install" && $CONFIG['pb_recent_posts'] && substr($requri, - 1) != "!") {
+if ($requri != "install" && $SPB_CONFIG['recent_posts'] && substr($requri, - 1) != "!") {
     echo "<div id=\"recentPosts\" class=\"recentPosts\">";
-    $recentPosts = $bin->getLastPosts($CONFIG['pb_recent_posts']);
+    $recentPosts = $bin->getLastPosts($SPB_CONFIG['recent_posts']);
     echo "<h2 id=\"newPaste\"><a href=\"" . $bin->linker() . "\">New Paste</a></h2><div class=\"spacer\">&nbsp;</div>";
     if ($requri || count($recentPosts) > 0)
         if (count($recentPosts) > 0) {
@@ -224,7 +219,7 @@ if ($requri != "install" && $CONFIG['pb_recent_posts'] && substr($requri, - 1) !
 
 if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     $pasteinfo['Parent'] = $requri;
-    echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($CONFIG['pb_name']) . "</h1>" . $bin->setTagline($CONFIG['pb_tagline']) . "<div id=\"result\"></div>";
+    echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($SPB_CONFIG['pastebin_title']) . "</h1>" . $bin->setTagline($SPB_CONFIG['tagline']) . "<div id=\"result\"></div>";
 
     if ($pasted = $db->readPaste($requri)) {
 
@@ -246,11 +241,11 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
             die("<div class=\"result\"><div class=\"warn\">This paste has either expired or doesn't exist!</div></div></div></body></html>");
         }
 
-        echo "<div id=\"aboutPaste\"><div id=\"pasteID\"><strong>PasteID</strong>: " . $requri . "</div><strong>Pasted by</strong> " . stripslashes($pasted['Author']) . ", <em title=\"" . $bin->event($pasted['Datetime']) . " ago\">" . gmdate($CONFIG['pb_datetime'], $pasted['Datetime']) . " GMT</em><br />
+        echo "<div id=\"aboutPaste\"><div id=\"pasteID\"><strong>PasteID</strong>: " . $requri . "</div><strong>Pasted by</strong> " . stripslashes($pasted['Author']) . ", <em title=\"" . $bin->event($pasted['Datetime']) . " ago\">" . gmdate($SPB_CONFIG['datetime_format'], $pasted['Datetime']) . " GMT</em><br />
 					<strong>Expires</strong> " . $lifeString . "<br />
 					<strong>Paste size</strong> " . $pasteSize . "</div>";
 
-        if (@$_POST['adminAction'] == "ip" && $bin->hasher(hash($CONFIG['pb_algo'], @$_POST['adminPass']), $CONFIG['pb_salts']) === $CONFIG['pb_pass'])
+        if (@$_POST['adminAction'] == "ip" && $bin->hasher(hash($SPB_CONFIG['algo'], @$_POST['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password'])
             echo "<div class=\"success\"><strong>Author IP Address</strong> <a href=\"http://whois.domaintools.com/" . base64_decode($pasted['IP']) . "\">" . base64_decode($pasted['IP']) . "</a></div>";
 
         if (strlen($pasted['Parent']) > 0)
@@ -271,18 +266,18 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
         else
             $lineHighlight = NULL;
 
-        if ($CONFIG['pb_editing']) {
+        if ($SPB_CONFIG['editing']) {
             echo "<div id=\"formContainer\">
 					<form id=\"pasteForm\" name=\"pasteForm\" action=\"" . $bin->linker($pasted['ID']) . "\" method=\"post\">
 						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Edit this post! " . $lineHighlight . "</label>
 						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" onkeyup=\"return true;\">" . $pasted['Data']['noHighlight']['Dirty'] . "</textarea></div>
 						<div class=\"spacer\">&nbsp;</div>";
 
-            if (is_array($CONFIG['pb_lifespan']) && count($CONFIG['pb_lifespan']) > 1) {
+            if (is_array($SPB_CONFIG['lifespan']) && count($SPB_CONFIG['lifespan']) > 1) {
                 echo "<div id=\"lifespanContainer\"><label for=\"lifespan\">Paste Expiration</label> <select name=\"lifespan\" id=\"lifespan\">";
 
-                foreach ($CONFIG['pb_lifespan'] as $span) {
-                    $key = array_keys($CONFIG['pb_lifespan'], $span);
+                foreach ($SPB_CONFIG['lifespan'] as $span) {
+                    $key = array_keys($SPB_CONFIG['lifespan'], $span);
                     $key = $key[0];
                     $options .= "<option value=\"" . $key . "\">" . $bin->event(time() - ($span * 24 * 60 * 60), TRUE) . "</option>";
                 }
@@ -294,10 +289,10 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
                 echo $options;
 
                 echo "</select></div>";
-            } elseif (is_array($CONFIG['pb_lifespan']) && count($CONFIG['pb_lifespan']) == 1) {
+            } elseif (is_array($SPB_CONFIG['lifespan']) && count($SPB_CONFIG['lifespan']) == 1) {
                 echo "<div id=\"lifespanContainer\"><label for=\"lifespan\">Paste Expiration</label>";
 
-                echo " <div id=\"expireTime\"><input type=\"hidden\" name=\"lifespan\" value=\"0\" />" . $bin->event(time() - ($CONFIG['pb_lifespan'][0] * 24 * 60 * 60), TRUE) . "</div>";
+                echo " <div id=\"expireTime\"><input type=\"hidden\" name=\"lifespan\" value=\"0\" />" . $bin->event(time() - ($SPB_CONFIG['lifespan'][0] * 24 * 60 * 60), TRUE) . "</div>";
 
                 echo "</div>";
             } else
@@ -320,13 +315,13 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
                 $privacyContainer = preg_replace($selecter, $replacer, $privacyContainer, 1);
             }
 
-            if ($CONFIG['pb_private'])
+            if ($SPB_CONFIG['private'])
                 echo $privacyContainer;
 
             echo "<div class=\"spacer\">&nbsp;</div>";
 
             echo "<div id=\"authorContainerReply\"><label for=\"authorEnter\">Your Name</label><br />
-						<input type=\"text\" name=\"author\" id=\"authorEnter\" value=\"" . $CONFIG['_temp_pb_author'] . "\" onfocus=\"if(this.value=='" . $CONFIG['_temp_pb_author'] . "')this.value='';\" onblur=\"if(this.value=='')this.value='" . $CONFIG['_temp_pb_author'] . "';\" maxlength=\"32\" /></div>
+						<input type=\"text\" name=\"author\" id=\"authorEnter\" value=\"" . $SPB_CONFIG['_temp_author'] . "\" onfocus=\"if(this.value=='" . $SPB_CONFIG['_temp_author'] . "')this.value='';\" onblur=\"if(this.value=='')this.value='" . $SPB_CONFIG['_temp_author'] . "';\" maxlength=\"32\" /></div>
 						<div class=\"spacer\">&nbsp;</div>
 						<input type=\"text\" name=\"email\" id=\"poison\" style=\"display: none;\" />
 						<input type=\"hidden\" name=\"ajax_token\" value=\"" . $bin->token(TRUE) . "\" />
@@ -392,7 +387,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
         echo "<li>Quick password check. ";
         $passLen = array(8 , 9 , 10 , 11 , 12);
         shuffle($passLen);
-        if ($CONFIG['pb_pass'] === $bin->hasher(hash($CONFIG['pb_algo'], "password"), $CONFIG['pb_salts']) || ! isset($CONFIG['pb_pass']))
+        if ($SPB_CONFIG['admin_password'] === $bin->hasher(hash($SPB_CONFIG['algo'], "password"), $SPB_CONFIG['salts']) || ! isset($SPB_CONFIG['admin_password']))
             echo "<span class=\"error\">Password is still default!</span> &nbsp; &raquo; &nbsp; Suggested password: <em>" . $bin->generateRandomString($passLen[0]) . "</em>";
         else {
             echo "<span class=\"success\">Password is not default!</span>";
@@ -403,10 +398,10 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 
     if (count($stage) > 1) {
         echo "<li>Quick Salt Check. ";
-        $no_salts = count($CONFIG['pb_salts']);
+        $no_salts = count($SPB_CONFIG['salts']);
         $saltLen = array(8 , 9 , 10 , 11 , 12 , 14 , 16 , 25 , 32);
         shuffle($saltLen);
-        if ($no_salts < 4 || ($CONFIG['pb_salts'][1] == "str001" || $CONFIG['pb_salts'][2] == "str002" || $CONFIG['pb_salts'][3] == "str003" || $CONFIG['pb_salts'][4] == "str004"))
+        if ($no_salts < 4 || ($SPB_CONFIG['salts'][1] == "str001" || $SPB_CONFIG['salts'][2] == "str002" || $SPB_CONFIG['salts'][3] == "str003" || $SPB_CONFIG['salts'][4] == "str004"))
             echo "<span class=\"error\">Salt strings are inadequate!</span> &nbsp; &raquo; &nbsp; Suggested salts: <ol><li>" . $bin->generateRandomString($saltLen[0]) . "</li><li>" . $bin->generateRandomString($saltLen[1]) . "</li><li>" . $bin->generateRandomString($saltLen[2]) . "</li><li>" . $bin->generateRandomString($saltLen[3]) . "</li></ol>";
         else {
             echo "<span class=\"success\">Salt strings are adequate!</span>";
@@ -418,14 +413,14 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     if (count($stage) > 2) {
         echo "<li>Checking Database Connection. ";
 
-        if (! is_dir($CONFIG['txt_config']['db_folder'])) {
-            mkdir($CONFIG['txt_config']['db_folder']);
-            chmod($CONFIG['txt_config']['db_folder'], $CONFIG['txt_config']['dir_mode']);
+        if (!is_dir($SPB_CONFIG['data_dir'])) {
+            mkdir($SPB_CONFIG['data_dir']);
+            chmod($SPB_CONFIG['data_dir'], $SPB_CONFIG['dir_bitmask']);
         }
-        $db->write($db->serializer(array()), $CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index']);
-        $db->write("FORBIDDEN", $CONFIG['txt_config']['db_folder'] . "/index.html");
-        chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index'], $CONFIG['txt_config']['file_mode']);
-        chmod($CONFIG['txt_config']['db_folder'] . "/index.html", $CONFIG['txt_config']['file_mode']);
+        $db->write($db->serializer(array()), $SPB_CONFIG['data_dir'] . "/" . $SPB_CONFIG['index_file']);
+        $db->write("FORBIDDEN", $SPB_CONFIG['data_dir'] . "/index.html");
+        chmod($SPB_CONFIG['data_dir'] . "/" . $SPB_CONFIG['index_file'], $SPB_CONFIG['file_bitmask']);
+        chmod($SPB_CONFIG['data_dir'] . "/index.html", $SPB_CONFIG['file_bitmask']);
 
         if (! $db->connect())
             echo "<span class=\"error\">Cannot connect to database!</span> - Check Config in index.php";
@@ -451,13 +446,13 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
         else {
             echo "<span class=\"success\">Complete</span>";
             $stage[] = 1;
-            chmod('./INSTALL_LOCK', $CONFIG['txt_config']['file_mode']);
+            chmod('./INSTALL_LOCK', $SPB_CONFIG['file_bitmask']);
         }
         echo "</li>";
     }
     echo "</ul>";
     if (count($stage) > 6) {
-        $paste_new = array('ID' => $bin->generateRandomString($CONFIG['pb_id_length']) , 'Author' => 'System' , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Lifespan' => 1800 , 'Protect' => 0 , 'Content' => $CONFIG['pb_line_highlight'] . "Congratulations, your pastebin has now been installed!\nThis message will expire in 30 minutes!");
+        $paste_new = array('ID' => $bin->generateRandomString($SPB_CONFIG['id_length']) , 'Author' => 'System' , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Lifespan' => 1800 , 'Protect' => 0 , 'Content' => $SPB_CONFIG['line_highlight'] . "Congratulations, your pastebin has now been installed!\nThis message will expire in 30 minutes!");
         $db->insertPaste($paste_new['ID'], $paste_new, TRUE);
         echo "<div id=\"confirmInstalled\"><a href=\"" . $bin->linker() . "\">Continue</a> to your new installation!<br /></div>";
         echo "<div id=\"confirmInstalled\" class=\"warn\">It is recommended that you now CHMOD this directory to 755</div>";
@@ -465,7 +460,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     echo "</div>";
 } else {
 
-    if ($CONFIG['pb_editing'])
+    if ($SPB_CONFIG['editing'])
         $service['editing'] = array('style' => 'success' , 'status' => 'Enabled');
     else
         $service['editing'] = array('style' => 'error' , 'status' => 'Disabled');
@@ -475,7 +470,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     else
         $service['highlight'] = array('style' => 'error', 'status' => 'Disabled', 'tip' => NULL);
 
-    echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($CONFIG['pb_name']) . "</h1>" . $bin->setTagline($CONFIG['pb_tagline']) . "<div id=\"result\"></div>
+    echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($SPB_CONFIG['pastebin_title']) . "</h1>" . $bin->setTagline($SPB_CONFIG['tagline']) . "<div id=\"result\"></div>
 				<div id=\"formContainer\">
 				<div><span id=\"showInstructions\">[ <a href=\"#\" onclick=\"return toggleInstructions();\">more info</a> ]</span>
 				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish then hit submit!" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div><div class=\"spacer\">&nbsp;</div></div>
@@ -485,11 +480,11 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 						<div class=\"spacer\">&nbsp;</div>
 						<div id=\"secondaryFormContainer\"><input type=\"hidden\" name=\"ajax_token\" value=\"" . $bin->token(TRUE) . "\" />";
 
-    if (is_array($CONFIG['pb_lifespan']) && count($CONFIG['pb_lifespan']) > 1) {
+    if (is_array($SPB_CONFIG['lifespan']) && count($SPB_CONFIG['lifespan']) > 1) {
         echo "<div id=\"lifespanContainer\"><label for=\"lifespan\">Paste Expiration</label> <select name=\"lifespan\" id=\"lifespan\">";
 
-        foreach ($CONFIG['pb_lifespan'] as $span) {
-            $key = array_keys($CONFIG['pb_lifespan'], $span);
+        foreach ($SPB_CONFIG['lifespan'] as $span) {
+            $key = array_keys($SPB_CONFIG['lifespan'], $span);
             $key = $key[0];
             $options .= "<option value=\"" . $key . "\">" . $bin->event(time() - ($span * 24 * 60 * 60), TRUE) . "</option>";
         }
@@ -501,19 +496,19 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
         echo $options;
 
         echo "</select></div>";
-    } elseif (is_array($CONFIG['pb_lifespan']) && count($CONFIG['pb_lifespan']) == 1) {
+    } elseif (is_array($SPB_CONFIG['lifespan']) && count($SPB_CONFIG['lifespan']) == 1) {
         echo "<div id=\"lifespanContainer\"><label for=\"lifespan\">Paste Expiration</label>";
-        echo " <div id=\"expireTime\"><input type=\"hidden\" name=\"lifespan\" value=\"0\" />" . $bin->event(time() - ($CONFIG['pb_lifespan'][0] * 24 * 60 * 60), TRUE) . "</div>";
+        echo " <div id=\"expireTime\"><input type=\"hidden\" name=\"lifespan\" value=\"0\" />" . $bin->event(time() - ($SPB_CONFIG['lifespan'][0] * 24 * 60 * 60), TRUE) . "</div>";
         echo "</div>";
     } else
         echo "<input type=\"hidden\" name=\"lifespan\" value=\"0\" />";
 
-    if ($CONFIG['pb_private'])
+    if ($SPB_CONFIG['private'])
         echo "<div id=\"privacyContainer\"><label for=\"privacy\">Paste Visibility</label> <select name=\"privacy\" id=\"privacy\"><option value=\"0\">Public</option> <option value=\"1\">Private</option></select></div>";
 
     echo "<div class=\"spacer\">&nbsp;</div>";
     echo "<div id=\"authorContainer\"><label for=\"authorEnter\">Your Name</label><br />
-						<input type=\"text\" name=\"author\" id=\"authorEnter\" value=\"" . $CONFIG['_temp_pb_author'] . "\" onfocus=\"if(this.value=='" . $CONFIG['_temp_pb_author'] . "')this.value='';\" onblur=\"if(this.value=='')this.value='" . $CONFIG['_temp_pb_author'] . "';\" maxlength=\"32\" /></div>
+						<input type=\"text\" name=\"author\" id=\"authorEnter\" value=\"" . $SPB_CONFIG['_temp_author'] . "\" onfocus=\"if(this.value=='" . $SPB_CONFIG['_temp_author'] . "')this.value='';\" onblur=\"if(this.value=='')this.value='" . $SPB_CONFIG['_temp_author'] . "';\" maxlength=\"32\" /></div>
 						<div class=\"spacer\">&nbsp;</div>
 						<input type=\"text\" name=\"email\" id=\"poison\" style=\"display: none;\" />
 						<div id=\"submitContainer\" class=\"submitContainer\">
