@@ -318,7 +318,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 					<form id=\"pasteForm\" name=\"pasteForm\" action=\"" . $bin->linker($pasted['ID']) . "\" method=\"post\">
 						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Edit this post! " . $lineHighlight . "</label>
 						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" onkeyup=\"return true;\">" . $pasted['Data']['noHighlight']['Dirty'] . "</textarea></div>
-						<div id=\"foundURL\" style=\"display: none;\">URL has been detected...</div>
 						<div class=\"spacer\">&nbsp;</div>";
 
             $selecter = '/value="' . $pasted['Syntax'] . '"/';
@@ -540,7 +539,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 					<form id=\"pasteForm\" action=\"" . $bin->linker() . "\" method=\"post\" name=\"pasteForm\" enctype=\"multipart/form-data\">
 						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Paste your text here!" . $service['highlight']['tip'] . "</label>
 						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" onkeyup=\"return true;\"></textarea></div>
-						<div id=\"foundURL\" style=\"display: none;\">URL has been detected...</div>
 						<div class=\"spacer\">&nbsp;</div>
 						<div id=\"secondaryFormContainer\"><input type=\"hidden\" name=\"ajax_token\" value=\"" . $bin->token(TRUE) . "\" />";
 
