@@ -174,9 +174,6 @@ $CONFIG['pb_image_extensions'] = array("jpg", "gif", "png");
 $CONFIG['pb_image_maxsize'] = 2097152; 
 # (2Mb, you will need to change your php.ini to accomodate higher!)
 
-// Allow URL Shortening/Redirection Service? (TRUE or FALSE)
-$CONFIG['pb_url'] = FALSE;
-
 // Default Author Name (Anonymous usually a good start)
 $CONFIG['pb_author'] = "Anonymous";
 

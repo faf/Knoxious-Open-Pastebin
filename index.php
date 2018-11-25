@@ -164,43 +164,7 @@ echo $bin->robotPrivacy($requri);
 ?>" />
 <link rel="stylesheet" type="text/css" href="<?php echo $CONFIG['pb_style']; ?>" media="screen, print" />
 <script type="text/javascript" src="js/main.js"></script>
-<script type="text/javascript">
-<?php
-if ($CONFIG['pb_url']) {
-            ?>
-function checkIfURL(checkMe){
-	var checking = checkMe.value;
-	var regExpression = new RegExp();
-	regExpression.compile('^[A-Za-z]+://[A-Za-z0-9-_]+\\.[A-Za-z0-9-_%&\?\/\!.=]+$');
-	if(regExpression.test(checking)){
-		checkMe.setAttribute("id", "urlField");
-		document.getElementById('foundURL').style.display = "block";
-		document.getElementById('fileUploadContainer').style.visibility = "hidden";
-		return true;
-	}
-	else {
-		if(checkMe.id != "pasteEnter")
-			checkMe.setAttribute("id", "pasteEnter");
-
-		document.getElementById('foundURL').style.display = "none";
-		document.getElementById('fileUploadContainer').style.visibility = "visible";
-		return false;
-	}
-}
-<?php
-} else {
-            ?>
-function checkIfURL(checkMe){
-	return true;
-}
-<?php
-}
-?>
-</script>
-<?php
-        /* end JS */
-?>
-	</head>
+</head>
 <body>
 <div id="siteWrapper">
 <?php
@@ -241,9 +205,6 @@ if ($requri != "install" && @$_POST['submit']) {
         $_POST['pasteEnter'] = $postedURL;
         $exclam = "!";
         $postedURLInfo = pathinfo($postedURL);
-
-        if ($CONFIG['pb_url'])
-            $_FILES['pasteImage'] = NULL;
     }
 
     $imageUpload = FALSE;
@@ -272,8 +233,7 @@ if ($requri != "install" && @$_POST['submit']) {
     if (@$_POST['pasteEnter'] == NULL && strlen(@$_FILES['pasteImage']['name']) > 4 && $CONFIG['pb_images'] && $imageUpload)
         $_POST['pasteEnter'] = "Image file (" . $_FILES['pasteImage']['name'] . ") uploaded...";
 
-    if (! $CONFIG['pb_url'])
-        $postedURL = NULL;
+    $postedURL = NULL;
 
     if ($bin->highlight() && $_POST['highlighter'] != "plaintext") {
         $geshi->set_language($_POST['highlighter']);
@@ -317,10 +277,6 @@ if ($requri != "install" && $CONFIG['pb_recent_posts'] && substr($requri, - 1) !
             foreach ($recentPosts as $paste_) {
                 $rel = NULL;
                 $exclam = NULL;
-                if ($paste_['URL'] != NULL && $CONFIG['pb_url']) {
-                    $exclam = "!";
-                    $rel = " rel=\"link\"";
-                }
 
                 if (! is_bool($paste_['Image']) && ! is_numeric($paste_['Image']) && $paste_['Image'] != NULL && $CONFIG['pb_images']) {
                     if ($CONFIG['pb_media_warn'])
@@ -452,8 +408,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
         else
             $lineHighlight = NULL;
 
-        $event = "onblur=\"return checkIfURL(this);\" onkeyup";
-
         if (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image']))
             $pasted['Data']['noHighlight']['Dirty'] = $bin->linker() . $db->setDataPath($pasted['Image']);
 
@@ -461,7 +415,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
             echo "<div id=\"formContainer\">
 					<form id=\"pasteForm\" name=\"pasteForm\" action=\"" . $bin->linker($pasted['ID']) . "\" method=\"post\">
 						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Edit this post! " . $lineHighlight . "</label>
-						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" " . $event . "=\"return checkIfURL(this);\">" . $pasted['Data']['noHighlight']['Dirty'] . "</textarea></div>
+						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" onkeyup=\"return true;\">" . $pasted['Data']['noHighlight']['Dirty'] . "</textarea></div>
 						<div id=\"foundURL\" style=\"display: none;\">URL has been detected...</div>
 						<div class=\"spacer\">&nbsp;</div>";
 
@@ -737,11 +691,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     } else
         $service['image_download'] = array('style' => 'error' , 'status' => 'Disabled' , 'tip' => NULL);
 
-    if ($CONFIG['pb_url'])
-        $service['url'] = array('style' => 'success' , 'status' => 'Enabled' , 'tip' => $isShortURL , 'str' => '/url');
-    else
-        $service['url'] = array('style' => 'error' , 'status' => 'Disabled' , 'tip' => NULL , 'str' => NULL);
-
     if ($CONFIG['pb_subdomains'])
         $service['subdomains'] = array('style' => 'success' , 'status' => 'Enabled' , 'tip' => $subdomainForm);
     else
@@ -759,8 +708,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 
     $uploadForm = NULL;
 
-    $event = "onblur=\"return checkIfURL(this);\" onkeyup";
-
     if ($CONFIG['pb_images'])
         $uploadForm = "<div id=\"fileUploadContainer\"><input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"" . $CONFIG['pb_image_maxsize'] . "\" /><label>Attach an Image (" . implode(", ", $CONFIG['pb_image_extensions']) . " &raquo; Max size " . $bin->humanReadableFilesize($CONFIG['pb_image_maxsize']) . ")</label><br /><input type=\"file\" name=\"pasteImage\" id=\"pasteImage\" /><br />(Optional)</div>";
     else
@@ -769,10 +716,10 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($CONFIG['pb_name']) . "</h1>" . $bin->setTagline($CONFIG['pb_tagline']) . "<div id=\"result\"></div>
 				<div id=\"formContainer\">
 				<div><span id=\"showInstructions\">[ <a href=\"#\" onclick=\"return toggleInstructions();\">more info</a> ]</span><span id=\"showSubdomain\">" . $subdomainClicker . "</span>
-				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['images']['style'] . "\">" . $service['images']['status'] . "</span> Image hosting</li><li><span class=\"" . $service['image_download']['style'] . "\">" . $service['image_download']['status'] . "</span> Copy image from URL</li><li><span class=\"" . $service['url']['style'] . "\">" . $service['url']['status'] . "</span> URL Shortening/Redirection</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish" . $service['images']['tip'] . " then hit submit!" . $service['url']['tip'] . "" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div><div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
+				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['images']['style'] . "\">" . $service['images']['status'] . "</span> Image hosting</li><li><span class=\"" . $service['image_download']['style'] . "\">" . $service['image_download']['status'] . "</span> Copy image from URL</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish" . $service['images']['tip'] . " then hit submit!" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div><div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
 					<form id=\"pasteForm\" action=\"" . $bin->linker() . "\" method=\"post\" name=\"pasteForm\" enctype=\"multipart/form-data\">
-						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Paste your text" . $service['url']['str'] . " here!" . $service['highlight']['tip'] . "</label>
-						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" " . $event . "=\"return checkIfURL(this);\"></textarea></div>
+						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Paste your text here!" . $service['highlight']['tip'] . "</label>
+						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" onkeyup=\"return true;\"></textarea></div>
 						<div id=\"foundURL\" style=\"display: none;\">URL has been detected...</div>
 						<div class=\"spacer\">&nbsp;</div>
 						<div id=\"secondaryFormContainer\"><input type=\"hidden\" name=\"ajax_token\" value=\"" . $bin->token(TRUE) . "\" />";

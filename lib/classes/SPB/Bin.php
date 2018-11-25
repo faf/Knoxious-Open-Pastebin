@@ -587,10 +587,7 @@ class Bin
         if (gmdate('U') > $pasteData['Lifespan'])
             return false;
 
-        if ($pasteData['URL'] != NULL && $this->db->config['pb_url'])
-            return $pasteData['URL'];
-        else
-            return false;
+        return false;
     }
 
     public function humanReadableFilesize($size)
