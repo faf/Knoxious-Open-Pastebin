@@ -53,8 +53,6 @@ class Bin
         $requri = str_replace("!", "", $requri);
 
         if ($privacy = $this->db->readPaste($requri)) {
-            if ($this->db->dbt == "mysql")
-                $privacy = $privacy[0];
 
             switch ((int) $privacy['Protection']) {
                 case 0:
@@ -119,38 +117,21 @@ class Bin
 
     public function getLastPosts($amount)
     {
-        switch ($this->db->dbt) {
-            case "mysql":
-                $this->db->connect();
-                $result = array();
-                $query = "SELECT * FROM " . $this->db->config['mysql_connection_config']['db_table'] . " WHERE Protection < 1 ORDER BY Datetime DESC LIMIT " . $amount;
-                $result_temp = mysql_query($query);
-                if (! $result_temp || mysql_num_rows($result_temp) < 1)
-                    return NULL;
-
-                while ($row = mysql_fetch_assoc($result_temp))
-                    $result[] = $row;
-
-                mysql_free_result($result_temp);
-                break;
-            case "txt":
-                $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . "/" . $this->db->config['txt_config']['db_index']));
-                $index = array_reverse($index);
-                $int = 0;
-                $result = array();
-                if (count($index) > 0) {
-                    foreach ($index as $row) {
-                        if ($int < $amount && substr($row, 0, 1) != "!") {
-                            $result[$int] = $this->db->readPaste($row);
-                            $int ++;
-                        } elseif ($int <= $amount && substr($row, 0, 1) == "!") {
-                            $int = $int;
-                        } else {
-                            return $result;
-                        }
-                    }
+        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . "/" . $this->db->config['txt_config']['db_index']));
+        $index = array_reverse($index);
+        $int = 0;
+        $result = array();
+        if (count($index) > 0) {
+            foreach ($index as $row) {
+                if ($int < $amount && substr($row, 0, 1) != "!") {
+                    $result[$int] = $this->db->readPaste($row);
+                    $int ++;
+                } elseif ($int <= $amount && substr($row, 0, 1) == "!") {
+                    $int = $int;
+                } else {
+                    return $result;
                 }
-                break;
+            }
         }
         return $result;
     }
@@ -285,36 +266,22 @@ class Bin
         if (! file_exists('INSTALL_LOCK'))
             return false;
 
-        switch ($this->db->dbt) {
-            case "mysql":
-                $this->db->connect();
-                $result = array();
-                $query = "SELECT * FROM " . $this->db->config['mysql_connection_config']['db_table'] . " WHERE Lifespan <= " . time() . " AND Lifespan > 0 ORDER BY Datetime ASC LIMIT " . $amount;
-                $result_temp = mysql_query($query);
-                while ($row = mysql_fetch_assoc($result_temp))
-                    $result[] = $row;
+        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . "/" . $this->db->config['txt_config']['db_index']));
 
-                mysql_free_result($result_temp);
-                break;
-            case "txt":
-                $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . "/" . $this->db->config['txt_config']['db_index']));
+        if (is_array($index) && count($index) > $amount + 1)
+            shuffle($index);
 
-                if (is_array($index) && count($index) > $amount + 1)
-                    shuffle($index);
-
-                $int = 0;
-                $result = array();
-                if (count($index) > 0) {
-                    foreach ($index as $row) {
-                        if ($int < $amount) {
-                            $result[] = $this->db->readPaste(str_replace("!", NULL, $row));
-                        } else {
-                            break;
-                        }
-                        $int ++;
-                    }
+        $int = 0;
+        $result = array();
+        if (count($index) > 0) {
+            foreach ($index as $row) {
+                if ($int < $amount) {
+                    $result[] = $this->db->readPaste(str_replace("!", NULL, $row));
+                } else {
+                    break;
                 }
-                break;
+                $int ++;
+            }
         }
 
         foreach ($result as $paste) {
@@ -428,8 +395,6 @@ class Bin
             return false;
 
         $pasteData = $this->db->readPaste($reqURI);
-        if ($this->db->dbt == "mysql")
-            $pasteData = $pasteData[0];
 
         if (strstr($pasteData['URL'], $this->linker()))
             $pasteData['URL'] = $pasteData['URL'] . "!";

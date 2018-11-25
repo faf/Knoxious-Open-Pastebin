@@ -15,25 +15,8 @@ if(ISINCLUDED != '1')
 /* Config, please read very carefully. */
 $CONFIG = array();
 
-
-// First off, what database system do you want to use? Flatfile or MySQL.
-// Uncomment or comment the required database type!
-$CONFIG['db_type'] = "flatfile";
-# $CONFIG['db_type'] = "mysql";
-
-// Now, if you chose MySQL, alter these settings to match your Database
-$CONFIG['mysql_connection_config'] = array(
-
-	'db_host'	=> 	'localhost'	/* This is often localhost */,
-	'db_uname'	=>	'root'		/* DB Username */,
-	'db_pass'	=>	'password'	/* DB Password */,
-	'db_name'	=>	'pastebin'	/* Nane of the Database */,
-	'db_table'	=>	'paste'		/* Name for the table */,
-	'db_existing'	=>	FALSE		/* Reconnect to an existing table? (TRUE or FALSE) */
-);
-
-// If you are going to use flatfile database, change the following to suit
-// your needs. File and directory permissions should work in most cases.
+// Change the following to suit your needs.
+// File and directory permissions should work in most cases.
 $CONFIG['txt_config'] = array(
 	'db_folder'	=>	'data'		/* Name of the folder to store Data */,
 	'db_index'	=>	'INDEX'		/* Name of the index file */,

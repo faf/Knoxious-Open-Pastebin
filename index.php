@@ -118,9 +118,6 @@ if ($requri != "install" && $requri != NULL && $bin->checkIfRedir($requri) != fa
 
 if ($requri != "install" && $requri != NULL && substr($requri, - 1) != "!" && ! $_POST['adminProceed'] && $reqhash == "raw") {
     if ($pasted = $db->readPaste($requri)) {
-        if ($db->dbt == "mysql")
-            $pasted = $pasted[0];
-
         header("Content-Type: text/plain; charset=utf-8");
         die($db->rawHTML($bin->noHighlight($pasted['Data'])));
     } else
@@ -257,9 +254,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($CONFIG['pb_name']) . "</h1>" . $bin->setTagline($CONFIG['pb_tagline']) . "<div id=\"result\"></div>";
 
     if ($pasted = $db->readPaste($requri)) {
-
-        if ($db->dbt == "mysql")
-            $pasted = $pasted[0];
 
         $pasted['Data'] = array('Orig' => $pasted['Data'] , 'noHighlight' => array());
 
@@ -476,16 +470,16 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 
     if (count($stage) > 2) {
         echo "<li>Checking Database Connection. ";
-        if ($db->dbt == "txt") {
-            if (! is_dir($CONFIG['txt_config']['db_folder'])) {
-                mkdir($CONFIG['txt_config']['db_folder']);
-                chmod($CONFIG['txt_config']['db_folder'], $CONFIG['txt_config']['dir_mode']);
-            }
-            $db->write($db->serializer(array()), $CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index']);
-            $db->write("FORBIDDEN", $CONFIG['txt_config']['db_folder'] . "/index.html");
-            chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index'], $CONFIG['txt_config']['file_mode']);
-            chmod($CONFIG['txt_config']['db_folder'] . "/index.html", $CONFIG['txt_config']['file_mode']);
+
+        if (! is_dir($CONFIG['txt_config']['db_folder'])) {
+            mkdir($CONFIG['txt_config']['db_folder']);
+            chmod($CONFIG['txt_config']['db_folder'], $CONFIG['txt_config']['dir_mode']);
         }
+        $db->write($db->serializer(array()), $CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index']);
+        $db->write("FORBIDDEN", $CONFIG['txt_config']['db_folder'] . "/index.html");
+        chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index'], $CONFIG['txt_config']['file_mode']);
+        chmod($CONFIG['txt_config']['db_folder'] . "/index.html", $CONFIG['txt_config']['file_mode']);
+
         if (! $db->connect())
             echo "<span class=\"error\">Cannot connect to database!</span> - Check Config in index.php";
         else {
@@ -496,28 +490,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     }
 
     if (count($stage) > 3) {
-        echo "<li>Creating Database Tables. ";
-        $structure = "CREATE TABLE IF NOT EXISTS " . $CONFIG['mysql_connection_config']['db_table'] . " (ID varchar(255), Datetime bigint, Author varchar(255), Protection int, Syntax varchar(255) DEFAULT 'plaintext', Parent longtext, URL longtext, Lifespan int, IP varchar(225), Data longtext, GeSHI longtext, Style longtext, INDEX (id)) ENGINE = INNODB CHARACTER SET utf8 COLLATE utf8_general_ci";
-        if ($db->dbt == "mysql") {
-            if (! mysql_query($structure, $db->link) && ! $CONFIG['mysql_connection_config']['db_existing']) {
-                echo "<span class=\"error\">Structure failed</span> - Check Config in index.php (Does the table already exist?)";
-            } else {
-                echo "<span class=\"success\">Table created!</span>";
-                mysql_query("ALTER TABLE `" . $CONFIG['mysql_connection_config']['db_table'] . "` ORDER BY `Datetime` DESC", $db->link);
-                $stage[] = 1;
-                if ($CONFIG['mysql_connection_config']['db_existing'])
-                    echo "<span class=\"warn\">Attempting to use an existing table!</span> If this is not a Pastebin table a fault will occur.";
-
-                mkdir($CONFIG['txt_config']['db_folder']);
-                chmod($CONFIG['txt_config']['db_folder'], $CONFIG['txt_config']['dir_mode']);
-                $db->write("FORBIDDEN", $CONFIG['txt_config']['db_folder'] . "/index.html");
-                chmod($CONFIG['txt_config']['db_folder'] . "/index.html", $CONFIG['txt_config']['file_mode']);
-            }
-        } else {
-            echo "<span class=\"success\">Table created!</span>";
-            $stage[] = 1;
-        }
-        echo "</li>";
+        $stage[] = 1;
     }
 
     if (count($stage) > 4) {
