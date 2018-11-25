@@ -136,25 +136,6 @@ class Bin
         return $result;
     }
 
-    public function styleSheet()
-    {
-        if ($this->db->config['pb_style'] == FALSE)
-            return false;
-
-        if (preg_match("/^(http|https|ftp):\/\/(.*?)/", $this->db->config['pb_style'])) {
-            $headers = @get_headers($this->db->config['pb_style']);
-            if (preg_match("|200|", $headers[0]))
-                return true;
-            else
-                return false;
-        } else {
-            if (file_exists($this->db->config['pb_style']))
-                return true;
-            else
-                return false;
-        }
-    }
-
     public function lineHighlight()
     {
         if ($this->db->config['pb_line_highlight'] == FALSE || strlen($this->db->config['pb_line_highlight']) < 1)
