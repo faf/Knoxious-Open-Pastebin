@@ -456,16 +456,12 @@ class Bin
         if (! in_array($subdomain, $subdomain_list['forbidden']) && ! $in_list) {
             switch ($this->db->dbt) {
                 case "mysql":
-                    $domain = array('ID' => "subdomain" , 'Subdomain' => $subdomain , 'Image' => 1 , 'Author' => "System" , 'Protect' => 1 , 'Lifespan' => 0 , 'Content' => "Subdomain marker");
+                    $domain = array('ID' => "subdomain" , 'Subdomain' => $subdomain , 'Author' => "System" , 'Protect' => 1 , 'Lifespan' => 0 , 'Content' => "Subdomain marker");
                     $this->db->insertPaste($domain['ID'], $domain, TRUE);
                     mkdir($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain);
                     chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain, $this->db->config['txt_config']['dir_mode']);
-                    mkdir($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_images']);
-                    chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_images'], $this->db->config['txt_config']['dir_mode']);
                     $this->db->write("FORBIDDEN", $this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/index.html");
                     chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/index.html", $this->db->config['txt_config']['dir_mode']);
-                    $this->db->write("FORIDDEN", $this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_images'] . "/index.html");
-                    chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_images'] . "/index.html", $this->db->config['txt_config']['file_mode']);
                     return $subdomain;
                     break;
                 case "txt":
@@ -474,14 +470,10 @@ class Bin
                     $this->db->write($subdomain_list, $subdomainsFile);
                     mkdir($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain);
                     chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain, $this->db->config['txt_config']['dir_mode']);
-                    mkdir($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_images']);
-                    chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_images'], $this->db->config['txt_config']['dir_mode']);
                     $this->db->write("FORBIDDEN", $this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/index.html");
                     chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/index.html", $this->db->config['txt_config']['dir_mode']);
                     $this->db->write($this->db->serializer(array()), $this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_index']);
                     chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_index'], $this->db->config['txt_config']['file_mode']);
-                    $this->db->write("FORIDDEN", $this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_images'] . "/index.html");
-                    chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_images'] . "/index.html", $this->db->config['txt_config']['file_mode']);
                     return $subdomain;
                     break;
             }

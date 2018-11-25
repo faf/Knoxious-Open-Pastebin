@@ -86,16 +86,6 @@ pre {
     list-style-type: decimal;
 }
 
-.pastedImage {
-    max-width: 500px;
-    height: auto;
-}
-
-.pastedImage {
-    width: auto;
-    max-height: 500px;
-}
-
 .infoMessage {
     padding: 25px;
     font-size: medium;
@@ -216,16 +206,6 @@ ul#postList {
     width: 100%;
 }
 
-#urlField {
-    background-color: #ffffff;
-    border-top: 1px solid #cccccc;
-    border-bottom: 1px solid #cccccc;
-    border-left: none;
-    border-right: none;
-    height: 20px;
-    width: 100%;
-}
-
 #emphasizedURL {
     font-size: x-large;
     width: 100%;
@@ -318,15 +298,6 @@ ul#postList {
     border-right: none;
 }
 
-#pasteImage {
-    background-color: #ffffff;
-    border-top: 1px solid #cccccc;
-    border-bottom: 1px solid #cccccc;
-    border-left: none;
-    border-right: none;
-    padding: 2px;
-}
-
 #highlightContainer>label {
     width: 200px;
     display: block;
@@ -340,17 +311,6 @@ ul#postList {
 #privacyContainer>label {
     width: 200px;
     display: block;
-}
-
-#fileUploadContainer {
-    width: 48%;
-    float: left;
-    margin-bottom: 10px;
-}
-
-#imageContainer {
-    text-align: center;
-    padding: 10px;
 }
 
 #styleBar {

@@ -73,13 +73,10 @@ class DB
         return $a_Input;
     }
 
-    public function setDataPath($filename = FALSE, $justPath = FALSE, $forceImage = FALSE)
+    public function setDataPath($filename = FALSE, $justPath = FALSE)
     {
-        if (! $filename && ! $forceImage)
+        if (! $filename)
             return $this->config['txt_config']['db_folder'];
-
-        if (! $filename && $forceImage)
-            return $this->config['txt_config']['db_folder'] . "/" . $this->config['txt_config']['db_images'];
 
         $filename = str_replace("!", "", $filename);
 
@@ -88,50 +85,27 @@ class DB
             $this->config['max_folder_depth'] = 1;
 
         $info = pathinfo($filename);
-        if (! in_array(strtolower($info['extension']), $this->config['pb_image_extensions'])) {
-            $path = $this->config['txt_config']['db_folder'] . "/" . substr($filename, 0, 1);
 
-            if (! file_exists($path) && is_writable($this->config['txt_config']['db_folder'])) {
+        $path = $this->config['txt_config']['db_folder'] . "/" . substr($filename, 0, 1);
+
+        if (! file_exists($path) && is_writable($this->config['txt_config']['db_folder'])) {
+            mkdir($path);
+            chmod($path, $this->config['txt_config']['dir_mode']);
+            $this->write("FORBIDDEN", $path . "/index.html");
+            chmod($path . "/index.html", $this->config['txt_config']['file_mode']);
+        }
+
+        for ($i = 1; $i <= $this->config['max_folder_depth'] - 1; $i ++) {
+            $parent = $path;
+
+            if (strlen($filename) > $i)
+                $path .= "/" . substr($filename, $i, 1);
+
+            if (! file_exists($path) && is_writable($parent)) {
                 mkdir($path);
                 chmod($path, $this->config['txt_config']['dir_mode']);
                 $this->write("FORBIDDEN", $path . "/index.html");
                 chmod($path . "/index.html", $this->config['txt_config']['file_mode']);
-            }
-
-            for ($i = 1; $i <= $this->config['max_folder_depth'] - 1; $i ++) {
-                $parent = $path;
-
-                if (strlen($filename) > $i)
-                    $path .= "/" . substr($filename, $i, 1);
-
-                if (! file_exists($path) && is_writable($parent)) {
-                    mkdir($path);
-                    chmod($path, $this->config['txt_config']['dir_mode']);
-                    $this->write("FORBIDDEN", $path . "/index.html");
-                    chmod($path . "/index.html", $this->config['txt_config']['file_mode']);
-                }
-            }
-        } else {
-            $path = $this->config['txt_config']['db_folder'] . "/" . $this->config['txt_config']['db_images'] . "/" . substr($info['filename'], 0, 1);
-
-            if (! file_exists($path) && is_writable($this->config['txt_config']['db_folder'] . "/" . $this->config['txt_config']['db_images'])) {
-                mkdir($path);
-                chmod($path, $this->config['txt_config']['dir_mode']);
-                $this->write("FORBIDDEN", $path . "/index.html");
-                chmod($path . "/index.html", $this->config['txt_config']['file_mode']);
-            }
-
-            for ($i = 1; $i <= $this->config['max_folder_depth'] - 1; $i ++) {
-                $parent = $path;
-                if (strlen($info['filename']) > $i)
-                    $path .= "/" . substr($info['filename'], $i, 1);
-
-                if (! file_exists($path) && is_writable($parent)) {
-                    mkdir($path);
-                    chmod($path, $this->config['txt_config']['dir_mode']);
-                    $this->write("FORBIDDEN", $path . "/index.html");
-                    chmod($path . "/index.html", $this->config['txt_config']['file_mode']);
-                }
             }
         }
 
@@ -210,19 +184,9 @@ class DB
         return $result;
     }
 
-    public function dropPaste($id, $ignoreImage = FALSE)
+    public function dropPaste($id)
     {
         $id = (string) $id;
-
-        if (! $ignoreImage) {
-            $imgTemp = $this->readPaste($id);
-
-            if ($this->dbt == "mysql")
-                $imgTemp = $imgTemp[0];
-
-            if ($imgTemp['Image'] != NULL && file_exists($this->setDataPath($imgTemp['Image'])))
-                unlink($this->setDataPath($imgTemp['Image']));
-        }
 
         switch ($this->dbt) {
             case "mysql":
@@ -280,78 +244,6 @@ class DB
         return $output;
     }
 
-    public function uploadFile($file, $rename = FALSE)
-    {
-        $info = pathinfo($file['name']);
-
-        if (! $this->config['pb_images'])
-            return false;
-
-        if ($rename)
-            $path = $this->setDataPath($rename . "." . strtolower($info['extension']));
-        else
-            $path = $path = $this->setDataPath($file['name']);
-
-        if (! in_array(strtolower($info['extension']), $this->config['pb_image_extensions']))
-            return false;
-
-        if ($file['size'] > $this->config['pb_image_maxsize'])
-            return false;
-
-        if (! move_uploaded_file($file['tmp_name'], $path))
-            return false;
-
-        chmod($path, $this->config['txt_config']['dir_mode']);
-
-        if (! $rename)
-            $filename = $file['name'];
-        else
-            $filename = $rename . "." . strtolower($info['extension']);
-
-        return $filename;
-    }
-
-    function downTheImg($img, $rename)
-    {
-        $info = pathinfo($img);
-
-        if (! in_array(strtolower($info['extension']), $this->config['pb_image_extensions']))
-            return false;
-
-        if (! $this->config['pb_images'] || ! $this->config['pb_download_images'])
-            return false;
-
-        if (substr($img, 0, 4) == 'http') {
-            $x = array_change_key_case(get_headers($img, 1), CASE_LOWER);
-            if (strcasecmp($x[0], 'HTTP/1.1 200 OK') != 0) {
-                $x = $x['content-length'][1];
-            } else {
-                $x = $x['content-length'];
-            }
-        } else {
-            $x = @filesize($img);
-        }
-
-        $size = $x;
-
-        if ($size > $this->config['pb_image_maxsize'])
-            return false;
-
-        $data = file_get_contents($img);
-
-        $path = $this->setDataPath($rename . "." . strtolower($info['extension']));
-
-        $fopen = fopen($path, "w+");
-        fwrite($fopen, $data);
-        fclose($fopen);
-
-        chmod($path, $this->config['txt_config']['dir_mode']);
-
-        $filename = $rename . "." . strtolower($info['extension']);
-
-        return $filename;
-    }
-
     public function insertPaste($id, $data, $arbLifespan = FALSE)
     {
 
@@ -366,7 +258,7 @@ class DB
                 $data['Lifespan'] = time() + ($this->config['pb_lifespan'][$data['Lifespan']] * 60 * 60 * 24);
         }
 
-        $paste = array('ID' => $id , 'Subdomain' => $data['Subdomain'] , 'Datetime' => time() + $data['Time_offset'] , 'Author' => $data['Author'] , 'Protection' => $data['Protect'] , 'Syntax' => $data['Syntax'] , 'Parent' => $data['Parent'] , 'Image' => $data['Image'] , 'ImageTxt' => $this->cleanHTML($data['ImageTxt']) , 'URL' => $data['URL'] , 'Lifespan' => $data['Lifespan'] , 'IP' => base64_encode($data['IP']) , 'Data' => $this->cleanHTML($data['Content']) , 'GeSHI' => $this->cleanHTML($data['GeSHI']) , 'Style' => $this->cleanHTML($data['Style']));
+        $paste = array('ID' => $id , 'Subdomain' => $data['Subdomain'] , 'Datetime' => time() + $data['Time_offset'] , 'Author' => $data['Author'] , 'Protection' => $data['Protect'] , 'Syntax' => $data['Syntax'] , 'Parent' => $data['Parent'] , 'URL' => $data['URL'] , 'Lifespan' => $data['Lifespan'] , 'IP' => base64_encode($data['IP']) , 'Data' => $this->cleanHTML($data['Content']) , 'GeSHI' => $this->cleanHTML($data['GeSHI']) , 'Style' => $this->cleanHTML($data['Style']));
 
         if (($paste['Protection'] > 0 && $this->config['pb_private']) || ($paste['Protection'] > 0 && $arbLifespan))
             $id = "!" . $id;
@@ -376,7 +268,7 @@ class DB
         switch ($this->dbt) {
             case "mysql":
                 $this->connect();
-                $query = "INSERT INTO " . $this->config['mysql_connection_config']['db_table'] . " (ID, Subdomain, Datetime, Author, Protection, Syntax, Parent, Image, ImageTxt, URL, Lifespan, IP, Data, GeSHI, Style) VALUES ('" . $paste['ID'] . "', '" . $paste['Subdomain'] . "', '" . $paste['Datetime'] . "', '" . $paste['Author'] . "', " . (int) $paste['Protection'] . ", '" . $paste['Syntax'] . "', '" . $paste['Parent'] . "', '" . $paste['Image'] . "', '" . $paste['ImageTxt'] . "', '" . $paste['URL'] . "', '" . (int) $paste['Lifespan'] . "', '" . $paste['IP'] . "', '" . $paste['Data'] . "', '" . $paste['GeSHI'] . "', '" . $paste['Style'] . "')";
+                $query = "INSERT INTO " . $this->config['mysql_connection_config']['db_table'] . " (ID, Subdomain, Datetime, Author, Protection, Syntax, Parent, URL, Lifespan, IP, Data, GeSHI, Style) VALUES ('" . $paste['ID'] . "', '" . $paste['Subdomain'] . "', '" . $paste['Datetime'] . "', '" . $paste['Author'] . "', " . (int) $paste['Protection'] . ", '" . $paste['Syntax'] . "', '" . $paste['Parent'] . "', '" . $paste['URL'] . "', '" . (int) $paste['Lifespan'] . "', '" . $paste['IP'] . "', '" . $paste['Data'] . "', '" . $paste['GeSHI'] . "', '" . $paste['Style'] . "')";
                 $result = mysql_query($query);
                 break;
             case "txt":

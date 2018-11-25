@@ -192,48 +192,7 @@ if ($requri != "install" && @$_POST['submit']) {
 
     $pasteID = $bin->generateID();
 
-    if (@$_POST['urlField'])
-        $postedURL = htmlspecialchars($_POST['urlField']);
-    elseif (preg_match('/^((ht|f)(tp|tps)|mailto|irc|skype|git|svn|cvs|aim|gtalk|feed):/', @$_POST['pasteEnter']) && count(explode("\n", $_POST['pasteEnter'])) < 2)
-        $postedURL = htmlspecialchars($_POST['pasteEnter']);
-    else
-        $postedURL = NULL;
-
     $exclam = NULL;
-
-    if ($postedURL != NULL) {
-        $_POST['pasteEnter'] = $postedURL;
-        $exclam = "!";
-        $postedURLInfo = pathinfo($postedURL);
-    }
-
-    $imageUpload = FALSE;
-    $uploadAttempt = FALSE;
-
-    if (strlen(@$_FILES['pasteImage']['name']) > 4 && $CONFIG['pb_images']) {
-        $imageUpload = $db->uploadFile($_FILES['pasteImage'], $pasteID);
-        if ($imageUpload != FALSE) {
-            $postedURL = NULL;
-        }
-        $uploadAttempt = TRUE;
-    }
-
-    if (in_array(strtolower($postedURLInfo['extension']), $CONFIG['pb_image_extensions']) && $CONFIG['pb_images'] && $CONFIG['pb_download_images'] && ! $imageUpload) {
-        $imageUpload = $db->downTheImg($postedURL, $pasteID);
-        if ($imageUpload != FALSE) {
-            $postedURL = NULL;
-            $exclam = NULL;
-        }
-        $uploadAttempt = TRUE;
-    }
-
-    if (! $imageUpload && ! $uploadAttempt)
-        $imageUpload = TRUE;
-
-    if (@$_POST['pasteEnter'] == NULL && strlen(@$_FILES['pasteImage']['name']) > 4 && $CONFIG['pb_images'] && $imageUpload)
-        $_POST['pasteEnter'] = "Image file (" . $_FILES['pasteImage']['name'] . ") uploaded...";
-
-    $postedURL = NULL;
 
     if ($bin->highlight() && $_POST['highlighter'] != "plaintext") {
         $geshi->set_language($_POST['highlighter']);
@@ -246,23 +205,16 @@ if ($requri != "install" && @$_POST['submit']) {
         $geshiStyle = NULL;
     }
 
-    $paste = array('ID' => $pasteID , 'Author' => $bin->checkAuthor(@$_POST['author']) , 'Subdomain' => $bin->db->config['subdomain'] , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Image' => $imageUpload , 'ImageTxt' => "Image file (" . @$_FILES['pasteImage']['name'] . ") uploaded..." , 'URL' => $postedURL , 'Syntax' => $_POST['highlighter'] , 'Lifespan' => $_POST['lifespan'] , 'Protect' => $_POST['privacy'] , 'Parent' => $requri , 'Content' => @$_POST['pasteEnter'] , 'GeSHI' => $geshiCode , 'Style' => $geshiStyle);
+    $paste = array('ID' => $pasteID , 'Author' => $bin->checkAuthor(@$_POST['author']) , 'Subdomain' => $bin->db->config['subdomain'] , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Syntax' => $_POST['highlighter'] , 'Lifespan' => $_POST['lifespan'] , 'Protect' => $_POST['privacy'] , 'Parent' => $requri , 'Content' => @$_POST['pasteEnter'] , 'GeSHI' => $geshiCode , 'Style' => $geshiStyle);
 
     if (@$_POST['pasteEnter'] == @$_POST['originalPaste'] && strlen($_POST['pasteEnter']) > 10)
         die("<div class=\"error\">Please don't just repost what has already been said!</div></div></body></html>");
 
-    if (strlen(@$_POST['pasteEnter']) > 10 && $imageUpload && mb_strlen($paste['Content']) <= $CONFIG['pb_max_bytes'] && $db->insertPaste($paste['ID'], $paste)) {
+    if (strlen(@$_POST['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $CONFIG['pb_max_bytes'] && $db->insertPaste($paste['ID'], $paste)) {
         die("<div class=\"result\"><div class=\"success\">Your paste has been successfully recorded!</div><div class=\"confirmURL\">URL to your paste is <a href=\"" . $bin->linker($paste['ID']) . $exclam . "\">" . $bin->linker($paste['ID']) . "</a></div></div></div></body></html>");
     } else {
         echo "<div class=\"error\">Hmm, something went wrong.</div>";
-        if (strlen(@$_FILES['pasteImage']['name']) > 4 && $_SERVER['CONTENT_LENGTH'] > $CONFIG['pb_image_maxsize'] && $CONFIG['pb_images'])
-            echo "<div class=\"warn\">Is the file too big?</div>";
-        elseif (strlen(@$_FILES['pasteImage']['name']) > 4 && $CONFIG['pb_images'])
-            echo "<div class=\"warn\">File is the wrong extension?</div>";
-        elseif (! $CONFIG['pb_images'] && strlen(@$_FILES['pasteImage']['name']) > 4)
-            echo "<div class=\"warn\">Nope, we don't host images!</div>";
-        else
-            echo "<div class=\"warn\">Pasted text must be between 10 characters and " . $bin->humanReadableFilesize($CONFIG['pb_max_bytes']) . "</div>";
+        echo "<div class=\"warn\">Pasted text must be between 10 characters and " . $bin->humanReadableFilesize($CONFIG['pb_max_bytes']) . "</div>";
     }
 }
 
@@ -277,15 +229,6 @@ if ($requri != "install" && $CONFIG['pb_recent_posts'] && substr($requri, - 1) !
             foreach ($recentPosts as $paste_) {
                 $rel = NULL;
                 $exclam = NULL;
-
-                if (! is_bool($paste_['Image']) && ! is_numeric($paste_['Image']) && $paste_['Image'] != NULL && $CONFIG['pb_images']) {
-                    if ($CONFIG['pb_media_warn'])
-                        $exclam = "!";
-                    else
-                        $exclam = NULL;
-
-                    $rel = " rel=\"image\"";
-                }
 
                 echo "<li id=\"" . $paste_['ID'] . "\" class=\"postItem\"><a href=\"" . $bin->linker($paste_['ID']) . $exclam . "\"" . $rel . ">" . stripslashes($paste_['Author']) . "</a><br />" . $bin->event($paste_['Datetime']) . " ago.</li>";
             }
@@ -355,10 +298,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
             echo "</style>";
         }
 
-        if (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image']))
-            $pasteSize = $bin->humanReadableFilesize(filesize($db->setDataPath($pasted['Image'])));
-        else
-            $pasteSize = $bin->humanReadableFilesize(mb_strlen($pasted['Data']['Orig']));
+        $pasteSize = $bin->humanReadableFilesize(mb_strlen($pasted['Data']['Orig']));
 
         if ($pasted['Lifespan'] == 0) {
             $pasted['Lifespan'] = time() + time();
@@ -378,20 +318,14 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
         if (@$_POST['adminAction'] == "ip" && $bin->hasher(hash($CONFIG['pb_algo'], @$_POST['adminPass']), $CONFIG['pb_salts']) === $CONFIG['pb_pass'])
             echo "<div class=\"success\"><strong>Author IP Address</strong> <a href=\"http://whois.domaintools.com/" . base64_decode($pasted['IP']) . "\">" . base64_decode($pasted['IP']) . "</a></div>";
 
-        if (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image']))
-            echo "<div id=\"imageContainer\"><a href=\"" . $bin->linker() . $db->setDataPath($pasted['Image']) . "\" rel=\"external\"><img src=\"" . $bin->linker() . $db->setDataPath($pasted['Image']) . "\" alt=\"" . $pasted['ImageTxt'] . "\" class=\"pastedImage\" /></a></div>";
-
         if (strlen($pasted['Parent']) > 0)
             echo "<div class=\"warn\"><strong>This is an edit of</strong> <a href=\"" . $bin->linker($pasted['Parent']) . "\">" . $bin->linker($pasted['Parent']) . "</a></div>";
 
-        if (! $bin->highlight() || (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])) || $pasted['Syntax'] == "plaintext")
-            echo "<div id=\"styleBar\"><strong>Toggle</strong> <a href=\"#\" onclick=\"return toggleExpand();\">Expand</a> &nbsp;  <a href=\"#\" onclick=\"return toggleWrap();\">Wrap</a> &nbsp; <a href=\"#\" onclick=\"return toggleStyle();\">Style</a> &nbsp; <a href=\"" . $bin->linker($pasted['ID'] . '@raw') . "\">Raw</a></div>";
-        else
-            echo "<div id=\"styleBar\"><strong>Toggle</strong> <a href=\"#\" onclick=\"return toggleExpand();\">Expand</a> &nbsp;  <a href=\"#\" onclick=\"return toggleWrap();\">Wrap</a> &nbsp; <a href=\"" . $bin->linker($pasted['ID'] . '@raw') . "\">Raw</a></div>";
+        echo "<div id=\"styleBar\"><strong>Toggle</strong> <a href=\"#\" onclick=\"return toggleExpand();\">Expand</a> &nbsp;  <a href=\"#\" onclick=\"return toggleWrap();\">Wrap</a> &nbsp; <a href=\"#\" onclick=\"return toggleStyle();\">Style</a> &nbsp; <a href=\"" . $bin->linker($pasted['ID'] . '@raw') . "\">Raw</a></div>";
 
         echo "<div class=\"spacer\">&nbsp;</div>";
 
-        if (! $bin->highlight() || (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])) || $pasted['Syntax'] == "plaintext") {
+        if (! $bin->highlight() || $pasted['Syntax'] == "plaintext") {
             echo "<div id=\"retrievedPaste\"><div id=\"lineNumbers\"><ol id=\"orderedList\" class=\"monoText\">";
             $lines = explode("\n", $pasted['Data']['Dirty']);
             foreach ($lines as $line)
@@ -407,9 +341,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
             $lineHighlight = "To highlight lines, prefix them with <em>" . $bin->lineHighlight() . "</em>";
         else
             $lineHighlight = NULL;
-
-        if (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image']))
-            $pasted['Data']['noHighlight']['Dirty'] = $bin->linker() . $db->setDataPath($pasted['Image']);
 
         if ($CONFIG['pb_editing']) {
             echo "<div id=\"formContainer\">
@@ -481,7 +412,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 						<input type=\"hidden\" name=\"originalPaste\" id=\"originalPaste\" value=\"" . $pasted['Data']['noHighlight']['Dirty'] . "\" />
 						<input type=\"hidden\" name=\"parent\" id=\"parentThread\" value=\"" . $requri . "\" />
 						<input type=\"hidden\" name=\"thisURI\" id=\"thisURI\" value=\"" . $bin->linker($pasted['ID']) . "\" />
-						<div id=\"fileUploadContainer\" style=\"display: none;\">&nbsp;</div>
 						<div id=\"submitContainer\" class=\"submitContainer\">
 							<input type=\"submit\" name=\"submit\" value=\"Submit your paste\" onclick=\"return submitPaste(this);\" id=\"submitButton\" />
 						</div>
@@ -572,20 +502,16 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
         if ($db->dbt == "txt") {
             if (! is_dir($CONFIG['txt_config']['db_folder'])) {
                 mkdir($CONFIG['txt_config']['db_folder']);
-                mkdir($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_images']);
                 mkdir($CONFIG['txt_config']['db_folder'] . "/subdomain");
-                chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_images'], $CONFIG['txt_config']['dir_mode']);
                 chmod($CONFIG['txt_config']['db_folder'], $CONFIG['txt_config']['dir_mode']);
                 chmod($CONFIG['txt_config']['db_folder'] . "/subdomain", $CONFIG['txt_config']['dir_mode']);
             }
             $db->write($db->serializer(array()), $CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index']);
             $db->write($db->serializer($bin->generateForbiddenSubdomains()), $CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index'] . "_SUBDOMAINS");
             $db->write("FORBIDDEN", $CONFIG['txt_config']['db_folder'] . "/index.html");
-            $db->write("FORBIDDEN", $CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_images'] . "/index.html");
             chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index'], $CONFIG['txt_config']['file_mode']);
             chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index'] . "_SUBDOMAINS", $CONFIG['txt_config']['file_mode']);
             chmod($CONFIG['txt_config']['db_folder'] . "/index.html", $CONFIG['txt_config']['file_mode']);
-            chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_images'] . "/index.html", $CONFIG['txt_config']['file_mode']);
         }
         if (! $db->connect())
             echo "<span class=\"error\">Cannot connect to database!</span> - Check Config in index.php";
@@ -598,7 +524,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 
     if (count($stage) > 3) {
         echo "<li>Creating Database Tables. ";
-        $structure = "CREATE TABLE IF NOT EXISTS " . $CONFIG['mysql_connection_config']['db_table'] . " (ID varchar(255), Subdomain varchar(100), Datetime bigint, Author varchar(255), Protection int, Syntax varchar(255) DEFAULT 'plaintext', Parent longtext, Image longtext, ImageTxt longtext, URL longtext, Lifespan int, IP varchar(225), Data longtext, GeSHI longtext, Style longtext, INDEX (id)) ENGINE = INNODB CHARACTER SET utf8 COLLATE utf8_general_ci";
+        $structure = "CREATE TABLE IF NOT EXISTS " . $CONFIG['mysql_connection_config']['db_table'] . " (ID varchar(255), Subdomain varchar(100), Datetime bigint, Author varchar(255), Protection int, Syntax varchar(255) DEFAULT 'plaintext', Parent longtext, URL longtext, Lifespan int, IP varchar(225), Data longtext, GeSHI longtext, Style longtext, INDEX (id)) ENGINE = INNODB CHARACTER SET utf8 COLLATE utf8_general_ci";
         if ($db->dbt == "mysql") {
             if (! mysql_query($structure, $db->link) && ! $CONFIG['mysql_connection_config']['db_existing']) {
                 echo "<span class=\"error\">Structure failed</span> - Check Config in index.php (Does the table already exist?)";
@@ -613,14 +539,10 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
                 chmod($CONFIG['txt_config']['db_folder'], $CONFIG['txt_config']['dir_mode']);
                 mkdir($CONFIG['txt_config']['db_folder'] . "/subdomain");
                 chmod($CONFIG['txt_config']['db_folder'] . "/subdomain", $CONFIG['txt_config']['dir_mode']);
-                mkdir($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_images']);
-                chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_images'], $CONFIG['txt_config']['dir_mode']);
                 $db->write("FORBIDDEN", $CONFIG['txt_config']['db_folder'] . "/index.html");
                 chmod($CONFIG['txt_config']['db_folder'] . "/index.html", $CONFIG['txt_config']['file_mode']);
-                $db->write("FORBIDDEN", $CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_images'] . "/index.html");
-                chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_images'] . "/index.html", $CONFIG['txt_config']['file_mode']);
 
-                $forbidden_array = array('ID' => 'forbidden' , 'Time_offset' => 10 , 'Author' => 'System' , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Lifespan' => 0 , 'Image' => TRUE , 'Protect' => 1 , 'Content' => serialize($bin->generateForbiddenSubdomains(TRUE)));
+                $forbidden_array = array('ID' => 'forbidden' , 'Time_offset' => 10 , 'Author' => 'System' , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Lifespan' => 0 , 'Protect' => 1 , 'Content' => serialize($bin->generateForbiddenSubdomains(TRUE)));
 
                 $db->insertPaste($forbidden_array['ID'], $forbidden_array, TRUE);
             }
@@ -648,7 +570,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     }
     echo "</ul>";
     if (count($stage) > 6) {
-        $paste_new = array('ID' => $bin->generateRandomString($CONFIG['pb_id_length']) , 'Author' => 'System' , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Lifespan' => 1800 , 'Image' => TRUE , 'Protect' => 0 , 'Content' => $CONFIG['pb_line_highlight'] . "Congratulations, your pastebin has now been installed!\nThis message will expire in 30 minutes!");
+        $paste_new = array('ID' => $bin->generateRandomString($CONFIG['pb_id_length']) , 'Author' => 'System' , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Lifespan' => 1800 , 'Protect' => 0 , 'Content' => $CONFIG['pb_line_highlight'] . "Congratulations, your pastebin has now been installed!\nThis message will expire in 30 minutes!");
         $db->insertPaste($paste_new['ID'], $paste_new, TRUE);
         echo "<div id=\"confirmInstalled\"><a href=\"" . $bin->linker() . "\">Continue</a> to your new installation!<br /></div>";
         echo "<div id=\"confirmInstalled\" class=\"warn\">It is recommended that you now CHMOD this directory to 755</div>";
@@ -680,17 +602,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     else
         $service['editing'] = array('style' => 'error' , 'status' => 'Disabled');
 
-    if ($CONFIG['pb_images'])
-        $service['images'] = array('style' => 'success' , 'status' => 'Enabled' , 'tip' => ', you can even upload a ' . $bin->humanReadableFilesize($CONFIG['pb_image_maxsize']) . ' image,');
-    else
-        $service['images'] = array('style' => 'error' , 'status' => 'Disabled' , 'tip' => NULL);
-
-    if ($CONFIG['pb_download_images'] && $CONFIG['pb_images']) {
-        $service['image_download'] = array('style' => 'success' , 'status' => 'Enabled');
-        $service['images']['tip'] = ', you can even upload or copy from another site a ' . $bin->humanReadableFilesize($CONFIG['pb_image_maxsize']) . ' image,';
-    } else
-        $service['image_download'] = array('style' => 'error' , 'status' => 'Disabled' , 'tip' => NULL);
-
     if ($CONFIG['pb_subdomains'])
         $service['subdomains'] = array('style' => 'success' , 'status' => 'Enabled' , 'tip' => $subdomainForm);
     else
@@ -706,17 +617,10 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     else
         $service['highlight'] = array('style' => 'error' , 'status' => 'Disabled' , 'tip' => NULL);
 
-    $uploadForm = NULL;
-
-    if ($CONFIG['pb_images'])
-        $uploadForm = "<div id=\"fileUploadContainer\"><input type=\"hidden\" name=\"MAX_FILE_SIZE\" value=\"" . $CONFIG['pb_image_maxsize'] . "\" /><label>Attach an Image (" . implode(", ", $CONFIG['pb_image_extensions']) . " &raquo; Max size " . $bin->humanReadableFilesize($CONFIG['pb_image_maxsize']) . ")</label><br /><input type=\"file\" name=\"pasteImage\" id=\"pasteImage\" /><br />(Optional)</div>";
-    else
-        $uploadForm = "<div id=\"fileUploadContainer\">&nbsp;<br />&nbsp;<br />&nbsp;<br />&nbsp;</div>";
-
     echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($CONFIG['pb_name']) . "</h1>" . $bin->setTagline($CONFIG['pb_tagline']) . "<div id=\"result\"></div>
 				<div id=\"formContainer\">
 				<div><span id=\"showInstructions\">[ <a href=\"#\" onclick=\"return toggleInstructions();\">more info</a> ]</span><span id=\"showSubdomain\">" . $subdomainClicker . "</span>
-				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['images']['style'] . "\">" . $service['images']['status'] . "</span> Image hosting</li><li><span class=\"" . $service['image_download']['style'] . "\">" . $service['image_download']['status'] . "</span> Copy image from URL</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish" . $service['images']['tip'] . " then hit submit!" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div><div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
+				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish then hit submit!" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div><div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
 					<form id=\"pasteForm\" action=\"" . $bin->linker() . "\" method=\"post\" name=\"pasteForm\" enctype=\"multipart/form-data\">
 						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Paste your text here!" . $service['highlight']['tip'] . "</label>
 						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" onkeyup=\"return true;\"></textarea></div>
@@ -756,7 +660,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     echo "<div class=\"spacer\">&nbsp;</div>";
     echo "<div id=\"authorContainer\"><label for=\"authorEnter\">Your Name</label><br />
 						<input type=\"text\" name=\"author\" id=\"authorEnter\" value=\"" . $CONFIG['_temp_pb_author'] . "\" onfocus=\"if(this.value=='" . $CONFIG['_temp_pb_author'] . "')this.value='';\" onblur=\"if(this.value=='')this.value='" . $CONFIG['_temp_pb_author'] . "';\" maxlength=\"32\" /></div>
-						" . $uploadForm . "
 						<div class=\"spacer\">&nbsp;</div>
 						<input type=\"text\" name=\"email\" id=\"poison\" style=\"display: none;\" />
 						<div id=\"submitContainer\" class=\"submitContainer\">
@@ -767,16 +670,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 				</div>";
     echo "</div>";
 }
-?>
-
-<?php
-
-if (($requri && $requri != "install") && (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])))
-    echo "<script type=\"text/javascript\">setTimeout(\"toggleWrap()\", 1000); setTimeout(\"toggleStyle()\", 1000);</script>";
-elseif (($requri && $requri != "install") && (! is_bool($pasted['Image']) && ! is_numeric($pasted['Image'])))
-    echo "<script type=\"text/javascript\">$(document).ready(function() { setTimeout(\"toggleWrap()\", 1000); setTimeout(\"toggleStyle()\", 1000); });</script>";
-else
-    echo "<!-- End of Document -->";
 ?>
 </body>
 </html>

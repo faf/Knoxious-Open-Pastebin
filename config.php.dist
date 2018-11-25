@@ -32,17 +32,14 @@ $CONFIG['mysql_connection_config'] = array(
 	'db_existing'	=>	FALSE		/* Reconnect to an existing table? (TRUE or FALSE) */
 );
 
-// If you are going to host images or are using a flatfile database, change
-// the following to suit your needs. File and directory permissions should
-// work in most cases.
+// If you are going to use flatfile database, change the following to suit
+// your needs. File and directory permissions should work in most cases.
 $CONFIG['txt_config'] = array(
 	'db_folder'	=>	'data'		/* Name of the folder to store Data */,
 	'db_index'	=>	'INDEX'		/* Name of the index file */,
-	'db_images'	=>	'images'	/* Name of the Image folder (stored in Data) */,
 	'dir_mode'	=>	0775		/* Directory CHMOD */,
 	'file_mode'	=>	0664		/* File CHMOD */
 );
-
 
 // Maximum depth of folder structure
 // Example, 2 would be "./data/a/b" for the paste id "abcde"
@@ -156,23 +153,6 @@ $CONFIG['pb_editing'] = FALSE;
 // Maximum paste size in Bytes
 // recommend 512Kb to be the Maximum however 1Mb is do-able.
 $CONFIG['pb_max_bytes'] = 524288;
-
-// Put a warning on User posted images (TRUE or FALSE)
-// This is default on outgoing links!!!
-$CONFIG['pb_media_warn'] = FALSE;
-
-// Allow Image hosting? (TRUE or FALSE)
-$CONFIG['pb_images'] = FALSE;
-
-// Allow Image download from URL? Requires Image Hosting to be enabled! (TRUE or FALSE)
-$CONFIG['pb_download_images'] = FALSE;
-
-// Allowed Extensions for images
-$CONFIG['pb_image_extensions'] = array("jpg", "gif", "png");
-
-// Maximum size of Images in bytes, FALSE for None.
-$CONFIG['pb_image_maxsize'] = 2097152; 
-# (2Mb, you will need to change your php.ini to accomodate higher!)
 
 // Default Author Name (Anonymous usually a good start)
 $CONFIG['pb_author'] = "Anonymous";
