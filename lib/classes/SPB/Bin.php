@@ -84,7 +84,7 @@ class Bin
 
     public function generateID($id = FALSE, $iterations = 0)
     {
-        $checkArray = array('install' , 'recent' , 'raw' , 'subdomain' , 'forbidden');
+        $checkArray = array('install' , 'recent' , 'raw');
 
         if ($iterations > 0 && $iterations < 4 && $id != FALSE)
             $id = $this->generateRandomString($this->db->getLastID());
@@ -117,29 +117,13 @@ class Bin
             return addslashes($this->db->lessHTML($author));
     }
 
-    public function checkSubdomain($subdomain)
-    {
-        if ($subdomain == FALSE)
-            return FALSE;
-
-        if (preg_match('/^\s/', $subdomain) || preg_match('/\s$/', $subdomain) || preg_match('/^\s$/', $subdomain))
-            return FALSE;
-        elseif (ctype_alnum($subdomain))
-            return $subdomain;
-        else
-            return preg_replace("/[^A-Za-z0-9]/i", "", $subdomain);
-    }
-
     public function getLastPosts($amount)
     {
         switch ($this->db->dbt) {
             case "mysql":
                 $this->db->connect();
                 $result = array();
-                if ($this->db->config['subdomain'])
-                    $query = "SELECT * FROM " . $this->db->config['mysql_connection_config']['db_table'] . " WHERE Protection < 1 AND Subdomain = '" . $this->db->config['subdomain'] . "' ORDER BY Datetime DESC LIMIT " . $amount;
-                else
-                    $query = "SELECT * FROM " . $this->db->config['mysql_connection_config']['db_table'] . " WHERE Protection < 1 AND Subdomain = '' ORDER BY Datetime DESC LIMIT " . $amount;
+                $query = "SELECT * FROM " . $this->db->config['mysql_connection_config']['db_table'] . " WHERE Protection < 1 ORDER BY Datetime DESC LIMIT " . $amount;
                 $result_temp = mysql_query($query);
                 if (! $result_temp || mysql_num_rows($result_temp) < 1)
                     return NULL;
@@ -276,7 +260,7 @@ class Bin
 
     public function generateRandomString($length)
     {
-        $checkArray = array('install' , 'recent' , 'raw' , 'subdomain' , 'forbidden' , 0);
+        $checkArray = array('install' , 'recent' , 'raw' , 0);
 
         $characters = "0123456789abcdefghijklmnopqrstuvwxyz";
         if ($this->db->config['pb_hexlike_id'])
@@ -368,129 +352,6 @@ class Bin
                     $output = $now . "/" . $file . "?" . $id;
                 break;
         }
-        return $output;
-    }
-
-    public function setSubdomain($force = FALSE)
-    {
-        if (! $this->db->config['pb_subdomains'])
-            return NULL;
-
-        if ($force)
-            return $this->db->config['txt_config']['db_folder'] = $this->db->config['txt_config']['db_folder'] . "/subdomain/" . $force;
-
-        if (! file_exists('INSTALL_LOCK'))
-            return NULL;
-
-        $domain = strtolower(str_replace("www.", "", $_SERVER['SERVER_NAME']));
-        $explode = explode(".", $domain, 2);
-        $sub = $explode[0];
-
-        switch ($this->db->dbt) {
-            case "mysql":
-                $this->db->connect();
-                $subdomain_list = array();
-                $query = "SELECT * FROM " . $this->db->config['mysql_connection_config']['db_table'] . " WHERE ID = 'forbidden' LIMIT 1";
-                $result_temp = mysql_query($query);
-                while ($row = mysql_fetch_assoc($result_temp))
-                    $subdomain_list['forbidden'] = unserialize($row['Data']);
-
-                $query = "SELECT * FROM " . $this->db->config['mysql_connection_config']['db_table'] . " WHERE ID = 'subdomain' AND Subdomain = '" . $sub . "'";
-                $result_temp = mysql_query($query);
-                if (mysql_num_rows($result_temp) > 0)
-                    $in_list = TRUE;
-                else
-                    $in_list = FALSE;
-
-                mysql_free_result($result_temp);
-                break;
-            case "txt":
-                $subdomainsFile = $this->db->config['txt_config']['db_folder'] . "/" . $this->db->config['txt_config']['db_index'] . "_SUBDOMAINS";
-                $subdomain_list = $this->db->deserializer($this->db->read($subdomainsFile));
-                $in_list = in_array($sub, $subdomain_list);
-                break;
-        }
-
-        if (! in_array($sub, $subdomain_list['forbidden']) && $in_list) {
-            $this->db->config['txt_config']['db_folder'] = $this->db->config['txt_config']['db_folder'] . "/subdomain/" . $sub;
-            return $sub;
-        } else
-            return NULL;
-    }
-
-    public function makeSubdomain($subdomain)
-    {
-        if (! file_exists('INSTALL_LOCK'))
-            return NULL;
-
-        if (! $this->db->config['pb_subdomains'])
-            return FALSE;
-
-        $subdomain = $this->checkSubdomain(strtolower($subdomain));
-
-        switch ($this->db->dbt) {
-            case "mysql":
-                $this->db->connect();
-                $subdomain_list = array();
-                $query = "SELECT * FROM " . $this->db->config['mysql_connection_config']['db_table'] . " WHERE ID = 'forbidden' LIMIT 1";
-                $result_temp = mysql_query($query);
-                while ($row = mysql_fetch_assoc($result_temp))
-                    $subdomain_list['forbidden'] = unserialize($row['Data']);
-
-                $query = "SELECT * FROM " . $this->db->config['mysql_connection_config']['db_table'] . " WHERE ID = 'subdomain' AND Subdomain = '" . $subdomain . "'";
-                $result_temp = mysql_query($query);
-                if (mysql_num_rows($result_temp) > 0)
-                    $in_list = TRUE;
-                else
-                    $in_list = FALSE;
-
-                mysql_free_result($result_temp);
-                break;
-            case "txt":
-                $subdomainsFile = $this->db->config['txt_config']['db_folder'] . "/" . $this->db->config['txt_config']['db_index'] . "_SUBDOMAINS";
-                $subdomain_list = $this->db->deserializer($this->db->read($subdomainsFile));
-                $in_list = in_array($subdomain, $subdomain_list);
-                break;
-        }
-
-        if (! in_array($subdomain, $subdomain_list['forbidden']) && ! $in_list) {
-            switch ($this->db->dbt) {
-                case "mysql":
-                    $domain = array('ID' => "subdomain" , 'Subdomain' => $subdomain , 'Author' => "System" , 'Protect' => 1 , 'Lifespan' => 0 , 'Content' => "Subdomain marker");
-                    $this->db->insertPaste($domain['ID'], $domain, TRUE);
-                    mkdir($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain);
-                    chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain, $this->db->config['txt_config']['dir_mode']);
-                    $this->db->write("FORBIDDEN", $this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/index.html");
-                    chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/index.html", $this->db->config['txt_config']['dir_mode']);
-                    return $subdomain;
-                    break;
-                case "txt":
-                    $subdomain_list[] = $subdomain;
-                    $subdomain_list = $this->db->serializer($subdomain_list);
-                    $this->db->write($subdomain_list, $subdomainsFile);
-                    mkdir($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain);
-                    chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain, $this->db->config['txt_config']['dir_mode']);
-                    $this->db->write("FORBIDDEN", $this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/index.html");
-                    chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/index.html", $this->db->config['txt_config']['dir_mode']);
-                    $this->db->write($this->db->serializer(array()), $this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_index']);
-                    chmod($this->db->config['txt_config']['db_folder'] . "/subdomain/" . $subdomain . "/" . $this->db->config['txt_config']['db_index'], $this->db->config['txt_config']['file_mode']);
-                    return $subdomain;
-                    break;
-            }
-        } else
-            return FALSE;
-    }
-
-    public function generateForbiddenSubdomains($mysql = FALSE)
-    {
-        $domain = str_replace("www.", "", $_SERVER['SERVER_NAME']);
-        $explode = explode(".", $domain, 2);
-        $domain = $explode[0];
-        $output = array('forbidden' => array("www" , $domain , "admin" , "owner" , "api"));
-
-        if ($mysql)
-            $output = array("www" , $domain , "admin" , "owner" , "api");
-
         return $output;
     }
 

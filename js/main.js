@@ -70,7 +70,6 @@ function toggleAdminTools(hideMe) {
 }
 
 function toggleInstructions() {
-    hideSubdomain();
     if (document.getElementById('instructions').style.display == 'block') {
         document.getElementById('instructions').style.display = 'none';
     }
@@ -82,22 +81,6 @@ function toggleInstructions() {
 
 function hideInstructions() {
     document.getElementById('instructions').style.display = 'none';
-    return false;
-}
-
-function toggleSubdomain() {
-    hideInstructions();
-    if (document.getElementById('subdomainForm').style.display == 'block') {
-        document.getElementById('subdomainForm').style.display = 'none';
-    }
-    else {
-        document.getElementById('subdomainForm').style.display = 'block';
-    }
-    return false;
-}
-
-function hideSubdomain() {
-    document.getElementById('subdomainForm').style.display = 'none';
     return false;
 }
 

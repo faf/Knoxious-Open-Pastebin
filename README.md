@@ -8,7 +8,6 @@ Based upon the original Knoxious Open Pastebin by Xan Manning.
 
 * Line Highlighting
 * Editing pastes, history
-* Custom Subdomains
 * Robot Spam protection
 * Paste privacy settings
 * Paste lifespan settings

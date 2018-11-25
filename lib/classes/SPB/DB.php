@@ -258,7 +258,7 @@ class DB
                 $data['Lifespan'] = time() + ($this->config['pb_lifespan'][$data['Lifespan']] * 60 * 60 * 24);
         }
 
-        $paste = array('ID' => $id , 'Subdomain' => $data['Subdomain'] , 'Datetime' => time() + $data['Time_offset'] , 'Author' => $data['Author'] , 'Protection' => $data['Protect'] , 'Syntax' => $data['Syntax'] , 'Parent' => $data['Parent'] , 'URL' => $data['URL'] , 'Lifespan' => $data['Lifespan'] , 'IP' => base64_encode($data['IP']) , 'Data' => $this->cleanHTML($data['Content']) , 'GeSHI' => $this->cleanHTML($data['GeSHI']) , 'Style' => $this->cleanHTML($data['Style']));
+        $paste = array('ID' => $id , 'Datetime' => time() + $data['Time_offset'] , 'Author' => $data['Author'] , 'Protection' => $data['Protect'] , 'Syntax' => $data['Syntax'] , 'Parent' => $data['Parent'] , 'URL' => $data['URL'] , 'Lifespan' => $data['Lifespan'] , 'IP' => base64_encode($data['IP']) , 'Data' => $this->cleanHTML($data['Content']) , 'GeSHI' => $this->cleanHTML($data['GeSHI']) , 'Style' => $this->cleanHTML($data['Style']));
 
         if (($paste['Protection'] > 0 && $this->config['pb_private']) || ($paste['Protection'] > 0 && $arbLifespan))
             $id = "!" . $id;
@@ -268,7 +268,7 @@ class DB
         switch ($this->dbt) {
             case "mysql":
                 $this->connect();
-                $query = "INSERT INTO " . $this->config['mysql_connection_config']['db_table'] . " (ID, Subdomain, Datetime, Author, Protection, Syntax, Parent, URL, Lifespan, IP, Data, GeSHI, Style) VALUES ('" . $paste['ID'] . "', '" . $paste['Subdomain'] . "', '" . $paste['Datetime'] . "', '" . $paste['Author'] . "', " . (int) $paste['Protection'] . ", '" . $paste['Syntax'] . "', '" . $paste['Parent'] . "', '" . $paste['URL'] . "', '" . (int) $paste['Lifespan'] . "', '" . $paste['IP'] . "', '" . $paste['Data'] . "', '" . $paste['GeSHI'] . "', '" . $paste['Style'] . "')";
+                $query = "INSERT INTO " . $this->config['mysql_connection_config']['db_table'] . " (ID, Datetime, Author, Protection, Syntax, Parent, URL, Lifespan, IP, Data, GeSHI, Style) VALUES ('" . $paste['ID'] . "', '" . $paste['Datetime'] . "', '" . $paste['Author'] . "', " . (int) $paste['Protection'] . ", '" . $paste['Syntax'] . "', '" . $paste['Parent'] . "', '" . $paste['URL'] . "', '" . (int) $paste['Lifespan'] . "', '" . $paste['IP'] . "', '" . $paste['Data'] . "', '" . $paste['GeSHI'] . "', '" . $paste['Style'] . "')";
                 $result = mysql_query($query);
                 break;
             case "txt":
@@ -316,7 +316,7 @@ class DB
         switch ($this->dbt) {
             case "mysql":
                 $this->connect();
-                $query = "SELECT * FROM " . $this->config['mysql_connection_config']['db_table'] . " WHERE ID <> 'subdomain' && ID <> 'forbidden' ORDER BY Datetime DESC LIMIT 1";
+                $query = "SELECT * FROM " . $this->config['mysql_connection_config']['db_table'] . " ORDER BY Datetime DESC LIMIT 1";
                 $result = mysql_query($query);
                 $output = $this->config['pb_id_length'];
                 while ($assoc = mysql_fetch_assoc($result)) {

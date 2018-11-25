@@ -174,18 +174,6 @@ div#pastebin {
     width: 68%;
 }
 
-#subdomain {
-    background-color: #ffffff;
-    border-top: 1px solid #cccccc;
-    border-bottom: 1px solid #cccccc;
-    border-left: none;
-    border-right: none;
-}
-
-#subdomain_form {
-    margin-top: 5px;
-}
-
 #adminPass {
     background-color: #ffffff;
     border-top: 1px solid #cccccc;
@@ -231,10 +219,6 @@ ul#postList {
 
 #tagline {
     margin-bottom: 10px;
-}
-
-#subdomainForm {
-    display: none;
 }
 
 #serviceList li {

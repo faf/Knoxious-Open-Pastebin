@@ -81,23 +81,6 @@ $CONFIG['pb_pass'] = $bin->hasher($CONFIG['pb_pass'], $CONFIG['pb_salts']);
 $db->config['pb_pass'] = $CONFIG['pb_pass'];
 $bin->db->config['pb_pass'] = $CONFIG['pb_pass'];
 
-if (file_exists('./INSTALL_LOCK') && @$_POST['subdomain'] && $CONFIG['pb_subdomains']) {
-    $seed = $bin->makeSubdomain(@$_POST['subdomain']);
-    if ($CONFIG['pb_https_class_1'])
-        $CONFIG['pb_protocol_fix'] = "http";
-    else
-        $CONFIG['pb_protocol_fix'] = $CONFIG['pb_protocol'];
-
-    if ($seed)
-        header("Location: " . str_replace($CONFIG['pb_protocol'] . "://", $CONFIG['pb_protocol_fix'] . "://" . $seed . ".", $bin->linker()));
-    else
-        $error_subdomain = TRUE;
-}
-
-$CONFIG['subdomain'] = $bin->setSubdomain();
-$db->config['subdomain'] = $CONFIG['subdomain'];
-$bin->db->config['subdomain'] = $CONFIG['subdomain'];
-
 $ckey = $bin->cookieName();
 
 if (@$_POST['author'] && is_numeric($CONFIG['pb_author_cookie']))
@@ -181,9 +164,6 @@ if (@$_POST['adminAction'] == "delete" && $bin->hasher(hash($CONFIG['pb_algo'], 
     $requri = NULL;
 }
 
-if (@$_POST['subdomain'] && $error_subdomain)
-    die("<div class=\"result\"><div class=\"error\">Subdomain invalid or already taken!</div></div></div></body></html>");
-
 if ($requri != "install" && @$_POST['submit']) {
     $acceptTokens = $bin->token();
 
@@ -205,7 +185,7 @@ if ($requri != "install" && @$_POST['submit']) {
         $geshiStyle = NULL;
     }
 
-    $paste = array('ID' => $pasteID , 'Author' => $bin->checkAuthor(@$_POST['author']) , 'Subdomain' => $bin->db->config['subdomain'] , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Syntax' => $_POST['highlighter'] , 'Lifespan' => $_POST['lifespan'] , 'Protect' => $_POST['privacy'] , 'Parent' => $requri , 'Content' => @$_POST['pasteEnter'] , 'GeSHI' => $geshiCode , 'Style' => $geshiStyle);
+    $paste = array('ID' => $pasteID , 'Author' => $bin->checkAuthor(@$_POST['author']) , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Syntax' => $_POST['highlighter'] , 'Lifespan' => $_POST['lifespan'] , 'Protect' => $_POST['privacy'] , 'Parent' => $requri , 'Content' => @$_POST['pasteEnter'] , 'GeSHI' => $geshiCode , 'Style' => $geshiStyle);
 
     if (@$_POST['pasteEnter'] == @$_POST['originalPaste'] && strlen($_POST['pasteEnter']) > 10)
         die("<div class=\"error\">Please don't just repost what has already been said!</div></div></body></html>");
@@ -288,9 +268,6 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 
         if ($pasted['Syntax'] == NULL || is_bool($pasted['Syntax']) || is_numeric($pasted['Syntax']))
             $pasted['Syntax'] = "plaintext";
-
-        if ($pasted['Subdomain'] != NULL && ! $CONFIG['subdomain'])
-            $bin->setSubdomain($pasted['Subdomain']);
 
         if ($bin->highlight() && $pasted['Syntax'] != "plaintext") {
             echo "<style type=\"text/css\">";
@@ -502,15 +479,11 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
         if ($db->dbt == "txt") {
             if (! is_dir($CONFIG['txt_config']['db_folder'])) {
                 mkdir($CONFIG['txt_config']['db_folder']);
-                mkdir($CONFIG['txt_config']['db_folder'] . "/subdomain");
                 chmod($CONFIG['txt_config']['db_folder'], $CONFIG['txt_config']['dir_mode']);
-                chmod($CONFIG['txt_config']['db_folder'] . "/subdomain", $CONFIG['txt_config']['dir_mode']);
             }
             $db->write($db->serializer(array()), $CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index']);
-            $db->write($db->serializer($bin->generateForbiddenSubdomains()), $CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index'] . "_SUBDOMAINS");
             $db->write("FORBIDDEN", $CONFIG['txt_config']['db_folder'] . "/index.html");
             chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index'], $CONFIG['txt_config']['file_mode']);
-            chmod($CONFIG['txt_config']['db_folder'] . "/" . $CONFIG['txt_config']['db_index'] . "_SUBDOMAINS", $CONFIG['txt_config']['file_mode']);
             chmod($CONFIG['txt_config']['db_folder'] . "/index.html", $CONFIG['txt_config']['file_mode']);
         }
         if (! $db->connect())
@@ -524,7 +497,7 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 
     if (count($stage) > 3) {
         echo "<li>Creating Database Tables. ";
-        $structure = "CREATE TABLE IF NOT EXISTS " . $CONFIG['mysql_connection_config']['db_table'] . " (ID varchar(255), Subdomain varchar(100), Datetime bigint, Author varchar(255), Protection int, Syntax varchar(255) DEFAULT 'plaintext', Parent longtext, URL longtext, Lifespan int, IP varchar(225), Data longtext, GeSHI longtext, Style longtext, INDEX (id)) ENGINE = INNODB CHARACTER SET utf8 COLLATE utf8_general_ci";
+        $structure = "CREATE TABLE IF NOT EXISTS " . $CONFIG['mysql_connection_config']['db_table'] . " (ID varchar(255), Datetime bigint, Author varchar(255), Protection int, Syntax varchar(255) DEFAULT 'plaintext', Parent longtext, URL longtext, Lifespan int, IP varchar(225), Data longtext, GeSHI longtext, Style longtext, INDEX (id)) ENGINE = INNODB CHARACTER SET utf8 COLLATE utf8_general_ci";
         if ($db->dbt == "mysql") {
             if (! mysql_query($structure, $db->link) && ! $CONFIG['mysql_connection_config']['db_existing']) {
                 echo "<span class=\"error\">Structure failed</span> - Check Config in index.php (Does the table already exist?)";
@@ -537,14 +510,8 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 
                 mkdir($CONFIG['txt_config']['db_folder']);
                 chmod($CONFIG['txt_config']['db_folder'], $CONFIG['txt_config']['dir_mode']);
-                mkdir($CONFIG['txt_config']['db_folder'] . "/subdomain");
-                chmod($CONFIG['txt_config']['db_folder'] . "/subdomain", $CONFIG['txt_config']['dir_mode']);
                 $db->write("FORBIDDEN", $CONFIG['txt_config']['db_folder'] . "/index.html");
                 chmod($CONFIG['txt_config']['db_folder'] . "/index.html", $CONFIG['txt_config']['file_mode']);
-
-                $forbidden_array = array('ID' => 'forbidden' , 'Time_offset' => 10 , 'Author' => 'System' , 'IP' => $_SERVER['REMOTE_ADDR'] , 'Lifespan' => 0 , 'Protect' => 1 , 'Content' => serialize($bin->generateForbiddenSubdomains(TRUE)));
-
-                $db->insertPaste($forbidden_array['ID'], $forbidden_array, TRUE);
             }
         } else {
             echo "<span class=\"success\">Table created!</span>";
@@ -577,35 +544,11 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
     }
     echo "</div>";
 } else {
-    if ($CONFIG['pb_subdomains'])
-        $subdomainClicker = " [ <a href=\"#\" onclick=\"return toggleSubdomain();\">make a subdomain</a> ]";
-    else
-        $subdomainClicker = NULL;
-
-    if ($CONFIG['subdomain']) {
-        $domain_name = str_replace(array($CONFIG['pb_protocol'] . "://" , $CONFIG['subdomain'] . "." , "www."), "", $bin->linker());
-        $subdomain_action = str_replace($CONFIG['subdomain'] . ".", "", $bin->linker());
-    } else {
-        $domain_name = str_replace(array($CONFIG['pb_protocol'] . "://" , "www."), "", $bin->linker());
-        $subdomain_action = $bin->linker();
-    }
-
-    $subdomainForm = "<div id=\"subdomainForm\ style=\"display: none\"><strong>Subdomain</strong><br /><form id=\"subdomain_form\" action=\"" . $subdomain_action . "\" method=\"POST\">" . $CONFIG['pb_protocol'] . "://<input type=\"text\" name=\"subdomain\" id=\"subdomain\" maxlength=\"32\" />." . $domain_name . " <input type=\"submit\" id=\"new_subdomain\" name=\"new_subdomain\" value=\"Create Subdomain\" /></form><div class=\"spacer\">&nbsp;</div></div>";
-
-    if (strlen($bin->linker()) < 16)
-        $isShortURL = " If your text is a URL, the pastebin will recognize it and will create a Short URL forwarding page! (Like bit.ly, is.gd, etc)";
-    else
-        $isShortURL = " If your text is a URL, the pastebin will recognize it and will create a URL forwarding page!";
 
     if ($CONFIG['pb_editing'])
         $service['editing'] = array('style' => 'success' , 'status' => 'Enabled');
     else
         $service['editing'] = array('style' => 'error' , 'status' => 'Disabled');
-
-    if ($CONFIG['pb_subdomains'])
-        $service['subdomains'] = array('style' => 'success' , 'status' => 'Enabled' , 'tip' => $subdomainForm);
-    else
-        $service['subdomains'] = array('style' => 'error' , 'status' => 'Disabled' , 'tip' => NULL);
 
     if ($bin->highlight())
         $service['syntax'] = array('style' => 'success' , 'status' => 'Enabled');
@@ -619,8 +562,8 @@ if ($requri && $requri != "install" && substr($requri, - 1) != "!") {
 
     echo "<div id=\"pastebin\" class=\"pastebin\">" . "<h1>" . $bin->setTitle($CONFIG['pb_name']) . "</h1>" . $bin->setTagline($CONFIG['pb_tagline']) . "<div id=\"result\"></div>
 				<div id=\"formContainer\">
-				<div><span id=\"showInstructions\">[ <a href=\"#\" onclick=\"return toggleInstructions();\">more info</a> ]</span><span id=\"showSubdomain\">" . $subdomainClicker . "</span>
-				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li><li><span class=\"" . $service['subdomains']['style'] . "\">" . $service['subdomains']['status'] . "</span> Custom Subdomains</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish then hit submit!" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div><div class=\"spacer\">&nbsp;</div></div>" . $service['subdomains']['tip'] . "
+				<div><span id=\"showInstructions\">[ <a href=\"#\" onclick=\"return toggleInstructions();\">more info</a> ]</span>
+				<div id=\"instructions\" class=\"instructions\"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, " . $bin->linker('z3n') . "). The following services have been made available by the administrator of this server:</div><ul id=\"serviceList\"><li><span class=\"success\">Enabled</span> Text</li><li><span class=\"" . $service['syntax']['style'] . "\">" . $service['syntax']['status'] . "</span> Syntax Highlighting</li><li><span class=\"" . $service['highlight']['style'] . "\">" . $service['highlight']['status'] . "</span> Line Highlighting</li><li><span class=\"" . $service['editing']['style'] . "\">" . $service['editing']['status'] . "</span> Editing</li></ul><div class=\"spacer\">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish then hit submit!" . $service['highlight']['tip'] . "</div><div class=\"spacer\">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, " . $bin->linker('z3n') . "!).</div><div class=\"spacer\">&nbsp;</div></div>
 					<form id=\"pasteForm\" action=\"" . $bin->linker() . "\" method=\"post\" name=\"pasteForm\" enctype=\"multipart/form-data\">
 						<div><label for=\"pasteEnter\" class=\"pasteEnterLabel\">Paste your text here!" . $service['highlight']['tip'] . "</label>
 						<textarea id=\"pasteEnter\" name=\"pasteEnter\" onkeydown=\"return catchTab(event)\" onkeyup=\"return true;\"></textarea></div>
