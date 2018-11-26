@@ -59,18 +59,10 @@ if (@$_POST['author'] && is_numeric($SPB_CONFIG['author_cookie'])) {
     setcookie($ckey, $bin->checkAuthor(@$_POST['author']), time() + $SPB_CONFIG['author_cookie']);
 }
 
-$SPB_CONFIG['_temp_author'] = $_COOKIE[$ckey];
-
-switch ($_COOKIE[$ckey]) {
-    case NULL:
-        $SPB_CONFIG['_temp_author'] = $SPB_CONFIG['author'];
-        break;
-    case $SPB_CONFIG['author']:
-        $SPB_CONFIG['_temp_author'] = $SPB_CONFIG['author'];
-        break;
-    default:
-        $SPB_CONFIG['_temp_author'] = $_COOKIE[$ckey];
-        break;
+if (array_key_exists($ckey, $_COOKIE) && $_COOKIE[$ckey] !== NULL) {
+    $SPB_CONFIG['_temp_author'] = $_COOKIE[$ckey];
+} else {
+    $SPB_CONFIG['_temp_author'] = $SPB_CONFIG['author'];
 }
 
 if ($requri != 'install' && $requri != NULL && substr($requri, - 1) != "!" && !$_POST['adminProceed'] && $reqhash == 'raw') {
