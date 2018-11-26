@@ -4,6 +4,17 @@ Fast and reliable pastebin solution that just works and is built with focus on s
 
 Based upon the original Knoxious Open Pastebin by Xan Manning.
 
+## Annotation
+
+There are a lot of pastbin solutions out there that are reliable and works well. But they are complicated, and focused on creation of sites with registrations, tags, lists of recent items, etc.
+
+This project is absolutely different. It should be simple. And it should be secure. Nothing more.
+
+There are two reason of why it was based upon Knoxious Open Pastebin:
+
+1. It is desirable to preserve the original format of stored pastes.
+2. I'm lazy. ;)
+
 ## Features
 
 * Line Highlighting
