@@ -87,12 +87,15 @@ if ($requri != 'install') {
     $bin->cleanUp($SPB_CONFIG['recent_posts']);
 }
 
+$title = $SPB_CONFIG['pastebin_title']
+         ? htmlspecialchars($SPB_CONFIG['pastebin_title'], ENT_COMPAT, 'UTF-8', FALSE)
+         : 'Pastebin on ' . $_SERVER['SERVER_NAME'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title><?php echo $bin->setTitle($SPB_CONFIG['pastebin_title']); ?> &raquo; <?php echo $bin->titleID($requri); ?></title>
+<title><?php echo $title; ?> &raquo; <?php echo $requri ? $requri : 'Welcome!'; ?></title>
 <meta name="robots" content="<?php echo $bin->robotPrivacy($requri); ?>" />
 <link rel="stylesheet" type="text/css" href="<?php echo $SPB_CONFIG['stylesheet']; ?>" media="screen, print" />
 <script type="text/javascript" src="js/main.js"></script>
@@ -193,7 +196,11 @@ if ($requri != 'install' && $SPB_CONFIG['recent_posts'] && substr($requri, - 1) 
 
 if ($requri && $requri != 'install' && substr($requri, - 1) != '!') {
     $pasteinfo['Parent'] = $requri;
-    echo '<div id="pastebin" class="pastebin"><h1>' . $bin->setTitle($SPB_CONFIG['pastebin_title']) . '</h1>' . $bin->setTagline($SPB_CONFIG['tagline']) . '<div id="result"></div>';
+    echo '<div id="pastebin" class="pastebin"><h1>' . $title . '</h1>';
+     if ($SPB_CONFIG['tagline']) {
+        echo '<div id="tagline">' . $SPB_CONFIG['tagline'] . '</div>';
+    }
+    echo '<div id="result"></div>';
 
     if ($pasted = $db->readPaste($requri)) {
 
@@ -455,7 +462,11 @@ if ($requri && $requri != 'install' && substr($requri, - 1) != '!') {
         $service['highlight'] = array('style' => 'error', 'status' => 'Disabled', 'tip' => NULL);
     }
 
-    echo '<div id="pastebin" class="pastebin">' . '<h1>' . $bin->setTitle($SPB_CONFIG['pastebin_title']) . '</h1>' . $bin->setTagline($SPB_CONFIG['tagline']) . '<div id="result"></div>
+    echo '<div id="pastebin" class="pastebin">' . '<h1>' . $title . '</h1>';
+     if ($SPB_CONFIG['tagline']) {
+        echo '<div id="tagline">' . $SPB_CONFIG['tagline'] . '</div>';
+    }
+    echo '<div id="result"></div>
 				<div id="formContainer">
 				<div><span id="showInstructions">[ <a href="#" onclick="return toggleInstructions();">more info</a> ]</span>
 				<div id="instructions" class="instructions"><h2>How to use</h2><div>Fill out the form with data you wish to store online. You will be given an unique address to access your content that can be sent over IM/Chat/(Micro)Blog for online collaboration (eg, ' . $bin->linker('z3n') . '). The following services have been made available by the administrator of this server:</div><ul id="serviceList"><li><span class="success">Enabled</span> Text</li><li><span class="' . $service['highlight']['style'] . '">' . $service['highlight']['status'] . '</span> Line Highlighting</li><li><span class="' . $service['editing']['style'] . '">' . $service['editing']['status'] . '</span> Editing</li></ul><div class="spacer">&nbsp;</div><div><strong>What to do</strong></div><div>Just paste your text, sourcecode or conversation into the textbox below, add a name if you wish then hit submit!' . $service['highlight']['tip'] . '</div><div class="spacer">&nbsp;</div><div><strong>Some tips about usage;</strong> If you want to put a message up asking if the user wants to continue, add an &quot;!&quot; suffix to your URL (eg, ' . $bin->linker('z3n') . '!).</div><div class="spacer">&nbsp;</div></div>

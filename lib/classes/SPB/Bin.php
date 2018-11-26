@@ -25,36 +25,6 @@ class Bin
         $this->db = $db;
     }
 
-    public function setTitle($config)
-    {
-        if (!$config) {
-            $title = 'Pastebin on ' . $_SERVER['SERVER_NAME'];
-        } else {
-            $title = htmlspecialchars($config, ENT_COMPAT, 'UTF-8', FALSE);
-        }
-        return $title;
-    }
-
-    public function setTagline($config)
-    {
-        if (!$config) {
-            $output = '<!-- TAGLINE OMITTED -->';
-        } else {
-            $output = '<div id="tagline">' . $config . '</div>';
-        }
-        return $output;
-    }
-
-    public function titleID($requri = FALSE)
-    {
-        if (!$requri) {
-            $id = 'Welcome!';
-        } else {
-            $id = $requri;
-        }
-        return $id;
-    }
-
     public function robotPrivacy($requri = FALSE)
     {
         if (!$requri) {
