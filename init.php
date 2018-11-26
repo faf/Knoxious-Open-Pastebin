@@ -9,20 +9,47 @@
  *
  */
 
+// Include configuration
 require_once('config.php');
+
+// Include all classes
 require_once('lib/classes/SPB/DB.php');
 require_once('lib/classes/SPB/Bin.php');
+require_once('lib/classes/SPB/Translator.php');
 
-// Callback function to handle magic quotes
-// (seriously, does anyone still use that?!)
+// Initialize translator
+$translator = new \SPB\Translator($SPB_CONFIG['locale']);
+
+/**
+ * Callback function to handle magic quotes
+ * (seriously, does anyone still use that?!)
+ *
+ * @param string $val The link to a string value to fix
+ * @param string $name Not used
+ */
 function callback_stripslashes(&$val, $name)
 {
     $val = stripslashes($val);
 }
 
+/**
+ * Simple translation function
+ *
+ * @param string $string A string to translate
+ * @param string[] $values An array with data to populate the string
+ *    (if it contains placeholders)
+ * @return string translated string
+ */
+function t($string, $values = array())
+{
+    global $translator;
+    return $translator->translate($string, $values);
+}
+
 // Check required PHP version
 if (substr(phpversion(), 0, 3) < 5.3) {
-    die('PHP 5.3 is required to run this pastebin. This version is ' . phpversion());
+    header('HTTP/1.0 500 Internal Server Error');
+    die(t('PHP 5.3 is required to run this pastebin. This version is %s', phpversion()));
 }
 
 // Check required PHP extensions
