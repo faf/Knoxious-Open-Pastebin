@@ -10,19 +10,7 @@
  */
 
 define('ISINCLUDED', 1);
-
-require ("config.php");
-require_once("lib/classes/SPB/DB.php");
-require_once("lib/classes/SPB/Bin.php");
-
-/* Start Pastebin */
-if (substr(phpversion(), 0, 3) < 5.3) {
-    die('PHP 5.3 is required to run this pastebin! This version is ' . phpversion() . '. Please contact your host!');
-}
-
-if ($SPB_CONFIG['gzip_content']) {
-    ob_start("ob_gzhandler");
-}
+require_once('init.php');
 
 if ($SPB_CONFIG['infinity']) {
     $infinity = array('0');
@@ -32,25 +20,6 @@ if ($SPB_CONFIG['infinity'] && $SPB_CONFIG['infinity_default']) {
     $SPB_CONFIG['lifespan'] = array_merge((array) $infinity, (array) $SPB_CONFIG['lifespan']);
 } elseif ($SPB_CONFIG['infinity'] && !$SPB_CONFIG['infinity_default']) {
     $SPB_CONFIG['lifespan'] = array_merge((array) $SPB_CONFIG['lifespan'], (array) $infinity);
-}
-
-if (get_magic_quotes_gpc()) {
-
-    function callback_stripslashes(&$val, $name)
-    {
-        if (get_magic_quotes_gpc())
-            $val = stripslashes($val);
-    }
-
-    if (count($_GET)) {
-        array_walk($_GET, 'callback_stripslashes');
-    }
-    if (count($_POST)) {
-        array_walk($_POST, 'callback_stripslashes');
-    }
-    if (count($_COOKIE)) {
-        array_walk($_COOKIE, 'callback_stripslashes');
-    }
 }
 
 $requri = $_SERVER['REQUEST_URI'];
