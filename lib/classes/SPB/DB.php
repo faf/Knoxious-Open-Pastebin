@@ -203,7 +203,7 @@ class DB
         }
 
         $paste = array( 'ID' => $id,
-                        'Datetime' => time() + $data['Time_offset'],
+                        'Datetime' => time(),
                         'Author' => $data['Author'],
                         'Protection' => $data['Protect'],
                         'Parent' => $data['Parent'],
