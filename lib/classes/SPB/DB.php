@@ -59,7 +59,7 @@ class DB
         return $write;
     }
 
-    public function array_remove(array &$a_Input, $m_SearchValue, $b_Strict = False)
+    public function array_remove(array &$a_Input, $m_SearchValue, $b_Strict = FALSE)
     {
         $a_Keys = array_keys($a_Input, $m_SearchValue, $b_Strict);
         foreach ($a_Keys as $s_Key) {
@@ -116,14 +116,8 @@ class DB
 
     public function connect()
     {
-        if (!is_writeable($this->setDataPath() . '/' . $this->config['index_file']) || !is_writeable($this->setDataPath())) {
-            $output = FALSE;
-        }
-        else {
-            $output = TRUE;
-        }
-
-        return $output;
+        return is_writeable($this->setDataPath() . '/' . $this->config['index_file'])
+               && is_writeable($this->setDataPath());
     }
 
     public function disconnect()
@@ -133,7 +127,6 @@ class DB
 
     public function readPaste($id)
     {
-
         $result = array();
         if (!file_exists($this->setDataPath($id))) {
             $index = $this->deserializer($this->read($this->setDataPath() . '/' . $this->config['index_file']));
@@ -205,16 +198,26 @@ class DB
         } elseif ($arbLifespan && $data['Lifespan'] == 0) {
             $data['Lifespan'] = 0;
         } else {
-            if ((($this->config['lifespan'][$data['Lifespan']] == FALSE || $this->config['lifespan'][$data['Lifespan']] == 0) && $this->config['infinity']) || !$this->config['lifespan']) {
+            if ((($this->config['lifespan'][$data['Lifespan']] == FALSE || $this->config['lifespan'][$data['Lifespan']] == 0)
+                && $this->config['infinity'])
+                || !$this->config['lifespan']) {
                 $data['Lifespan'] = 0;
             } else {
                 $data['Lifespan'] = time() + ($this->config['lifespan'][$data['Lifespan']] * 60 * 60 * 24);
             }
         }
 
-        $paste = array('ID' => $id, 'Datetime' => time() + $data['Time_offset'], 'Author' => $data['Author'], 'Protection' => $data['Protect'], 'Parent' => $data['Parent'], 'Lifespan' => $data['Lifespan'], 'IP' => base64_encode($data['IP']), 'Data' => $this->cleanHTML($data['Content']));
+        $paste = array( 'ID' => $id,
+                        'Datetime' => time() + $data['Time_offset'],
+                        'Author' => $data['Author'],
+                        'Protection' => $data['Protect'],
+                        'Parent' => $data['Parent'],
+                        'Lifespan' => $data['Lifespan'],
+                        'IP' => base64_encode($data['IP']),
+                        'Data' => $this->cleanHTML($data['Content'])
+        );
 
-        if (($paste['Protection'] > 0 && $this->config['private']) || ($paste['Protection'] > 0 && $arbLifespan)) {
+        if ($paste['Protection'] > 0 && ($this->config['private'] || $arbLifespan)) {
             $id = '!' . $id;
         } else {
             $paste['Protection'] = 0;
