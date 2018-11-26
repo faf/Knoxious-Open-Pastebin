@@ -37,18 +37,10 @@ class Bin
 
             switch ((int) $privacy['Protection']) {
                 case 0:
-                    if ($privacy['URL'] != '') {
-                        $robot = 'index,nofollow';
-                    } else {
-                        $robot = 'index,follow';
-                    }
+                    $robot = 'index,follow';
                     break;
                 case 1:
-                    if ($privacy['URL'] != '') {
-                        $robot = 'noindex,nofollow';
-                    } else {
-                        $robot = 'noindex,follow';
-                    }
+                    $robot = 'noindex,follow';
                     break;
                 default:
                     $robot = 'index,follow';
