@@ -120,11 +120,6 @@ class DB
                && is_writeable($this->setDataPath());
     }
 
-    public function disconnect()
-    {
-        return TRUE;
-    }
-
     public function readPaste($id)
     {
         $result = array();

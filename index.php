@@ -101,11 +101,7 @@ if ($requri != 'install') {
 <div id="siteWrapper">
 <?php
 if ($requri != 'install' && !$db->connect()) {
-    echo '<div class="error">No database connection could be established - check your config.</div>';
-} elseif ($requri != 'install' && $db->connect()) {
-    $db->disconnect();
-} else {
-    echo '<!-- No Check is required... -->';
+    echo '<div class="error">Data storage is unavailable - check your config.</div>';
 }
 
 if (@$_POST['adminAction'] == 'delete' && $bin->hasher(hash($SPB_CONFIG['algo'], @$_POST['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password']) {
