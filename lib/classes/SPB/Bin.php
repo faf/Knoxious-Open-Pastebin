@@ -28,7 +28,7 @@ class Bin
     public function setTitle($config)
     {
         if (!$config) {
-            $title = "Pastebin on " . $_SERVER['SERVER_NAME'];
+            $title = 'Pastebin on ' . $_SERVER['SERVER_NAME'];
         } else {
             $title = htmlspecialchars($config, ENT_COMPAT, 'UTF-8', FALSE);
         }
@@ -38,9 +38,9 @@ class Bin
     public function setTagline($config)
     {
         if (!$config) {
-            $output = "<!-- TAGLINE OMITTED -->";
+            $output = '<!-- TAGLINE OMITTED -->';
         } else {
-            $output = "<div id=\"tagline\">" . $config . "</div>";
+            $output = '<div id="tagline">' . $config . '</div>';
         }
         return $output;
     }
@@ -48,7 +48,7 @@ class Bin
     public function titleID($requri = FALSE)
     {
         if (!$requri) {
-            $id = "Welcome!";
+            $id = 'Welcome!';
         } else {
             $id = $requri;
         }
@@ -58,30 +58,30 @@ class Bin
     public function robotPrivacy($requri = FALSE)
     {
         if (!$requri) {
-            return "index,follow";
+            return 'index,follow';
         }
 
-        $requri = str_replace("!", "", $requri);
+        $requri = str_replace('!', '', $requri);
 
         if ($privacy = $this->db->readPaste($requri)) {
 
             switch ((int) $privacy['Protection']) {
                 case 0:
-                    if ($privacy['URL'] != "") {
-                        $robot = "index,nofollow";
+                    if ($privacy['URL'] != '') {
+                        $robot = 'index,nofollow';
                     } else {
-                        $robot = "index,follow";
+                        $robot = 'index,follow';
                     }
                     break;
                 case 1:
-                    if ($privacy['URL'] != "") {
-                        $robot = "noindex,nofollow";
+                    if ($privacy['URL'] != '') {
+                        $robot = 'noindex,nofollow';
                     } else {
-                        $robot = "noindex,follow";
+                        $robot = 'noindex,follow';
                     }
                     break;
                 default:
-                    $robot = "index,follow";
+                    $robot = 'index,follow';
                     break;
             }
         }
@@ -137,16 +137,16 @@ class Bin
 
     public function getLastPosts($amount)
     {
-        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . "/" . $this->db->config['index_file']));
+        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . '/' . $this->db->config['index_file']));
         $index = array_reverse($index);
         $int = 0;
         $result = array();
         if (count($index) > 0) {
             foreach ($index as $row) {
-                if ($int < $amount && substr($row, 0, 1) != "!") {
+                if ($int < $amount && substr($row, 0, 1) != '!') {
                     $result[$int] = $this->db->readPaste($row);
                     $int ++;
-                } elseif ($int <= $amount && substr($row, 0, 1) == "!") {
+                } elseif ($int <= $amount && substr($row, 0, 1) == '!') {
                     $int = $int;
                 } else {
                     return $result;
@@ -181,7 +181,7 @@ class Bin
 
         $len = strlen($this->lineHighlight());
         if (substr($line, 0, $len) == $this->lineHighlight()) {
-            $line = "<span class=\"lineHighlight\">" . substr($line, $len) . "</span>";
+            $line = '<span class="lineHighlight">' . substr($line, $len) . '</span>';
         }
 
         return $line;
@@ -212,12 +212,12 @@ class Bin
     {
         $checkArray = array('install', 'recent', 'raw', 0);
 
-        $characters = "0123456789abcdefghijklmnopqrstuvwxyz";
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
         if ($this->db->config['hexlike_ids']) {
-            $characters = "0123456789abcdefabcdef";
+            $characters = '0123456789abcdefabcdef';
         }
 
-        $output = "";
+        $output = '';
         for ($p = 0; $p < $length; $p ++) {
             $output .= $characters[mt_rand(0, strlen($characters))];
         }
@@ -239,7 +239,7 @@ class Bin
             return false;
         }
 
-        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . "/" . $this->db->config['index_file']));
+        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . '/' . $this->db->config['index_file']));
 
         if (is_array($index) && count($index) > $amount + 1) {
             shuffle($index);
@@ -250,7 +250,7 @@ class Bin
         if (count($index) > 0) {
             foreach ($index as $row) {
                 if ($int < $amount) {
-                    $result[] = $this->db->readPaste(str_replace("!", NULL, $row));
+                    $result[] = $this->db->readPaste(str_replace('!', NULL, $row));
                 } else {
                     break;
                 }
@@ -275,9 +275,9 @@ class Bin
         $dir = dirname($_SERVER['SCRIPT_NAME']);
 
         if (strlen($dir) > 1) {
-            $now = $this->db->config['protocol'] . "://" . $_SERVER['SERVER_NAME'] . $dir;
+            $now = $this->db->config['protocol'] . '://' . $_SERVER['SERVER_NAME'] . $dir;
         } else {
-            $now = $this->db->config['protocol'] . "://" . $_SERVER['SERVER_NAME'];
+            $now = $this->db->config['protocol'] . '://' . $_SERVER['SERVER_NAME'];
         }
 
         $file = basename($_SERVER['SCRIPT_NAME']);
@@ -285,16 +285,16 @@ class Bin
         switch ($this->db->config['rewrite_enabled']) {
             case TRUE:
                 if ($id == FALSE) {
-                    $output = $now . "/";
+                    $output = $now . '/';
                 } else {
-                    $output = $now . "/" . $id;
+                    $output = $now . '/' . $id;
                 }
                 break;
             case FALSE:
                 if ($id == FALSE) {
-                    $output = $now . "/";
+                    $output = $now . '/';
                 } else {
-                    $output = $now . "/" . $file . "?" . $id;
+                    $output = $now . '/' . $file . '?' . $id;
                 }
                 break;
         }
@@ -312,7 +312,7 @@ class Bin
         }
 
         if (!$this->db->config['algo']) {
-            $this->db->config['algo'] = "sha256";
+            $this->db->config['algo'] = 'sha256';
         }
 
         $hashedSalt = NULL;
@@ -341,7 +341,7 @@ class Bin
 
     public function event($time, $single = FALSE)
     {
-        $context = array(array(60 * 60 * 24 * 365, "years"), array(60 * 60 * 24 * 7, "weeks"), array(60 * 60 * 24, "days"), array(60 * 60, "hours"), array(60, "minutes"), array(1, "seconds"));
+        $context = array(array(60 * 60 * 24 * 365, 'years'), array(60 * 60 * 24 * 7, 'weeks'), array(60 * 60 * 24, 'days'), array(60 * 60, 'hours'), array(60, 'minutes'), array(1, 'seconds'));
 
         $now = gmdate('U');
         $difference = $now - $time;
@@ -356,7 +356,7 @@ class Bin
             }
         }
 
-        $print = ($count == 1) ? '1 ' . substr($name, 0, - 1) : $count . " " . $name;
+        $print = ($count == 1) ? '1 ' . substr($name, 0, - 1) : $count . ' ' . $name;
 
         if ($single) {
             return $print;
@@ -367,7 +367,7 @@ class Bin
             $name2 = $context[$i + 1][1];
 
             if (($count2 = floor(($difference - ($seconds * $count)) / $seconds2)) > 0) {
-                $print .= ($count2 == 1) ? ' 1 ' . substr($name2, 0, - 1) : " " . $count2 . " " . $name2;
+                $print .= ($count2 == 1) ? ' 1 ' . substr($name2, 0, - 1) : ' ' . $count2 . ' ' . $name2;
             }
         }
         return $print;
@@ -402,17 +402,17 @@ class Bin
     public function token($generate = FALSE)
     {
         if ($generate == TRUE) {
-            $output = strtoupper(sha1(md5((int) date("G") . $_SERVER['REMOTE_ADDR'] . $this->db->config['admin_password'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME'])));
+            $output = strtoupper(sha1(md5((int) date('G') . $_SERVER['REMOTE_ADDR'] . $this->db->config['admin_password'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME'])));
             return $output;
         }
 
-        $time = array(((int) date("G") - 1), ((int) date("G")), ((int) date("G") + 1));
+        $time = array(((int) date('G') - 1), ((int) date('G')), ((int) date('G') + 1));
 
-        if ((int) date("G") == 23) {
+        if ((int) date('G') == 23) {
             $time[2] = 0;
         }
 
-        if ((int) date("G") == 0) {
+        if ((int) date('G') == 0) {
             $time[0] = 23;
         }
 
