@@ -28,15 +28,15 @@ $SPB_CONFIG = array(
     'file_bitmask' => 0664,
 
 // Maximum depth of folder structure
-// Example, 2 would be "./data/a/b" for the paste id "abcde"
-// 3 would be "./data/a/b/c" for the paste id "abcde". Leave if you are unsure!
+// Example, 2 would be './data/a/b' for the paste id 'abcde'
+// 3 would be './data/a/b/c' for the paste id 'abcde'. Leave if you are unsure!
 // Note this will always default to be AT LEAST 1.
 // NEVER CHANGE THIS ONCE INSTALLED!!!
     'max_folder_depth' => 1,
 
-// Pastebin title, FALSE value uses the default "Pastebin on " . $_SERVER['SERVER_NAME']
+// Pastebin title, FALSE value uses the default 'Pastebin on ' . $_SERVER['SERVER_NAME']
     'pastebin_title' => FALSE,
-#    'pastebin_title' => "My Pastebin!",
+#    'pastebin_title' => 'Simpliest Pastebin",
 
 // Pastebin tagline (Message under the name/title), FALSE leaves this blank
     'tagline' => FALSE,
@@ -60,10 +60,10 @@ $SPB_CONFIG = array(
 // Please make them at least 6 characters or more!
     'salts' => array(
 
-        1 => "str001",
-        2 => "str002",
-        3 => "str003",
-        4 => "str004"
+        1 => 'str001',
+        2 => 'str002',
+        3 => 'str003',
+        4 => 'str004'
 
     ),
 
@@ -92,7 +92,7 @@ $SPB_CONFIG = array(
 //    'line_highlight' => '@@',
 
 // Date Format (see PHP.net's entry on date();)
-    'datetime_format' => "Y-m-d H:i:s",
+    'datetime_format' => 'Y-m-d H:i:s',
 
 // Auto cleanup of posts that have expired?
     'autoclean' => FALSE,
