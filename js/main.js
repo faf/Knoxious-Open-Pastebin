@@ -17,7 +17,6 @@ function catchTab(evt) {
 
     if (evt.keyCode == 9) {
         evt.preventDefault();
-
         if (ss != se && t.value.slice(ss, se).indexOf("\n") != -1) {
             var pre = t.value.slice(0, ss);
             var sel = t.value.slice(ss, se).replace(/\n/g, "\n" + tab);
@@ -25,35 +24,27 @@ function catchTab(evt) {
             t.value = pre.concat(tab).concat(sel).concat(post);
             t.selectionStart = ss + tab.length;
             t.selectionEnd = se + tab.length;
-        }
-        else {
+        } else {
             t.value = t.value.slice(0, ss).concat(tab).concat(t.value.slice(ss, t.value.length));
             if (ss == se) {
                 t.selectionStart = t.selectionEnd = ss + tab.length;
-            }
-            else {
+            } else {
                 t.selectionStart = ss + tab.length;
                 t.selectionEnd = se + tab.length;
             }
         }
-    }
-    else if (evt.keyCode == 8 && t.value.slice(ss - 4, ss) == tab) {
+    } else if (evt.keyCode == 8 && t.value.slice(ss - 4, ss) == tab) {
         evt.preventDefault();
-
         t.value = t.value.slice(0, ss - 4).concat(t.value.slice(ss, t.value.length));
         t.selectionStart = t.selectionEnd = ss - tab.length;
-    }
-    else if (evt.keyCode == 46 && t.value.slice(se, se + 4) == tab) {
+    } else if (evt.keyCode == 46 && t.value.slice(se, se + 4) == tab) {
         evt.preventDefault();
-
         t.value = t.value.slice(0, ss).concat(t.value.slice(ss + 4, t.value.length));
         t.selectionStart = t.selectionEnd = ss;
-    }
-    else if (evt.keyCode == 37 && t.value.slice(ss - 4, ss) == tab) {
+    } else if (evt.keyCode == 37 && t.value.slice(ss - 4, ss) == tab) {
         evt.preventDefault();
         t.selectionStart = t.selectionEnd = ss - 4;
-    }
-    else if (evt.keyCode == 39 && t.value.slice(ss, ss + 4) == tab) {
+    } else if (evt.keyCode == 39 && t.value.slice(ss, ss + 4) == tab) {
         evt.preventDefault();
         t.selectionStart = t.selectionEnd = ss + 4;
     }
@@ -62,8 +53,7 @@ function catchTab(evt) {
 function toggleAdminTools(hideMe) {
     if (document.getElementById('hiddenAdmin').style.display == 'block') {
         document.getElementById('hiddenAdmin').style.display = 'none';
-    }
-    else {
+    } else {
         document.getElementById('hiddenAdmin').style.display = 'block';
     }
     return false;
@@ -72,8 +62,7 @@ function toggleAdminTools(hideMe) {
 function toggleInstructions() {
     if (document.getElementById('instructions').style.display == 'block') {
         document.getElementById('instructions').style.display = 'none';
-    }
-    else {
+    } else {
         document.getElementById('instructions').style.display = 'block';
     }
     return false;
@@ -90,8 +79,7 @@ function toggleWrap() {
     for (n in pres) {
         if (pres[n].style != null && (pres[n].style.whiteSpace == 'pre' || pres[n].style.whiteSpace == '')) {
             pres[n].style.whiteSpace = 'pre-wrap';
-        }
-        else if (pres[n].style != null) {
+        } else if (pres[n].style != null) {
             pres[n].style.whiteSpace = 'pre';
         }
     }
@@ -102,8 +90,7 @@ function toggleExpand() {
     if (document.getElementById('lineNumbers').style.maxHeight != 'none') {
         document.getElementById('lineNumbers').style.maxHeight = 'none';
         document.getElementById('lineNumbers').style.width = 'auto';
-    }
-    else {
+    } else {
         document.getElementById('lineNumbers').setAttribute('style', '');
     }
     return false;
@@ -112,8 +99,7 @@ function toggleExpand() {
 function toggleStyle(){
     if (document.getElementById('orderedList').getAttribute('class') == 'monoText' || document.getElementById('orderedList').getAttribute('class') == '') {
         document.getElementById('orderedList').setAttribute('class', 'plainText');
-    }
-    else {
+    } else {
         document.getElementById('orderedList').setAttribute('class', 'monoText');
     }
     return false;
