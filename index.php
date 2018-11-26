@@ -254,6 +254,7 @@ if ($requri && $requri != 'install' && substr($requri, - 1) != '!') {
             if (is_array($SPB_CONFIG['lifespan']) && count($SPB_CONFIG['lifespan']) > 1) {
                 echo '<div id="lifespanContainer"><label for="lifespan">Paste Expiration</label> <select name="lifespan" id="lifespan">';
 
+                $options = '';
                 foreach ($SPB_CONFIG['lifespan'] as $span) {
                     $key = array_keys($SPB_CONFIG['lifespan'], $span);
                     $key = $key[0];
@@ -463,6 +464,7 @@ if ($requri && $requri != 'install' && substr($requri, - 1) != '!') {
     if (is_array($SPB_CONFIG['lifespan']) && count($SPB_CONFIG['lifespan']) > 1) {
         echo '<div id="lifespanContainer"><label for="lifespan">Paste Expiration</label> <select name="lifespan" id="lifespan">';
 
+        $options = '';
         foreach ($SPB_CONFIG['lifespan'] as $span) {
             $key = array_keys($SPB_CONFIG['lifespan'], $span);
             $key = $key[0];
