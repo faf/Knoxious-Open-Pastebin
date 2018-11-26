@@ -134,6 +134,10 @@ $SPB_CONFIG = array(
 // Enables Private Posting (TRUE or FALSE)
     'private' => FALSE,
 
+// Localization (FALSE or valid locale name)
+    'locale' => FALSE,
+#    'locale' => 'en',
+
 // Protocol (one can use autodetection or hard encode a needed value)
     'protocol' => (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https' : 'http',
 #    'protocol' => 'https',
