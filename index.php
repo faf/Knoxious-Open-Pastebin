@@ -422,14 +422,6 @@ if ($requri && $requri != 'install' && substr($requri, - 1) != '!') {
     }
 
     if (count($stage) > 3) {
-        $stage[] = 1;
-    }
-
-    if (count($stage) > 4) {
-        $stage[] = 1;
-    }
-
-    if (count($stage) > 5) {
         echo '<li>Locking Installation. ';
         if (!$db->write(time(), './INSTALL_LOCK')) {
             echo '<span class="error">Writing Error</span>';
@@ -441,7 +433,7 @@ if ($requri && $requri != 'install' && substr($requri, - 1) != '!') {
         echo '</li>';
     }
     echo '</ul>';
-    if (count($stage) > 6) {
+    if (count($stage) > 4) {
         $paste_new = array('ID' => $bin->generateRandomString($SPB_CONFIG['id_length']), 'Author' => 'System', 'IP' => $_SERVER['REMOTE_ADDR'], 'Lifespan' => 1800, 'Protect' => 0, 'Content' => $SPB_CONFIG['line_highlight'] . "Congratulations, your pastebin has now been installed!\nThis message will expire in 30 minutes!");
         $db->insertPaste($paste_new['ID'], $paste_new, TRUE);
         echo '<div id="confirmInstalled"><a href="' . $bin->linker() . '">Continue</a> to your new installation!<br /></div>';
