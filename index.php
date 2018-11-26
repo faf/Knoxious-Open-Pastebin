@@ -116,7 +116,7 @@ if (@$_POST['adminAction'] == 'delete' && $bin->hasher(hash($SPB_CONFIG['algo'],
 if ($requri != 'install' && @$_POST['submit']) {
     $acceptTokens = $bin->token();
 
-    if (@$_POST['email'] != '' || !in_array($_POST['ajax_token'], $acceptTokens)) {
+    if (@$_POST['email'] != '' || !in_array($_POST['token'], $acceptTokens)) {
         die('<div class="result"><div class="error">Spambot detected, I don\'t like that!</div></div></div></body></html>');
     }
 
@@ -313,7 +313,7 @@ if ($requri && $requri != 'install' && substr($requri, - 1) != '!') {
 						<input type="text" name="author" id="authorEnter" value="' . $SPB_CONFIG['_temp_author'] . '" onfocus="if(this.value==\'' . $SPB_CONFIG['_temp_author'] . '\')this.value=\'\';" onblur="if(this.value==\'\')this.value=\'' . $SPB_CONFIG['_temp_author'] . '\';" maxlength="32" /></div>
 						<div class="spacer">&nbsp;</div>
 						<input type="text" name="email" id="poison" style="display: none;" />
-						<input type="hidden" name="ajax_token" value="' . $bin->token(TRUE) . '" />
+						<input type="hidden" name="token" value="' . $bin->token(TRUE) . '" />
 						<input type="hidden" name="originalPaste" id="originalPaste" value="' . $pasted['Data']['noHighlight']['Dirty'] . '" />
 						<input type="hidden" name="parent" id="parentThread" value="' . $requri . '" />
 						<input type="hidden" name="thisURI" id="thisURI" value="' . $bin->linker($pasted['ID']) . '" />
@@ -466,7 +466,7 @@ if ($requri && $requri != 'install' && substr($requri, - 1) != '!') {
 						<div><label for="pasteEnter" class="pasteEnterLabel">Paste your text here!</label>
 						<textarea id="pasteEnter" name="pasteEnter" onkeydown="return catchTab(event)" onkeyup="return true;"></textarea></div>
 						<div class="spacer">&nbsp;</div>
-						<div id="secondaryFormContainer"><input type="hidden" name="ajax_token" value="' . $bin->token(TRUE) . '" />';
+						<div id="secondaryFormContainer"><input type="hidden" name="token" value="' . $bin->token(TRUE) . '" />';
 
     if (is_array($SPB_CONFIG['lifespan']) && count($SPB_CONFIG['lifespan']) > 1) {
         echo '<div id="lifespanContainer"><label for="lifespan">Paste Expiration</label> <select name="lifespan" id="lifespan">';
