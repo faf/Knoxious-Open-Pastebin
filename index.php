@@ -55,8 +55,8 @@ $bin->db->config['admin_password'] = $SPB_CONFIG['admin_password'];
 
 $ckey = $bin->cookieName();
 
-if (@$_POST['author'] && is_numeric($SPB_CONFIG['author_cookie'])) {
-    setcookie($ckey, $bin->checkAuthor(@$_POST['author']), time() + $SPB_CONFIG['author_cookie']);
+if ($_POST['author'] && is_numeric($SPB_CONFIG['author_cookie'])) {
+    setcookie($ckey, $bin->checkAuthor($_POST['author']), time() + $SPB_CONFIG['author_cookie']);
 }
 
 if (array_key_exists($ckey, $_COOKIE) && $_COOKIE[$ckey] !== NULL) {
@@ -99,16 +99,16 @@ if ($requri != 'install' && !$db->connect()) {
     echo '<div class="error">Data storage is unavailable - check your config.</div>';
 }
 
-if (@$_POST['adminAction'] == 'delete' && $bin->hasher(hash($SPB_CONFIG['algo'], @$_POST['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password']) {
+if ($_POST['adminAction'] == 'delete' && $bin->hasher(hash($SPB_CONFIG['algo'], $_POST['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password']) {
     $db->dropPaste($requri);
     echo '<div class="success">Paste, ' . $requri . ', has been deleted!</div>';
     $requri = NULL;
 }
 
-if ($requri != 'install' && @$_POST['submit']) {
+if ($requri != 'install' && $_POST['submit']) {
     $acceptTokens = $bin->token();
 
-    if (@$_POST['email'] != '' || !in_array($_POST['token'], $acceptTokens)) {
+    if ($_POST['email'] != '' || !in_array($_POST['token'], $acceptTokens)) {
         die('<div class="result"><div class="error">Spambot detected, I don\'t like that!</div></div></div></body></html>');
     }
 
@@ -116,13 +116,13 @@ if ($requri != 'install' && @$_POST['submit']) {
 
     $exclam = NULL;
 
-    $paste = array('ID' => $pasteID, 'Author' => $bin->checkAuthor(@$_POST['author']), 'IP' => $_SERVER['REMOTE_ADDR'], 'Lifespan' => $_POST['lifespan'], 'Protect' => $_POST['privacy'], 'Parent' => $requri, 'Content' => @$_POST['pasteEnter']);
+    $paste = array('ID' => $pasteID, 'Author' => $bin->checkAuthor($_POST['author']), 'IP' => $_SERVER['REMOTE_ADDR'], 'Lifespan' => $_POST['lifespan'], 'Protect' => $_POST['privacy'], 'Parent' => $requri, 'Content' => $_POST['pasteEnter']);
 
-    if (@$_POST['pasteEnter'] == @$_POST['originalPaste'] && strlen($_POST['pasteEnter']) > 10) {
+    if ($_POST['pasteEnter'] == $_POST['originalPaste'] && strlen($_POST['pasteEnter']) > 10) {
         die('<div class="error">Please don\'t just repost what has already been said!</div></div></body></html>');
     }
 
-    if (strlen(@$_POST['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && $db->insertPaste($paste['ID'], $paste)) {
+    if (strlen($_POST['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && $db->insertPaste($paste['ID'], $paste)) {
         die('<div class="result"><div class="success">Your paste has been successfully recorded!</div><div class="confirmURL">URL to your paste is <a href="' . $bin->linker($paste['ID']) . $exclam . '">' . $bin->linker($paste['ID']) . '</a></div></div></div></body></html>');
     } else {
         echo '<div class="error">Hmm, something went wrong.</div>';
@@ -154,7 +154,7 @@ if ($requri != 'install' && $SPB_CONFIG['recent_posts'] && substr($requri, - 1) 
         echo '<div id="adminFunctions">
 							<form id="adminForm" action="' . $bin->linker($requri) . '" method="post">
 								<label for="adminPass">Password</label><br />
-								<input id="adminPass" type="password" name="adminPass" value="' . @$_POST['adminPass'] . '" />
+								<input id="adminPass" type="password" name="adminPass" value="' . $_POST['adminPass'] . '" />
 								<br /><br />
 								<select id="adminAction" name="adminAction">
 									<option value="ip">Show Author\'s IP</option>
@@ -173,7 +173,7 @@ if ($requri != 'install' && $SPB_CONFIG['recent_posts'] && substr($requri, - 1) 
         echo '<div id="adminFunctions">
 							<form id="adminForm" action="' . $bin->linker($requri) . '" method="post">
 								<label for="adminPass">Password</label><br />
-								<input id="adminPass" type="password" name="adminPass" value="' . @$_POST['adminPass'] . '" />
+								<input id="adminPass" type="password" name="adminPass" value="' . $_POST['adminPass'] . '" />
 								<br /><br />
 								<select id="adminAction" name="adminAction">
 									<option value="ip">Show Author\'s IP</option>
@@ -219,7 +219,7 @@ if ($requri && $requri != 'install' && substr($requri, - 1) != '!') {
 					<strong>Expires</strong> ' . $lifeString . '<br />
 					<strong>Paste size</strong> ' . $pasteSize . '</div>';
 
-        if (@$_POST['adminAction'] == 'ip' && $bin->hasher(hash($SPB_CONFIG['algo'], @$_POST['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password']) {
+        if ($_POST['adminAction'] == 'ip' && $bin->hasher(hash($SPB_CONFIG['algo'], $_POST['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password']) {
             echo '<div class="success"><strong>Author IP Address</strong> <a href="http://whois.domaintools.com/' . base64_decode($pasted['IP']) . '">' . base64_decode($pasted['IP']) . '</a></div>';
         }
 
@@ -338,7 +338,7 @@ if ($requri && $requri != 'install' && substr($requri, - 1) != '!') {
     echo '<div id="adminFunctions">
 							<form id="adminForm" action="' . $bin->linker(substr($requri, 0, - 1)) . '" method="post">
 								<label for="adminPass">Password</label><br />
-								<input id="adminPass" type="password" name="adminPass" value="' . @$_POST['adminPass'] . '" />
+								<input id="adminPass" type="password" name="adminPass" value="' . $_POST['adminPass'] . '" />
 								<br /><br />
 								<select id="adminAction" name="adminAction">
 									<option value="ip">Show Author\'s IP</option>
