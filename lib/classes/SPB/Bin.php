@@ -27,6 +27,7 @@ class Bin
 
     public function robotPrivacy($requri = FALSE)
     {
+        $result = '';
         if (!$requri) {
             return 'index,follow';
         }
@@ -37,17 +38,17 @@ class Bin
 
             switch ((int) $privacy['Protection']) {
                 case 0:
-                    $robot = 'index,follow';
+                    $result = 'index,follow';
                     break;
                 case 1:
-                    $robot = 'noindex,follow';
+                    $result = 'noindex,follow';
                     break;
                 default:
-                    $robot = 'index,follow';
+                    $result = 'index,follow';
                     break;
             }
         }
-        return $robot;
+        return $result;
     }
 
     public function thisDir()
