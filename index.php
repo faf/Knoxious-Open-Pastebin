@@ -35,7 +35,7 @@ if (!file_exists('./INSTALL_LOCK') && $requri != 'install') {
 }
 
 if (file_exists('./INSTALL_LOCK') && $SPB_CONFIG['rewrite_enabled']) {
-    $requri = $_GET['i'];
+    $requri = array_key_exists('i', $_GET) ? $_GET['i'] : '';
 }
 
 $SPB_CONFIG['requri'] = $requri;
@@ -65,7 +65,7 @@ if (array_key_exists($ckey, $_COOKIE) && $_COOKIE[$ckey] !== NULL) {
     $SPB_CONFIG['_temp_author'] = $SPB_CONFIG['author'];
 }
 
-if ($requri != 'install' && $requri != NULL && substr($requri, - 1) != "!" && !$_POST['adminProceed'] && $reqhash == 'raw') {
+if ($requri != 'install' && $requri != NULL && substr($requri, - 1) != "!" && !(array_key_exists('adminProceed', $_POST) && $_POST['adminProceed']) && $reqhash == 'raw') {
     if ($pasted = $db->readPaste($requri)) {
         header('Content-Type: text/plain; charset=utf-8');
         die($db->rawHTML($bin->noHighlight($pasted['Data'])));
