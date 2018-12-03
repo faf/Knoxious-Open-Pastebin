@@ -25,32 +25,6 @@ class Bin
         $this->db = $db;
     }
 
-    public function robotPrivacy($requri = FALSE)
-    {
-        $result = '';
-        if (!$requri) {
-            return 'index,follow';
-        }
-
-        $requri = str_replace('!', '', $requri);
-
-        if ($privacy = $this->db->readPaste($requri)) {
-
-            switch ((int) $privacy['Protection']) {
-                case 0:
-                    $result = 'index,follow';
-                    break;
-                case 1:
-                    $result = 'noindex,follow';
-                    break;
-                default:
-                    $result = 'index,follow';
-                    break;
-            }
-        }
-        return $result;
-    }
-
     public function thisDir()
     {
         return dirname($_SERVER['SCRIPT_FILENAME']);

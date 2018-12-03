@@ -88,7 +88,7 @@ $title = $SPB_CONFIG['pastebin_title']
 <head>
 <meta charset="utf-8" />
 <title><?php echo $title; ?> &raquo; <?php echo $requri ? $requri : 'Welcome!'; ?></title>
-<meta name="robots" content="<?php echo $bin->robotPrivacy($requri); ?>" />
+<meta name="robots" content="noindex,nofollow" />
 <link rel="stylesheet" type="text/css" href="<?php echo $SPB_CONFIG['stylesheet']; ?>" media="screen, print" />
 <script type="text/javascript" src="js/main.js"></script>
 </head>
