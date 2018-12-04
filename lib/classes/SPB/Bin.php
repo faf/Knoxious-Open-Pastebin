@@ -338,27 +338,35 @@ class Bin
 
     public function token($generate = FALSE)
     {
-        if ($generate == TRUE) {
-            $output = strtoupper(sha1(md5((int) date('G') . $_SERVER['REMOTE_ADDR'] . $this->db->config['admin_password'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME'])));
-            return $output;
+        $times = array(((int) date('G') - 1), ((int) date('G')), ((int) date('G') + 1));
+        if ($generate) {
+            return $this->_token($times[1]);
+        } else {
+            if ($times[1] == 23) {
+                $times[2] = 0;
+            } elseif ($times[1] == 0) {
+                $times[0] = 23;
+            }
+            $result = array();
+            foreach ($times as $time) {
+                $result[] = $this->_token($time);
+            }
+            return $result;
         }
-
-        $time = array(((int) date('G') - 1), ((int) date('G')), ((int) date('G') + 1));
-
-        if ((int) date('G') == 23) {
-            $time[2] = 0;
-        }
-
-        if ((int) date('G') == 0) {
-            $time[0] = 23;
-        }
-
-        $output = array(strtoupper(sha1(md5($time[0] . $_SERVER['REMOTE_ADDR'] . $this->db->config['admin_password'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))), strtoupper(sha1(md5($time[1] . $_SERVER['REMOTE_ADDR'] . $this->db->config['admin_password'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))), strtoupper(sha1(md5($time[2] . $_SERVER['REMOTE_ADDR'] . $this->db->config['admin_password'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))));
-        return $output;
     }
 
     public function cookieName()
     {
         return strtoupper(sha1(str_rot13(md5($_SERVER['REMOTE_ADDR'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))));
+    }
+
+    private function _token($value)
+    {
+        return strtoupper(sha1(md5($value
+                                   . $_SERVER['REMOTE_ADDR']
+                                   . $this->db->config['admin_password']
+                                   . $_SERVER['SERVER_ADDR']
+                                   . $_SERVER['HTTP_USER_AGENT']
+                                   . $_SERVER['SCRIPT_FILENAME'])));
     }
 }
