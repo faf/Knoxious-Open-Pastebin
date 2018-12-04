@@ -17,9 +17,9 @@ There are two reason of why it was based upon Knoxious Open Pastebin:
 
 ## Features
 
-* Line Highlighting
-* Editing pastes, history
-* Robot Spam protection
+* Line highlighting
+* Derivative pastes
+* CSRF and spam protection
 * Paste privacy settings
 * Paste lifespan settings
 
