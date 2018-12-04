@@ -12,6 +12,11 @@
 // Include configuration
 require_once('config.php');
 
+// TODO: Set default values in case of broken or missed configuration
+if (is_array($SPB_CONFIG['lifespan'])) {
+    $SPB_CONFIG['lifespan'] = array_unique($SPB_CONFIG['lifespan']);
+}
+
 // Include all classes
 require_once('lib/classes/SPB/DB.php');
 require_once('lib/classes/SPB/Bin.php');
@@ -79,4 +84,20 @@ if (get_magic_quotes_gpc()) {
     if (count($_COOKIE)) {
         array_walk($_COOKIE, 'callback_stripslashes');
     }
+}
+
+// Define all possible POST parameters
+$post_values = array();
+foreach (array( 'adminAction',
+                'adminPass',
+                'adminProceed',
+                'author',
+                'email',
+                'lifespan',
+                'originalPaste',
+                'pasteEnter',
+                'privacy',
+                'submit',
+                'token') as $key) {
+    $post_values[$key] = array_key_exists($key, $_POST) ? $_POST[$key] : '';
 }
