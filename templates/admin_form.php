@@ -1,0 +1,35 @@
+<?php
+/*
+ * This file is a part of Simpliest Pastebin.
+ *
+ * Copyright 2009-2018 the original author or authors.
+ *
+ * Licensed under the terms of the MIT License.
+ * See the MIT for details (https://opensource.org/licenses/MIT).
+ *
+ */
+
+if (ISINCLUDED != '1') {
+    header('HTTP/1.0 403 Forbidden');
+    die('Forbidden!');
+}
+
+?>
+<div id="showAdminFunctions">
+    <a href="#" onclick="return toggleAdminTools();">Show Admin tools</a>
+</div>
+<div id="hiddenAdmin">
+    <h2>Administrate</h2>
+    <div id="adminFunctions">
+        <form id="adminForm" action="<?php echo $page['thisURL']; ?>" method="post">
+            <label for="adminPass">Password</label><br />
+            <input id="adminPass" type="password" name="adminPass" value="<?php echo $post_values['adminPass']; ?>" />
+            <br /><br />
+            <select id="adminAction" name="adminAction">
+                <option value="ip">Show Author's IP</option>
+                <option value="delete">Delete Paste</option>
+            </select>
+            <input type="submit" name="adminProceed" value="Proceed" />
+        </form>
+    </div>
+</div>
