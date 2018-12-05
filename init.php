@@ -9,6 +9,7 @@
  *
  */
 
+// Prevent this code from direct access
 if (ISINCLUDED != '1') {
     header('HTTP/1.0 403 Forbidden');
     die('Forbidden!');
@@ -54,18 +55,23 @@ function callback_stripslashes(&$val, $name)
  * @param string $string A string to translate
  * @param string[] $values An array with data to populate the string
  *    (if it contains placeholders)
- * @return string translated string
+ * @return string translated and quoted string
  */
 function t($string, $values = array())
 {
     global $translator;
-    return $translator->translate($string, $values);
+    // Just in case if one will forget to use array even for single value
+    if (!is_array($values)) {
+        $values = array($values);
+    }
+    return htmlspecialchars($translator->translate($string, $values));
 }
 
 // Check required PHP version
 if (substr(phpversion(), 0, 3) < 5.3) {
     header('HTTP/1.0 500 Internal Server Error');
-    die(t('PHP 5.3 is required to run this pastebin. This version is %s', phpversion()));
+    header('Content-Type: text/plain; charset=utf-8');
+    die(t('PHP 5.3 or higher is required to run this pastebin. This version is %s', phpversion()));
 }
 
 // Check required PHP extensions
@@ -75,7 +81,9 @@ if ($SPB_CONFIG['gzip_content']) {
 }
 foreach ($extensions as $ext) {
     if (!extension_loaded($ext)) {
-        die('Missed required PHP ' . $ext . ' extension.');
+        header('HTTP/1.0 500 Internal Server Error');
+        header('Content-Type: text/plain; charset=utf-8');
+        die(t('Missed required PHP %s extension.', $ext));
     }
 }
 

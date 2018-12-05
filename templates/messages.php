@@ -9,34 +9,37 @@
  *
  */
 
+// Prevent template from direct access
 if (ISINCLUDED != '1') {
     header('HTTP/1.0 403 Forbidden');
     die('Forbidden!');
 }
-
-// Errors
+?>
+<!-- Begin of messages block -->
+<?php
+// Display errors
 if (count($page['messages']['error'])) {
     foreach ($page['messages']['error'] as $message) {
-
-?><div class="error"><?php echo $message; ?></div><?php
-
+?>
+            <div class="error"><?php echo $message; ?></div>
+<?php
     }
 }
-
-// Warnings
+// Display warnings
 if (count($page['messages']['warn'])) {
     foreach ($page['messages']['warn'] as $message) {
-
-?><div class="warn"><?php echo $message; ?></div><?php
-
+?>
+            <div class="warn"><?php echo $message; ?></div>
+<?php
     }
 }
-
-// Info messages
+// Display info messages
 if (count($page['messages']['success'])) {
     foreach ($page['messages']['success'] as $message) {
-
-?><div class="success"><?php echo $message; ?></div><?php
-
+?>
+            <div class="success"><?php echo $message; ?></div>
+<?php
     }
 }
+?>
+<!-- End of messages block -->

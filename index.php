@@ -63,33 +63,33 @@ $page = array(
 if ($requri === 'install') {
 
     $page['contentTemplate'] = 'install.php';
-    $page['title'] = 'Installing Pastebin';
+    $page['title'] = t('Installing Pastebin');
     $page['installList'] = array();
     $page['installed'] = FALSE;
 
     $stop = FALSE;
 
     if (file_exists('./INSTALL_LOCK')) {
-        $page['messages']['warn'][] = 'Already Installed!';
+        $page['messages']['warn'][] = t('Already installed!');
         $stop = TRUE;
     }
 
     if (!$stop) {
-        $step = array( 'step' => 'Checking Directory is writable.',
+        $step = array( 'step' => t('Checking whether directory is writable.'),
                        'success' => FALSE,
                        'result' => '' );
         if (!is_writable($bin->thisDir())) {
-            $step['result'] = 'Directory is not writable! - CHMOD to 0777';
+            $step['result'] = t('Directory is not writable!');
             $stop = TRUE;
         } else {
-            $step['result'] = 'Directory is writable!';
+            $step['result'] = t('Directory is writable!');
             $step['success'] = TRUE;
         }
         $page['installList'][] = $step;
     }
 
     if (!$stop) {
-        $step = array( 'step' => 'Quick password check.',
+        $step = array( 'step' => t('Quick password check.'),
                        'success' => FALSE,
                        'result' => '' );
 
@@ -100,11 +100,11 @@ if ($requri === 'install') {
                                                            $SPB_CONFIG['salts'])
             || !isset($SPB_CONFIG['admin_password'])) {
 
-            $step['result'] = 'Password is still default!';
+            $step['result'] = t('Password is still default!');
             $stop = TRUE;
 
         } else {
-            $step['result'] = 'Password is not default!';
+            $step['result'] = t('Password is not default!');
             $step['success'] = TRUE;
         }
         $page['installList'][] = $step;
@@ -112,7 +112,7 @@ if ($requri === 'install') {
 
 
     if (!$stop) {
-        $step = array( 'step' => 'Quick Salt Check.',
+        $step = array( 'step' => t('Quick salts check.'),
                        'success' => FALSE,
                        'result' => '' );
 
@@ -125,11 +125,11 @@ if ($requri === 'install') {
             || $SPB_CONFIG['salts'][3] === 'str003'
             || $SPB_CONFIG['salts'][4] === 'str004') {
 
-            $step['result'] = 'Salt strings are inadequate!';
+            $step['result'] = t('Salt strings are inadequate!');
             $stop = TRUE;
 
         } else {
-            $step['result'] = 'Salt strings are adequate!';
+            $step['result'] = t('Salt strings are adequate!');
             $step['success'] = TRUE;
         }
 
@@ -137,7 +137,7 @@ if ($requri === 'install') {
     }
 
     if (!$stop) {
-        $step = array( 'step' => 'Checking Database Connection.',
+        $step = array( 'step' => t('Checking data storage connection.'),
                        'success' => FALSE,
                        'result' => '' );
 
@@ -152,25 +152,25 @@ if ($requri === 'install') {
         chmod($SPB_CONFIG['data_dir'] . '/index.html', $SPB_CONFIG['file_bitmask']);
 
         if (!$db->connect()) {
-            $step['result'] = 'Cannot connect to database! - Check Config in index.php';
+            $step['result'] = t('Cannot connect to data storage, check config!');
             $stop = TRUE;
         } else {
-            $step['result'] = 'Connected to database!';
+            $step['result'] = t('Connection established!');
             $step['success'] = TRUE;
         }
         $page['installList'][] = $step;
     }
 
     if (!$stop) {
-        $step = array( 'step' => 'Locking Installation.',
+        $step = array( 'step' => t('Locking installation.'),
                        'success' => FALSE,
                        'result' => '' );
 
         if (!$db->write(time(), './INSTALL_LOCK')) {
-            $step['result'] = 'Writing Error';
+            $step['result'] = t('Writing error');
             $stop = TRUE;
         } else {
-            $step['result'] = 'Complete';
+            $step['result'] = t('Complete');
             $step['success'] = TRUE;
             chmod('./INSTALL_LOCK', $SPB_CONFIG['file_bitmask']);
         }
@@ -184,7 +184,7 @@ if ($requri === 'install') {
                             'Lifespan' => 1800,
                             'Protect' => 0,
                             'Parent' => NULL,
-                            'Content' => $SPB_CONFIG['line_highlight'] . "Congratulations, your pastebin has now been installed!\nThis message will expire in 30 minutes!"
+                            'Content' => $SPB_CONFIG['line_highlight'] . t("Congratulations, your Pastebin has now been installed!\nThis message will expire in 30 minutes!")
         );
         $db->insertPaste($paste_new['ID'], $paste_new, TRUE);
         $page['installed'] = TRUE;
@@ -198,9 +198,9 @@ if ($requri === 'install') {
     $page['contentTemplate'] = 'main.php';
     $page['title'] = ( $SPB_CONFIG['pastebin_title']
                      ? htmlspecialchars($SPB_CONFIG['pastebin_title'], ENT_COMPAT, 'UTF-8', FALSE)
-                     : 'Pastebin on ' . $_SERVER['SERVER_NAME'])
+                     : t('Pastebin on %s', array($_SERVER['SERVER_NAME'])) )
                    . ' &raquo; '
-                   . ($requri ? $requri : 'Welcome!');
+                   . ($requri ? $requri : t('Welcome!'));
     $page['tagline'] = $SPB_CONFIG['tagline'];
     $page['confirmURL'] = NULL;
     $page['showForms'] = TRUE;
@@ -227,7 +227,7 @@ if ($requri === 'install') {
             $key = $key[0];
             $hint = $span
                     ? $bin->event(time() - ($span * 24 * 60 * 60), TRUE)
-                    : 'Never';
+                    : t('Never');
             $page['lifespansOptions'][] = array( 'value' => $key,
                                                  'hint' => $hint );
         }
@@ -246,7 +246,7 @@ if ($requri === 'install') {
     }
 
     if (!$db->connect()) {
-        $page['messages']['error'][] = 'Data storage is unavailable - check your config.';
+        $page['messages']['error'][] = t('Data storage is unavailable - check config!');
     } elseif (substr($requri, - 1) != "!" && !$post_values['adminProceed'] && $reqhash === 'raw') {
         if ($pasted = $db->readPaste($requri)) {
             header('Content-Type: text/plain; charset=utf-8');
@@ -254,6 +254,7 @@ if ($requri === 'install') {
             exit(0);
         } else {
             header('HTTP/1.0 500 Internal Server Error');
+            header('Content-Type: text/plain; charset=utf-8');
             die(t('There was an error!'));
         }
     } elseif ($requri && substr($requri, - 1) != '!') {
@@ -273,14 +274,14 @@ if ($requri === 'install') {
 
             if ($pasted['Lifespan'] == 0) {
                 $pasted['Lifespan'] = time() + time();
-                $page['paste']['lifeString'] = 'Never';
+                $page['paste']['lifeString'] = t('Never');
             } else {
-                $page['paste']['lifeString'] = 'in ' . $bin->event(time() - ($pasted['Lifespan'] - time()));
+                $page['paste']['lifeString'] = t('in %s', array($bin->event(time() - ($pasted['Lifespan'] - time()))));
             }
 
             if (gmdate('U') > $pasted['Lifespan']) {
                 $db->dropPaste($requri);
-                $page['messages']['warn'][] = 'This paste has either expired or doesn\'t exist!';
+                $page['messages']['warn'][] = t('This data has either expired or doesn\'t exist!');
                 $page['showPaste'] = FALSE;
             } else {
                 $page['paste']['Author'] = $pasted['Author'];
@@ -322,7 +323,7 @@ if ($requri === 'install') {
             }
 
         } else {
-            $page['messages']['warn'][] = 'This paste has either expired or doesn\'t exist!';
+            $page['messages']['warn'][] = t('This data has either expired or doesn\'t exist!');
             $page['showPasteForm'] = TRUE;
         }
 
@@ -355,7 +356,7 @@ if ($requri === 'install') {
 
     if ($post_values['adminAction'] === 'delete' && $bin->hasher(hash($SPB_CONFIG['algo'], $post_values['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password']) {
         $db->dropPaste($requri);
-        $page['messages']['success'][] = 'Paste, ' . $requri . ', has been deleted!';
+        $page['messages']['success'][] = t('Data %s has been deleted!', array($requri));
         $requri = NULL;
         $page['showPaste'] = FALSE;
         $page['showPasteForm'] = FALSE;
@@ -366,7 +367,7 @@ if ($requri === 'install') {
         $acceptTokens = $bin->token();
 
         if ($post_values['email'] !== '' || !in_array($post_values['token'], $acceptTokens)) {
-            $page['messages']['error'][] = 'Spambot detected, I don\'t like that!';
+            $page['messages']['error'][] = t('Spambot detected!');
             $page['showForms'] = FALSE;
         } else {
 
@@ -380,15 +381,15 @@ if ($requri === 'install') {
             );
 
             if ($post_values['pasteEnter'] == $post_values['originalPaste'] && strlen($post_values['pasteEnter']) > 10) {
-                $page['messages']['error'][] = 'Please don\'t just repost what has already been said!';
+                $page['messages']['error'][] = t('Please don\'t just repost what has already been posted!');
             } elseif (strlen($post_values['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && $db->insertPaste($paste['ID'], $paste)) {
-                $page['messages']['success'][] = 'Your paste has been successfully recorded!';
+                $page['messages']['success'][] = t('Your data has been successfully recorded!');
                 $page['confirmURL'] = $bin->linker($paste['ID']);
                 $page['showForms'] = FALSE;
                 $page['showPaste'] = FALSE;
             } else {
-                $page['messages']['error'][] = 'Hmm, something went wrong.';
-                $page['messages']['warn'][] = 'Pasted text must be between 10 characters and ' . $bin->humanReadableFilesize($SPB_CONFIG['max_bytes']);
+                $page['messages']['error'][] = t('Something went wrong.');
+                $page['messages']['warn'][] = t('The size of data must be between %d bytes and %s', array(10, $bin->humanReadableFilesize($SPB_CONFIG['max_bytes'])));
             }
         }
     }
