@@ -183,6 +183,7 @@ if ($requri === 'install') {
                             'IP' => $_SERVER['REMOTE_ADDR'],
                             'Lifespan' => 1800,
                             'Protect' => 0,
+                            'Parent' => NULL,
                             'Content' => $SPB_CONFIG['line_highlight'] . "Congratulations, your pastebin has now been installed!\nThis message will expire in 30 minutes!"
         );
         $db->insertPaste($paste_new['ID'], $paste_new, TRUE);
