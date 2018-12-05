@@ -9,8 +9,16 @@
  *
  */
 
+if (ISINCLUDED != '1') {
+    header('HTTP/1.0 403 Forbidden');
+    die('Forbidden!');
+}
+
 // Include configuration
-require_once('config.php');
+if (!include_once('config.php')) {
+    header('HTTP/1.0 500 Internal Server Error');
+    die('Configuration not found!');
+}
 
 // TODO: Set default values in case of broken or missed configuration
 if (is_array($SPB_CONFIG['lifespan'])) {
