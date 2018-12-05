@@ -224,8 +224,8 @@ if ($requri === 'install') {
         foreach ($SPB_CONFIG['lifespan'] as $span) {
             $key = array_keys($SPB_CONFIG['lifespan'], $span);
             $key = $key[0];
-            $hint = (float)$span
-                    ? $bin->event(time() - ((float)$span * 24 * 60 * 60), TRUE)
+            $hint = $span
+                    ? $bin->event(time() - ($span * 24 * 60 * 60), TRUE)
                     : 'Never';
             $page['lifespansOptions'][] = array( 'value' => $key,
                                                  'hint' => $hint );

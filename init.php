@@ -14,6 +14,9 @@ require_once('config.php');
 
 // TODO: Set default values in case of broken or missed configuration
 if (is_array($SPB_CONFIG['lifespan'])) {
+    // Convert all lifespan values to float
+    array_walk($SPB_CONFIG['lifespan'], function(&$val,$name) { $val = (float) $val; } );
+    // Remove duplicates from the list of lifespans
     $SPB_CONFIG['lifespan'] = array_unique($SPB_CONFIG['lifespan']);
 }
 
