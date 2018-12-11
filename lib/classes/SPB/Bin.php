@@ -323,19 +323,6 @@ class Bin
         return round($size, 2) . ' ' . $units[$i];
     }
 
-    public function stristr_array($haystack, $needle)
-    {
-        if (!is_array($needle)) {
-            return false;
-        }
-        foreach ($needle as $element) {
-            if (stristr($haystack, $element)) {
-                return $element;
-            }
-        }
-        return false;
-    }
-
     public function token($generate = FALSE)
     {
         $times = array(((int) date('G') - 1), ((int) date('G')), ((int) date('G') + 1));
