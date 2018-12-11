@@ -36,7 +36,7 @@ $SPB_CONFIG = array(
 
 // Pastebin title, FALSE value uses the default 'Pastebin on ' . $_SERVER['SERVER_NAME']
     'pastebin_title' => FALSE,
-#    'pastebin_title' => 'Simpliest Pastebin",
+#    'pastebin_title' => 'Simpliest Pastebin',
 
 // Pastebin tagline (Message under the name/title), FALSE leaves this blank
     'tagline' => FALSE,
