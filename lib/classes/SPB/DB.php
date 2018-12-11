@@ -43,29 +43,12 @@ class DB
         return $data;
     }
 
-    public function append($data, $file)
-    {
-        $open = fopen($file, 'a');
-        $write = fwrite($open, $data);
-        fclose($open);
-        return $write;
-    }
-
     public function write($data, $file)
     {
         $open = fopen($file, 'w');
         $write = fwrite($open, $data);
         fclose($open);
         return $write;
-    }
-
-    public function array_remove(array &$a_Input, $m_SearchValue, $b_Strict = FALSE)
-    {
-        $a_Keys = array_keys($a_Input, $m_SearchValue, $b_Strict);
-        foreach ($a_Keys as $s_Key) {
-            unset($a_Input[$s_Key]);
-        }
-        return $a_Input;
     }
 
     public function setDataPath($filename = FALSE, $justPath = FALSE)
