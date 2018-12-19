@@ -15,33 +15,33 @@ class Bin
 {
 
     /**
-     * Data storage object - an instance of DB class
-     * @var DB
+     * Data storage object - an instance of Storage class
+     * @var Storage
      */
-    private $db;
+    private $storage;
 
     private $config;
 
     public function __construct($config)
     {
         $this->config = $config;
-        $this->db = new DB($config);
+        $this->storage = new Storage($config);
     }
 
 // Temporary wrapper methods
-    public function write($data, $file) { return $this->db->write($data, $file); }
-    public function serializer($data) { return $this->db->serializer($data); }
-    public function connect() { return $this->db->connect(); }
-    public function insertPaste($id, $data, $arbLifespan = FALSE) { return $this->db->insertPaste($id, $data, $arbLifespan); }
-    public function readPaste($id) { return $this->db->readPaste($id); }
-    public function rawHTML($input) { return $this->db->rawHTML($input); }
-    public function dirtyHTML($input) { return $this->db->dirtyHTML($input); }
-    public function dropPaste($id) { return $this->db->dropPaste($id); }
+    public function write($data, $file) { return $this->storage->write($data, $file); }
+    public function serializer($data) { return $this->storage->serializer($data); }
+    public function connect() { return $this->storage->connect(); }
+    public function insertPaste($id, $data, $arbLifespan = FALSE) { return $this->storage->insertPaste($id, $data, $arbLifespan); }
+    public function readPaste($id) { return $this->storage->readPaste($id); }
+    public function rawHTML($input) { return $this->storage->rawHTML($input); }
+    public function dirtyHTML($input) { return $this->storage->dirtyHTML($input); }
+    public function dropPaste($id) { return $this->storage->dropPaste($id); }
 
     public function setConfigValue($param, $value)
     {
         $this->config[$param] = $value;
-        $this->db->config[$param] = $value;
+        $this->storage->config[$param] = $value;
     }
 // End of temporary wrapper methods
 
@@ -56,24 +56,24 @@ class Bin
         $checkArray = array('install', 'recent', 'raw');
 
         if ($iterations > 0 && $iterations < 4 && $id != FALSE) {
-            $id = $this->generateRandomString($this->db->getLastID());
+            $id = $this->generateRandomString($this->storage->getLastID());
         } elseif ($iterations > 3 && $id != FALSE) {
-            $id = $this->generateRandomString($this->db->getLastID() + 1);
+            $id = $this->generateRandomString($this->storage->getLastID() + 1);
         }
 
         if (!$id) {
-            $id = $this->generateRandomString($this->db->getLastID());
+            $id = $this->generateRandomString($this->storage->getLastID());
         }
 
-        if ($id == $this->db->config['index_file'] || in_array($id, $checkArray)) {
-            $id = $this->generateRandomString($this->db->getLastID());
+        if ($id == $this->storage->config['index_file'] || in_array($id, $checkArray)) {
+            $id = $this->generateRandomString($this->storage->getLastID());
         }
 
-        if ($this->db->config['rewrite_enabled'] && (is_dir($id) || file_exists($id))) {
+        if ($this->storage->config['rewrite_enabled'] && (is_dir($id) || file_exists($id))) {
             $id = $this->generateID($id, $iterations + 1);
         }
 
-        if (!$this->db->checkID($id) && !in_array($id, $checkArray)) {
+        if (!$this->storage->checkID($id) && !in_array($id, $checkArray)) {
             return $id;
         }  else {
             return $this->generateID($id, $iterations + 1);
@@ -83,26 +83,26 @@ class Bin
     public function checkAuthor($author = FALSE)
     {
         if ($author == FALSE) {
-            return $this->db->config['author'];
+            return $this->storage->config['author'];
         }
 
         if (preg_match('/^\s/', $author) || preg_match('/\s$/', $author) || preg_match('/^\s$/', $author)) {
-            return $this->db->config['author'];
+            return $this->storage->config['author'];
         } else {
-            return addslashes($this->db->lessHTML($author));
+            return addslashes($this->storage->lessHTML($author));
         }
     }
 
     public function getLastPosts($amount)
     {
-        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . '/' . $this->db->config['index_file']));
+        $index = $this->storage->deserializer($this->storage->read($this->storage->setDataPath() . '/' . $this->storage->config['index_file']));
         $index = array_reverse($index);
         $int = 0;
         $result = array();
         if (count($index) > 0) {
             foreach ($index as $row) {
                 if ($int < $amount && substr($row, 0, 1) != '!') {
-                    $result[$int] = $this->db->readPaste($row);
+                    $result[$int] = $this->storage->readPaste($row);
                     $int ++;
                 } elseif ($int <= $amount && substr($row, 0, 1) == '!') {
                     $int = $int;
@@ -116,19 +116,19 @@ class Bin
 
     public function lineHighlight()
     {
-        if ($this->db->config['line_highlight'] == FALSE || strlen($this->db->config['line_highlight']) < 1) {
+        if ($this->storage->config['line_highlight'] == FALSE || strlen($this->storage->config['line_highlight']) < 1) {
             return false;
         }
 
-        if (strlen($this->db->config['line_highlight']) > 6) {
-            return substr($this->db->config['line_highlight'], 0, 6);
+        if (strlen($this->storage->config['line_highlight']) > 6) {
+            return substr($this->storage->config['line_highlight'], 0, 6);
         }
 
-        if (strlen($this->db->config['line_highlight']) == 1) {
-            return $this->db->config['line_highlight'] . $this->db->config['line_highlight'];
+        if (strlen($this->storage->config['line_highlight']) == 1) {
+            return $this->storage->config['line_highlight'] . $this->storage->config['line_highlight'];
         }
 
-        return $this->db->config['line_highlight'];
+        return $this->storage->config['line_highlight'];
     }
 
     public function filterHighlight($line)
@@ -171,7 +171,7 @@ class Bin
         $checkArray = array('install', 'recent', 'raw', 0);
 
         $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
-        if ($this->db->config['hexlike_ids']) {
+        if ($this->storage->config['hexlike_ids']) {
             $characters = '0123456789abcdefabcdef';
         }
 
@@ -189,7 +189,7 @@ class Bin
 
     public function cleanUp($amount)
     {
-        if (!$this->db->config['autoclean']) {
+        if (!$this->storage->config['autoclean']) {
             return false;
         }
 
@@ -197,7 +197,7 @@ class Bin
             return false;
         }
 
-        $index = $this->db->deserializer($this->db->read($this->db->setDataPath() . '/' . $this->db->config['index_file']));
+        $index = $this->storage->deserializer($this->storage->read($this->storage->setDataPath() . '/' . $this->storage->config['index_file']));
 
         if (is_array($index) && count($index) > $amount + 1) {
             shuffle($index);
@@ -208,7 +208,7 @@ class Bin
         if (count($index) > 0) {
             foreach ($index as $row) {
                 if ($int < $amount) {
-                    $result[] = $this->db->readPaste(str_replace('!', NULL, $row));
+                    $result[] = $this->storage->readPaste(str_replace('!', NULL, $row));
                 } else {
                     break;
                 }
@@ -222,7 +222,7 @@ class Bin
             }
 
             if (gmdate('U') > $paste['Lifespan']) {
-                $this->db->dropPaste($paste['ID']);
+                $this->storage->dropPaste($paste['ID']);
             }
         }
         return $result;
@@ -233,14 +233,14 @@ class Bin
         $dir = dirname($_SERVER['SCRIPT_NAME']);
 
         if (strlen($dir) > 1) {
-            $now = $this->db->config['protocol'] . '://' . $_SERVER['SERVER_NAME'] . $dir;
+            $now = $this->storage->config['protocol'] . '://' . $_SERVER['SERVER_NAME'] . $dir;
         } else {
-            $now = $this->db->config['protocol'] . '://' . $_SERVER['SERVER_NAME'];
+            $now = $this->storage->config['protocol'] . '://' . $_SERVER['SERVER_NAME'];
         }
 
         $file = basename($_SERVER['SCRIPT_NAME']);
 
-        switch ($this->db->config['rewrite_enabled']) {
+        switch ($this->storage->config['rewrite_enabled']) {
             case TRUE:
                 if ($id == FALSE) {
                     $output = $now . '/';
@@ -269,8 +269,8 @@ class Bin
             $salts = NULL;
         }
 
-        if (!$this->db->config['algo']) {
-            $this->db->config['algo'] = 'sha256';
+        if (!$this->storage->config['algo']) {
+            $this->storage->config['algo'] = 'sha256';
         }
 
         $hashedSalt = NULL;
@@ -284,14 +284,14 @@ class Bin
                 $hashedSalt[1] .= $salts[2][$i] . $salts[4][$i] . ($longIP + $i);
             }
 
-            $hashedSalt[0] = hash($this->db->config['algo'], $hashedSalt[0]);
-            $hashedSalt[1] = hash($this->db->config['algo'], $hashedSalt[1]);
+            $hashedSalt[0] = hash($this->storage->config['algo'], $hashedSalt[0]);
+            $hashedSalt[1] = hash($this->storage->config['algo'], $hashedSalt[1]);
         }
 
         if (is_array($hashedSalt)) {
-            $output = hash($this->db->config['algo'], $hashedSalt[0] . $string . $hashedSalt[1]);
+            $output = hash($this->storage->config['algo'], $hashedSalt[0] . $string . $hashedSalt[1]);
         } else {
-            $output = hash($this->db->config['algo'], $string);
+            $output = hash($this->storage->config['algo'], $string);
         }
 
         return $output;
@@ -372,7 +372,7 @@ class Bin
     {
         return strtoupper(sha1(md5($value
                                    . $_SERVER['REMOTE_ADDR']
-                                   . $this->db->config['admin_password']
+                                   . $this->storage->config['admin_password']
                                    . $_SERVER['SERVER_ADDR']
                                    . $_SERVER['HTTP_USER_AGENT']
                                    . $_SERVER['SCRIPT_FILENAME'])));

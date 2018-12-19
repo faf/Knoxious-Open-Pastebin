@@ -11,7 +11,7 @@
 
 namespace SPB;
 
-class DB
+class Storage
 {
 
     /**
