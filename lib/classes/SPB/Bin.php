@@ -65,11 +65,11 @@ class Bin
             $id = $this->generateRandomString($this->storage->getLastID());
         }
 
-        if ($id == $this->storage->config['index_file'] || in_array($id, $checkArray)) {
+        if ($id == $this->config['index_file'] || in_array($id, $checkArray)) {
             $id = $this->generateRandomString($this->storage->getLastID());
         }
 
-        if ($this->storage->config['rewrite_enabled'] && (is_dir($id) || file_exists($id))) {
+        if ($this->config['rewrite_enabled'] && (is_dir($id) || file_exists($id))) {
             $id = $this->generateID($id, $iterations + 1);
         }
 
@@ -83,11 +83,11 @@ class Bin
     public function checkAuthor($author = FALSE)
     {
         if ($author == FALSE) {
-            return $this->storage->config['author'];
+            return $this->config['author'];
         }
 
         if (preg_match('/^\s/', $author) || preg_match('/\s$/', $author) || preg_match('/^\s$/', $author)) {
-            return $this->storage->config['author'];
+            return $this->config['author'];
         } else {
             return addslashes($this->storage->lessHTML($author));
         }
@@ -95,7 +95,7 @@ class Bin
 
     public function getLastPosts($amount)
     {
-        $index = $this->storage->deserializer($this->storage->read($this->storage->setDataPath() . '/' . $this->storage->config['index_file']));
+        $index = $this->storage->deserializer($this->storage->read($this->storage->setDataPath() . '/' . $this->config['index_file']));
         $index = array_reverse($index);
         $int = 0;
         $result = array();
@@ -116,19 +116,19 @@ class Bin
 
     public function lineHighlight()
     {
-        if ($this->storage->config['line_highlight'] == FALSE || strlen($this->storage->config['line_highlight']) < 1) {
+        if ($this->config['line_highlight'] == FALSE || strlen($this->config['line_highlight']) < 1) {
             return false;
         }
 
-        if (strlen($this->storage->config['line_highlight']) > 6) {
-            return substr($this->storage->config['line_highlight'], 0, 6);
+        if (strlen($this->config['line_highlight']) > 6) {
+            return substr($this->config['line_highlight'], 0, 6);
         }
 
-        if (strlen($this->storage->config['line_highlight']) == 1) {
-            return $this->storage->config['line_highlight'] . $this->storage->config['line_highlight'];
+        if (strlen($this->config['line_highlight']) == 1) {
+            return $this->config['line_highlight'] . $this->config['line_highlight'];
         }
 
-        return $this->storage->config['line_highlight'];
+        return $this->config['line_highlight'];
     }
 
     public function filterHighlight($line)
@@ -171,7 +171,7 @@ class Bin
         $checkArray = array('install', 'recent', 'raw', 0);
 
         $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
-        if ($this->storage->config['hexlike_ids']) {
+        if ($this->config['hexlike_ids']) {
             $characters = '0123456789abcdefabcdef';
         }
 
@@ -189,7 +189,7 @@ class Bin
 
     public function cleanUp($amount)
     {
-        if (!$this->storage->config['autoclean']) {
+        if (!$this->config['autoclean']) {
             return false;
         }
 
@@ -197,7 +197,7 @@ class Bin
             return false;
         }
 
-        $index = $this->storage->deserializer($this->storage->read($this->storage->setDataPath() . '/' . $this->storage->config['index_file']));
+        $index = $this->storage->deserializer($this->storage->read($this->storage->setDataPath() . '/' . $this->config['index_file']));
 
         if (is_array($index) && count($index) > $amount + 1) {
             shuffle($index);
@@ -233,14 +233,14 @@ class Bin
         $dir = dirname($_SERVER['SCRIPT_NAME']);
 
         if (strlen($dir) > 1) {
-            $now = $this->storage->config['protocol'] . '://' . $_SERVER['SERVER_NAME'] . $dir;
+            $now = $this->config['protocol'] . '://' . $_SERVER['SERVER_NAME'] . $dir;
         } else {
-            $now = $this->storage->config['protocol'] . '://' . $_SERVER['SERVER_NAME'];
+            $now = $this->config['protocol'] . '://' . $_SERVER['SERVER_NAME'];
         }
 
         $file = basename($_SERVER['SCRIPT_NAME']);
 
-        switch ($this->storage->config['rewrite_enabled']) {
+        switch ($this->config['rewrite_enabled']) {
             case TRUE:
                 if ($id == FALSE) {
                     $output = $now . '/';
@@ -269,8 +269,8 @@ class Bin
             $salts = NULL;
         }
 
-        if (!$this->storage->config['algo']) {
-            $this->storage->config['algo'] = 'sha256';
+        if (!$this->config['algo']) {
+            $this->setConfigValue('algo', 'sha256');
         }
 
         $hashedSalt = NULL;
@@ -284,14 +284,14 @@ class Bin
                 $hashedSalt[1] .= $salts[2][$i] . $salts[4][$i] . ($longIP + $i);
             }
 
-            $hashedSalt[0] = hash($this->storage->config['algo'], $hashedSalt[0]);
-            $hashedSalt[1] = hash($this->storage->config['algo'], $hashedSalt[1]);
+            $hashedSalt[0] = hash($this->config['algo'], $hashedSalt[0]);
+            $hashedSalt[1] = hash($this->config['algo'], $hashedSalt[1]);
         }
 
         if (is_array($hashedSalt)) {
-            $output = hash($this->storage->config['algo'], $hashedSalt[0] . $string . $hashedSalt[1]);
+            $output = hash($this->config['algo'], $hashedSalt[0] . $string . $hashedSalt[1]);
         } else {
-            $output = hash($this->storage->config['algo'], $string);
+            $output = hash($this->config['algo'], $string);
         }
 
         return $output;
@@ -372,7 +372,7 @@ class Bin
     {
         return strtoupper(sha1(md5($value
                                    . $_SERVER['REMOTE_ADDR']
-                                   . $this->storage->config['admin_password']
+                                   . $this->config['admin_password']
                                    . $_SERVER['SERVER_ADDR']
                                    . $_SERVER['HTTP_USER_AGENT']
                                    . $_SERVER['SCRIPT_FILENAME'])));
