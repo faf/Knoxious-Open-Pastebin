@@ -41,7 +41,6 @@ class Bin
     public function setConfigValue($param, $value)
     {
         $this->config[$param] = $value;
-        $this->storage->config[$param] = $value;
     }
 // End of temporary wrapper methods
 

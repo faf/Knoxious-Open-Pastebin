@@ -18,7 +18,7 @@ class Storage
      * Data storage configuration
      * @var array
      */
-    public $config;
+    private $config;
 
     public function __construct($config)
     {
