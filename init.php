@@ -41,18 +41,6 @@ spl_autoload_register(
 $translator = new \SPB\Translator($SPB_CONFIG['locale']);
 
 /**
- * Callback function to handle magic quotes
- * (seriously, does anyone still use that?!)
- *
- * @param string $val The link to a string value to fix
- * @param string $name Not used
- */
-function callback_stripslashes(&$val, $name)
-{
-    $val = stripslashes($val);
-}
-
-/**
  * Simple translation function
  *
  * @param string $string A string to translate
@@ -93,19 +81,6 @@ foreach ($extensions as $ext) {
 // Initialize compression if needed
 if ($SPB_CONFIG['gzip_content']) {
     ob_start("ob_gzhandler");
-}
-
-// Handle cursed magic quotes
-if (get_magic_quotes_gpc()) {
-    if (count($_GET)) {
-        array_walk($_GET, 'callback_stripslashes');
-    }
-    if (count($_POST)) {
-        array_walk($_POST, 'callback_stripslashes');
-    }
-    if (count($_COOKIE)) {
-        array_walk($_COOKIE, 'callback_stripslashes');
-    }
 }
 
 // Define all possible POST parameters

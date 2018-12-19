@@ -26,7 +26,7 @@ There are two reason of why it was based upon Knoxious Open Pastebin:
 ## Server requirements
 
 1. A webserver or web hosting account running on any major Operating System
-2. PHP (5.3 and above)
+2. PHP (5.4 and above)
 
 ## Terms of Use
 
