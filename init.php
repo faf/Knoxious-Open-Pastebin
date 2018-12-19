@@ -29,10 +29,13 @@ if (is_array($SPB_CONFIG['lifespan'])) {
     $SPB_CONFIG['lifespan'] = array_unique($SPB_CONFIG['lifespan']);
 }
 
-// Include all classes
-require_once('lib/classes/SPB/DB.php');
-require_once('lib/classes/SPB/Bin.php');
-require_once('lib/classes/SPB/Translator.php');
+// Simple autoloader
+spl_autoload_register(
+    function ($class) {
+        $filename = str_replace('\\', DIRECTORY_SEPARATOR, $class);
+        require_once('lib/classes/' . $filename . '.php');
+    }
+);
 
 // Initialize translator
 $translator = new \SPB\Translator($SPB_CONFIG['locale']);

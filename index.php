@@ -12,8 +12,7 @@
 define('ISINCLUDED', 1);
 require_once('init.php');
 
-$db = new \SPB\DB($SPB_CONFIG);
-$bin = new \SPB\Bin($db);
+$bin = new \SPB\Bin($SPB_CONFIG);
 
 if ($SPB_CONFIG['infinity']) {
     $infinity = array('0');
@@ -146,12 +145,12 @@ if ($requri === 'install') {
             mkdir($SPB_CONFIG['data_dir']);
             chmod($SPB_CONFIG['data_dir'], $SPB_CONFIG['dir_bitmask']);
         }
-        $db->write($db->serializer(array()), $SPB_CONFIG['data_dir'] . '/' . $SPB_CONFIG['index_file']);
-        $db->write('FORBIDDEN', $SPB_CONFIG['data_dir'] . '/index.html');
+        $bin->write($bin->serializer(array()), $SPB_CONFIG['data_dir'] . '/' . $SPB_CONFIG['index_file']);
+        $bin->write('FORBIDDEN', $SPB_CONFIG['data_dir'] . '/index.html');
         chmod($SPB_CONFIG['data_dir'] . '/' . $SPB_CONFIG['index_file'], $SPB_CONFIG['file_bitmask']);
         chmod($SPB_CONFIG['data_dir'] . '/index.html', $SPB_CONFIG['file_bitmask']);
 
-        if (!$db->connect()) {
+        if (!$bin->connect()) {
             $step['result'] = t('Cannot connect to data storage, check config!');
             $stop = TRUE;
         } else {
@@ -166,7 +165,7 @@ if ($requri === 'install') {
                        'success' => FALSE,
                        'result' => '' );
 
-        if (!$db->write(time(), './INSTALL_LOCK')) {
+        if (!$bin->write(time(), './INSTALL_LOCK')) {
             $step['result'] = t('Writing error');
             $stop = TRUE;
         } else {
@@ -186,14 +185,13 @@ if ($requri === 'install') {
                             'Parent' => NULL,
                             'Content' => $SPB_CONFIG['line_highlight'] . t("Congratulations, your Pastebin has now been installed!\nThis message will expire in 30 minutes!")
         );
-        $db->insertPaste($paste_new['ID'], $paste_new, TRUE);
+        $bin->insertPaste($paste_new['ID'], $paste_new, TRUE);
         $page['installed'] = TRUE;
     }
 } else {
 
     $SPB_CONFIG['admin_password'] = $bin->hasher($SPB_CONFIG['admin_password'], $SPB_CONFIG['salts']);
-    $db->config['admin_password'] = $SPB_CONFIG['admin_password'];
-    $bin->db->config['admin_password'] = $SPB_CONFIG['admin_password'];
+    $bin->setConfigValue('admin_password', $SPB_CONFIG['admin_password']);
 
     $page['contentTemplate'] = 'main.php';
     $page['title'] = ( $SPB_CONFIG['pastebin_title']
@@ -245,12 +243,12 @@ if ($requri === 'install') {
         $page['author'] = $SPB_CONFIG['author'];
     }
 
-    if (!$db->connect()) {
+    if (!$bin->connect()) {
         $page['messages']['error'][] = t('Data storage is unavailable - check config!');
     } elseif (substr($requri, - 1) != "!" && !$post_values['adminProceed'] && $reqhash === 'raw') {
-        if ($pasted = $db->readPaste($requri)) {
+        if ($pasted = $bin->readPaste($requri)) {
             header('Content-Type: text/plain; charset=utf-8');
-            echo $db->rawHTML($bin->noHighlight($pasted['Data']));
+            echo $bin->rawHTML($bin->noHighlight($pasted['Data']));
             exit(0);
         } else {
             header('HTTP/1.0 500 Internal Server Error');
@@ -259,7 +257,7 @@ if ($requri === 'install') {
         }
     } elseif ($requri && substr($requri, - 1) != '!') {
 
-        if ($pasted = $db->readPaste($requri)) {
+        if ($pasted = $bin->readPaste($requri)) {
 
             $page['showPaste'] = TRUE;
             $page['paste'] = array('ID' => $requri);
@@ -267,7 +265,7 @@ if ($requri === 'install') {
             $pasted['Data'] = array( 'Orig' => $pasted['Data'],
                                      'noHighlight' => array() );
 
-            $pasted['Data']['Dirty'] = $db->dirtyHTML($pasted['Data']['Orig']);
+            $pasted['Data']['Dirty'] = $bin->dirtyHTML($pasted['Data']['Orig']);
             $pasted['Data']['noHighlight']['Dirty'] = $bin->noHighlight($pasted['Data']['Dirty']);
 
             $page['paste']['Size'] = $bin->humanReadableFilesize(mb_strlen($pasted['Data']['Orig']));
@@ -280,7 +278,7 @@ if ($requri === 'install') {
             }
 
             if (gmdate('U') > $pasted['Lifespan']) {
-                $db->dropPaste($requri);
+                $bin->dropPaste($requri);
                 $page['messages']['warn'][] = t('This data has either expired or doesn\'t exist!');
                 $page['showPaste'] = FALSE;
             } else {
@@ -355,7 +353,7 @@ if ($requri === 'install') {
     }
 
     if ($post_values['adminAction'] === 'delete' && $bin->hasher(hash($SPB_CONFIG['algo'], $post_values['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password']) {
-        $db->dropPaste($requri);
+        $bin->dropPaste($requri);
         $page['messages']['success'][] = t('Data %s has been deleted!', array($requri));
         $requri = NULL;
         $page['showPaste'] = FALSE;
@@ -382,7 +380,7 @@ if ($requri === 'install') {
 
             if ($post_values['pasteEnter'] == $post_values['originalPaste'] && strlen($post_values['pasteEnter']) > 10) {
                 $page['messages']['error'][] = t('Please don\'t just repost what has already been posted!');
-            } elseif (strlen($post_values['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && $db->insertPaste($paste['ID'], $paste)) {
+            } elseif (strlen($post_values['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && $bin->insertPaste($paste['ID'], $paste)) {
                 $page['messages']['success'][] = t('Your data has been successfully recorded!');
                 $page['confirmURL'] = $bin->linker($paste['ID']);
                 $page['showForms'] = FALSE;

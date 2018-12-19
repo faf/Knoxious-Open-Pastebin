@@ -18,12 +18,33 @@ class Bin
      * Data storage object - an instance of DB class
      * @var DB
      */
-    public $db;
+    private $db;
 
-    public function __construct($db)
+    private $config;
+
+    public function __construct($config)
     {
-        $this->db = $db;
+        $this->config = $config;
+        $this->db = new DB($config);
     }
+
+// Temporary wrapper methods
+    public function write($data, $file) { return $this->db->write($data, $file); }
+    public function serializer($data) { return $this->db->serializer($data); }
+    public function connect() { return $this->db->connect(); }
+    public function insertPaste($id, $data, $arbLifespan = FALSE) { return $this->db->insertPaste($id, $data, $arbLifespan); }
+    public function readPaste($id) { return $this->db->readPaste($id); }
+    public function rawHTML($input) { return $this->db->rawHTML($input); }
+    public function dirtyHTML($input) { return $this->db->dirtyHTML($input); }
+    public function dropPaste($id) { return $this->db->dropPaste($id); }
+
+    public function setConfigValue($param, $value)
+    {
+        $this->config[$param] = $value;
+        $this->db->config[$param] = $value;
+    }
+// End of temporary wrapper methods
+
 
     public function thisDir()
     {
