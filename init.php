@@ -32,6 +32,13 @@ if (is_array($SPB_CONFIG['lifespan'])) {
     if (!$SPB_CONFIG['algo']) {
         $SPB_CONFIG['algo'] = 'sha256';
     }
+
+    // Adjust possible lifespans
+    if ($SPB_CONFIG['infinity']) {
+        $SPB_CONFIG['lifespan'] = $SPB_CONFIG['infinity_default']
+                                  ? array_merge( array('0'), (array) $SPB_CONFIG['lifespan'] )
+                                  : array_merge( (array) $SPB_CONFIG['lifespan'], array('0') );
+    }
 }
 
 // Simple autoloader

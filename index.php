@@ -14,18 +14,6 @@ require_once('init.php');
 
 $bin = new \SPB\Bin($SPB_CONFIG);
 
-if ($SPB_CONFIG['infinity']) {
-    $infinity = array('0');
-}
-
-if ($SPB_CONFIG['infinity'] && $SPB_CONFIG['infinity_default']) {
-    $SPB_CONFIG['lifespan'] = array_merge( (array) $infinity,
-                                           (array) $SPB_CONFIG['lifespan'] );
-} elseif ($SPB_CONFIG['infinity'] && !$SPB_CONFIG['infinity_default']) {
-    $SPB_CONFIG['lifespan'] = array_merge( (array) $SPB_CONFIG['lifespan'],
-                                           (array) $infinity);
-}
-
 $requri = $_SERVER['REQUEST_URI'];
 $scrnam = $_SERVER['SCRIPT_NAME'];
 $reqhash = '';
