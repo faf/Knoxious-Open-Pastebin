@@ -38,9 +38,9 @@ class Bin
     public function dirtyHTML($input) { return $this->storage->dirtyHTML($input); }
     public function dropPaste($id) { return $this->storage->dropPaste($id); }
 
-    public function setConfigValue($param, $value)
+    public function hashedAdminPassword()
     {
-        $this->config[$param] = $value;
+        return $this->hasher($this->config['admin_password'], $this->config['salts']);
     }
 // End of temporary wrapper methods
 
@@ -266,10 +266,6 @@ class Bin
 
         if (count($salts) < 2) {
             $salts = NULL;
-        }
-
-        if (!$this->config['algo']) {
-            $this->setConfigValue('algo', 'sha256');
         }
 
         $hashedSalt = NULL;

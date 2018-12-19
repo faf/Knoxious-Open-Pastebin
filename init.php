@@ -27,6 +27,11 @@ if (is_array($SPB_CONFIG['lifespan'])) {
     array_walk($SPB_CONFIG['lifespan'], function(&$val,$name) { $val = (float) $val; } );
     // Remove duplicates from the list of lifespans
     $SPB_CONFIG['lifespan'] = array_unique($SPB_CONFIG['lifespan']);
+
+    // Set hashing algorithm if missed
+    if (!$SPB_CONFIG['algo']) {
+        $SPB_CONFIG['algo'] = 'sha256';
+    }
 }
 
 // Simple autoloader

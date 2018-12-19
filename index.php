@@ -190,9 +190,6 @@ if ($requri === 'install') {
     }
 } else {
 
-    $SPB_CONFIG['admin_password'] = $bin->hasher($SPB_CONFIG['admin_password'], $SPB_CONFIG['salts']);
-    $bin->setConfigValue('admin_password', $SPB_CONFIG['admin_password']);
-
     $page['contentTemplate'] = 'main.php';
     $page['title'] = ( $SPB_CONFIG['pastebin_title']
                      ? htmlspecialchars($SPB_CONFIG['pastebin_title'], ENT_COMPAT, 'UTF-8', FALSE)
@@ -288,7 +285,7 @@ if ($requri === 'install') {
 
             }
 
-            if ($post_values['adminAction'] == 'ip' && $bin->hasher(hash($SPB_CONFIG['algo'], $post_values['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password']) {
+            if ($post_values['adminAction'] == 'ip' && $bin->hasher(hash($SPB_CONFIG['algo'], $post_values['adminPass']), $SPB_CONFIG['salts']) === $bin->hashedAdminPassword()) {
                 $page['showAuthorIP'] = TRUE;
                 $page['paste']['IP'] = base64_decode($pasted['IP']);
             }
@@ -352,7 +349,7 @@ if ($requri === 'install') {
         }
     }
 
-    if ($post_values['adminAction'] === 'delete' && $bin->hasher(hash($SPB_CONFIG['algo'], $post_values['adminPass']), $SPB_CONFIG['salts']) === $SPB_CONFIG['admin_password']) {
+    if ($post_values['adminAction'] === 'delete' && $bin->hasher(hash($SPB_CONFIG['algo'], $post_values['adminPass']), $SPB_CONFIG['salts']) === $bin->hashedAdminPassword()) {
         $bin->dropPaste($requri);
         $page['messages']['success'][] = t('Data %s has been deleted!', array($requri));
         $requri = NULL;
