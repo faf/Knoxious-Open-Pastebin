@@ -12,41 +12,6 @@
 define('ISINCLUDED', 1);
 require_once('init.php');
 
-$bin = new \SPB\Bin($SPB_CONFIG);
-
-$requri = $_SERVER['REQUEST_URI'];
-$scrnam = $_SERVER['SCRIPT_NAME'];
-$reqhash = '';
-
-$info = explode('/', str_replace($scrnam, '', $requri));
-
-$requri = str_replace('?', '', $info[0]);
-
-if (!file_exists('./INSTALL_LOCK') && $requri != 'install') {
-    header('Location: ' . $_SERVER['PHP_SELF'] . '?install');
-}
-
-if (file_exists('./INSTALL_LOCK') && $SPB_CONFIG['rewrite_enabled']) {
-    $requri = array_key_exists('i', $_GET) ? $_GET['i'] : '';
-}
-
-if (strstr($requri, '@')) {
-    $tempRequri = explode('@', $requri, 2);
-    $requri = $tempRequri[0];
-    $reqhash = $tempRequri[1];
-}
-
-// Data structure to be used in templates
-$page = array(
-    'locale' => $SPB_CONFIG['locale'],
-    'stylesheet' => $SPB_CONFIG['stylesheet'],
-    'messages' => array( 'error' => array(),
-                         'success' => array(),
-                         'warn' => array(),
-    ),
-    'baseURL' => $bin->linker(),
-);
-
 if ($requri === 'install') {
 
     $page['contentTemplate'] = 'install.php';
