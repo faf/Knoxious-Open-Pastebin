@@ -93,7 +93,7 @@ class Bin
 
     public function getLastPosts($amount)
     {
-        $index = unserialize($this->storage->read($this->storage->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->storage->read($this->storage->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
         $index = array_reverse($index);
         $int = 0;
         $result = array();
@@ -195,7 +195,7 @@ class Bin
             return false;
         }
 
-        $index = unserialize($this->storage->read($this->storage->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->storage->read($this->storage->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
 
         if (is_array($index) && count($index) > $amount + 1) {
             shuffle($index);

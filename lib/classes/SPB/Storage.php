@@ -41,7 +41,7 @@ class Storage
         return $write;
     }
 
-    public function setDataPath($filename = FALSE, $justPath = FALSE)
+    public function dataPath($filename = FALSE, $justPath = FALSE)
     {
         if (!$filename) {
             return $this->config['storage'];
@@ -87,21 +87,21 @@ class Storage
 
     public function connect()
     {
-        return is_writeable($this->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX')
-               && is_writeable($this->setDataPath());
+        return is_writeable($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX')
+               && is_writeable($this->dataPath());
     }
 
     public function readPaste($id)
     {
         $result = array();
-        if (!file_exists($this->setDataPath($id))) {
-            $index = unserialize($this->read($this->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        if (!file_exists($this->dataPath($id))) {
+            $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
             if (in_array($id, $index)) {
                 $this->dropPaste($id, TRUE);
             }
             return false;
         }
-        $result = unserialize($this->read($this->setDataPath($id)));
+        $result = unserialize($this->read($this->dataPath($id)));
 
         if (count($result) < 1) {
             $result = FALSE;
@@ -114,11 +114,11 @@ class Storage
     {
         $id = (string) $id;
 
-        if (file_exists($this->setDataPath($id))) {
-            $result = unlink($this->setDataPath($id));
+        if (file_exists($this->dataPath($id))) {
+            $result = unlink($this->dataPath($id));
         }
 
-        $index = unserialize($this->read($this->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
         if (in_array($id, $index)) {
             $key = array_keys($index, $id);
         } elseif (in_array('!' . $id, $index)) {
@@ -131,7 +131,7 @@ class Storage
         }
 
         $index = array_values($index);
-        $result = $this->write(serialize($index), $this->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX');
+        $result = $this->write(serialize($index), $this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX');
 
         return $result;
     }
@@ -189,18 +189,18 @@ class Storage
             $paste['Protection'] = 0;
         }
 
-        $index = unserialize($this->read($this->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
         $index[] = $id;
-        $this->write(serialize($index), $this->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX');
-        $result = $this->write(serialize($paste), $this->setDataPath($paste['ID']));
-        chmod($this->setDataPath($paste['ID']), $this->config['file_bitmask']);
+        $this->write(serialize($index), $this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX');
+        $result = $this->write(serialize($paste), $this->dataPath($paste['ID']));
+        chmod($this->dataPath($paste['ID']), $this->config['file_bitmask']);
 
         return $result;
     }
 
     public function checkID($id)
     {
-        $index = unserialize($this->read($this->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
         if (in_array($id, $index) || in_array('!' . $id, $index)) {
             $output = TRUE;
         } else {
@@ -219,7 +219,7 @@ class Storage
             $this->config['id_length'] = 32;
         }
 
-        $index = unserialize($this->read($this->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
         $index = array_reverse($index);
         $output = strlen(str_replace('!', NULL, $index[0]));
         if ($output < 1) {
