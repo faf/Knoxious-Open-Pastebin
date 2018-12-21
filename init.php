@@ -117,11 +117,12 @@ foreach (array( 'adminAction',
 $bin = new \SPB\Bin($SPB_CONFIG);
 
 // Determine requested resource, redirect if needed
+$installed = is_dir($SPB_CONFIG['storage']) && file_exists($SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
 $requested = array_reverse(explode('/', $_SERVER['SCRIPT_NAME']));
-if ( ($requested[0] !== 'install.php') && !file_exists('./INSTALL_LOCK') ) {
+if ( ($requested[0] !== 'install.php') && !$installed) {
     $requested[0] = 'install.php';
     header('Location: ' . implode('/', array_reverse($requested)));
-} elseif ( ($requested[0] === 'install.php') && file_exists('./INSTALL_LOCK') ) {
+} elseif ( ($requested[0] === 'install.php') && $installed ) {
     $requested[0] = 'index.php';
     header('Location: ' . implode('/', array_reverse($requested)));
 }

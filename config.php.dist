@@ -18,8 +18,8 @@ $SPB_CONFIG = array(
 
 // Change the following to suit your needs.
 // File and directory permissions should work in most cases.
-// Name of the folder to store data
-    'data_dir' => 'data',
+// Name of the data storage directory
+    'storage' => 'data',
 // Permissions bitmask for directory
     'dir_bitmask' => 0775,
 // Permissions bitmask for file

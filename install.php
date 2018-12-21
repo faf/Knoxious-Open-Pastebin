@@ -19,25 +19,6 @@ $page['installed'] = FALSE;
 
 $stop = FALSE;
 
-if (file_exists('./INSTALL_LOCK')) {
-    $page['messages']['warn'][] = t('Already installed!');
-    $stop = TRUE;
-}
-
-if (!$stop) {
-    $step = array( 'step' => t('Checking whether directory is writable.'),
-                   'success' => FALSE,
-                   'result' => '' );
-    if (!is_writable($bin->thisDir())) {
-        $step['result'] = t('Directory is not writable!');
-        $stop = TRUE;
-    } else {
-        $step['result'] = t('Directory is writable!');
-        $step['success'] = TRUE;
-    }
-    $page['installList'][] = $step;
-}
-
 if (!$stop) {
     $step = array( 'step' => t('Quick password check.'),
                    'success' => FALSE,
@@ -58,7 +39,6 @@ if (!$stop) {
     }
     $page['installList'][] = $step;
 }
-
 
 if (!$stop) {
     $step = array( 'step' => t('Quick salts check.'),
@@ -90,14 +70,14 @@ if (!$stop) {
                    'result' => '' );
 
 // TODO: check results
-    if (!is_dir($SPB_CONFIG['data_dir'])) {
-        mkdir($SPB_CONFIG['data_dir']);
-        chmod($SPB_CONFIG['data_dir'], $SPB_CONFIG['dir_bitmask']);
+    if (!is_dir($SPB_CONFIG['storage'])) {
+        mkdir($SPB_CONFIG['storage']);
+        chmod($SPB_CONFIG['storage'], $SPB_CONFIG['dir_bitmask']);
     }
-    $bin->write($bin->serializer(array()), $SPB_CONFIG['data_dir'] . '/INDEX');
-    $bin->write('FORBIDDEN', $SPB_CONFIG['data_dir'] . '/index.html');
-    chmod($SPB_CONFIG['data_dir'] . '/INDEX', $SPB_CONFIG['file_bitmask']);
-    chmod($SPB_CONFIG['data_dir'] . '/index.html', $SPB_CONFIG['file_bitmask']);
+    $bin->write($bin->serializer(array()), $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
+    $bin->write('FORBIDDEN', $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'index.html');
+    chmod($SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX', $SPB_CONFIG['file_bitmask']);
+    chmod($SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'index.html', $SPB_CONFIG['file_bitmask']);
 
     if (!$bin->connect()) {
         $step['result'] = t('Cannot connect to data storage, check config!');
@@ -105,22 +85,6 @@ if (!$stop) {
     } else {
         $step['result'] = t('Connection established!');
         $step['success'] = TRUE;
-    }
-    $page['installList'][] = $step;
-}
-
-if (!$stop) {
-    $step = array( 'step' => t('Locking installation.'),
-                   'success' => FALSE,
-                   'result' => '' );
-
-    if (!$bin->write(time(), './INSTALL_LOCK')) {
-        $step['result'] = t('Writing error');
-        $stop = TRUE;
-    } else {
-        $step['result'] = t('Complete');
-        $step['success'] = TRUE;
-        chmod('./INSTALL_LOCK', $SPB_CONFIG['file_bitmask']);
     }
     $page['installList'][] = $step;
 }
