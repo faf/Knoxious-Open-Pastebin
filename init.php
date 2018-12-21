@@ -114,16 +114,23 @@ foreach (array( 'adminAction',
 // Setup main SPB object
 $bin = new \SPB\Bin($SPB_CONFIG);
 
-// Determine requested resource
+// Determine requested resource, redirect if needed
+$requested = array_reverse(explode('/', $_SERVER['SCRIPT_NAME']));
+if ( ($requested[0] !== 'install.php') && !file_exists('./INSTALL_LOCK') ) {
+    $requested[0] = 'install.php';
+    header('Location: ' . implode('/', array_reverse($requested)));
+} elseif ( ($requested[0] === 'install.php') && file_exists('./INSTALL_LOCK') ) {
+    $requested[0] = 'index.php';
+    header('Location: ' . implode('/', array_reverse($requested)));
+}
+
+// TODO: rewrite this //////////////////
 $requri = $_SERVER['REQUEST_URI'];
 $scrnam = $_SERVER['SCRIPT_NAME'];
+
 $reqhash = '';
 $info = explode('/', str_replace($scrnam, '', $requri));
 $requri = str_replace('?', '', $info[0]);
-
-if (!file_exists('./INSTALL_LOCK') && $requri != 'install') {
-    header('Location: ' . $_SERVER['PHP_SELF'] . '?install');
-}
 
 if (file_exists('./INSTALL_LOCK') && $SPB_CONFIG['rewrite_enabled']) {
     $requri = array_key_exists('i', $_GET) ? $_GET['i'] : '';
@@ -134,6 +141,8 @@ if (strstr($requri, '@')) {
     $requri = $tempRequri[0];
     $reqhash = $tempRequri[1];
 }
+// End of TODO ///////////////////////////
+
 
 // Data structure to be used in templates
 $page = array(
