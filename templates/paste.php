@@ -20,7 +20,7 @@ if (ISINCLUDED != '1') {
                     <div id="pasteID">
                         <strong><?php echo t('ID:'); ?></strong> <?php echo $page['paste']['ID']; ?>
                     </div>
-                    <strong><?php echo t('Posted by'); ?></strong> <?php echo stripslashes($page['paste']['Author']); ?>, <em title="<?php echo t('%s ago', array($page['paste']['DatetimeRelative'])); ?>"><?php echo $page['paste']['Datetime']; ?> GMT</em><br/>
+                    <strong><?php echo t('Posted by'); ?></strong> <?php echo stripslashes($page['paste']['Author']); ?>, <em title="<?php echo t('%s ago', array($page['paste']['DatetimeRelative'])); ?>"><?php echo $page['paste']['Datetime']; ?></em><br/>
                     <strong><?php echo t('Expires'); ?></strong> <?php echo $page['paste']['lifeString']; ?><br/>
                     <strong><?php echo t('Size'); ?></strong> <?php echo $page['paste']['Size']; ?>
 

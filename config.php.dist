@@ -141,4 +141,7 @@ $SPB_CONFIG = array(
 // Protocol (one can use autodetection or hard encode a needed value)
     'protocol' => (strtolower(@$_SERVER['HTTPS']) == 'on') ? 'https' : 'http',
 #    'protocol' => 'https',
+
+// Timezone (default: UTC)
+    'timezone' => 'UTC',
 );

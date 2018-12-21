@@ -103,7 +103,7 @@ if (!$bin->connect()) {
         } else {
             $page['paste']['Author'] = $pasted['Author'];
             $page['paste']['DatetimeRelative'] = $bin->event($pasted['Datetime']);
-            $page['paste']['Datetime'] = gmdate($SPB_CONFIG['datetime_format'], $pasted['Datetime']);
+            $page['paste']['Datetime'] = date($SPB_CONFIG['datetime_format'], $pasted['Datetime']);
         }
 
         if ($post_values['adminAction'] == 'ip' && $bin->hasher(hash($SPB_CONFIG['algo'], $post_values['adminPass']), $SPB_CONFIG['salts']) === $bin->hashedAdminPassword()) {

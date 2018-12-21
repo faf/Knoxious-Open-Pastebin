@@ -39,6 +39,8 @@ if (is_array($SPB_CONFIG['lifespan'])) {
                                   ? array_merge( array('0'), (array) $SPB_CONFIG['lifespan'] )
                                   : array_merge( (array) $SPB_CONFIG['lifespan'], array('0') );
     }
+
+    date_default_timezone_set($SPB_CONFIG['timezone'] ? $SPB_CONFIG['timezone'] : 'UTC');
 }
 
 // Simple autoloader
