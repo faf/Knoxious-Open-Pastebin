@@ -67,7 +67,7 @@ if (!$bin->connect()) {
 } elseif (substr($request['id'], - 1) != "!" && !$post_values['adminProceed'] && $request['mode'] === 'raw') {
     if ($pasted = $bin->readPaste($request['id'])) {
         header('Content-Type: text/plain; charset=utf-8');
-        echo $bin->rawHTML($bin->noHighlight($pasted['Data']));
+        echo stripslashes(stripslashes(($bin->noHighlight($pasted['Data']));
         exit(0);
     } else {
         header('HTTP/1.0 500 Internal Server Error');
@@ -84,7 +84,7 @@ if (!$bin->connect()) {
         $pasted['Data'] = array( 'Orig' => $pasted['Data'],
                                  'noHighlight' => array() );
 
-        $pasted['Data']['Dirty'] = $bin->dirtyHTML($pasted['Data']['Orig']);
+        $pasted['Data']['Dirty'] = htmlspecialchars(stripslashes($pasted['Data']['Orig']));
         $pasted['Data']['noHighlight']['Dirty'] = $bin->noHighlight($pasted['Data']['Dirty']);
 
         $page['paste']['Size'] = $bin->humanReadableFilesize(mb_strlen($pasted['Data']['Orig']));

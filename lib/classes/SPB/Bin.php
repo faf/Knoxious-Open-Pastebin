@@ -33,8 +33,6 @@ class Bin
     public function connect() { return $this->storage->connect(); }
     public function insertPaste($id, $data, $arbLifespan = FALSE) { return $this->storage->insertPaste($id, $data, $arbLifespan); }
     public function readPaste($id) { return $this->storage->readPaste($id); }
-    public function rawHTML($input) { return $this->storage->rawHTML($input); }
-    public function dirtyHTML($input) { return $this->storage->dirtyHTML($input); }
     public function dropPaste($id) { return $this->storage->dropPaste($id); }
 
     public function hashedAdminPassword()
@@ -87,7 +85,7 @@ class Bin
         if (preg_match('/^\s/', $author) || preg_match('/\s$/', $author) || preg_match('/^\s$/', $author)) {
             return $this->config['author'];
         } else {
-            return addslashes($this->storage->lessHTML($author));
+            return addslashes(htmlspecialchars($author));
         }
     }
 

@@ -20,27 +20,37 @@ class Storage
      */
     private $config;
 
+    // TODO: describe
     public function __construct($config)
     {
         $this->config = $config;
     }
 
+    // TODO: describe
     public function read($file)
     {
         $open = fopen($file, 'r');
+        if (!$open) {
+            return FALSE;
+        }
         $data = fread($open, filesize($file) + 1024);
         fclose($open);
         return $data;
     }
 
+    // TODO: describe
     public function write($data, $file)
     {
         $open = fopen($file, 'w');
+        if (!$open) {
+            return FALSE;
+        }
         $write = fwrite($open, $data);
         fclose($open);
         return $write;
     }
 
+    // TODO: analyze, refactor, describe
     public function dataPath($filename = FALSE, $justPath = FALSE)
     {
         if (!$filename) {
@@ -85,12 +95,14 @@ class Storage
         }
     }
 
+    // TODO: analyze, refactor, describe
     public function connect()
     {
         return is_writeable($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX')
                && is_writeable($this->dataPath());
     }
 
+    // TODO: analyze, refactor, describe
     public function readPaste($id)
     {
         $result = array();
@@ -110,6 +122,7 @@ class Storage
         return $result;
     }
 
+    // TODO: analyze, refactor, describe
     public function dropPaste($id)
     {
         $id = (string) $id;
@@ -136,26 +149,7 @@ class Storage
         return $result;
     }
 
-    public function cleanHTML($input)
-    {
-        return addslashes($input);
-    }
-
-    public function lessHTML($input)
-    {
-        return htmlspecialchars($input);
-    }
-
-    public function dirtyHTML($input)
-    {
-        return htmlspecialchars(stripslashes($input));
-    }
-
-    public function rawHTML($input)
-    {
-        return stripslashes(stripslashes($input));
-    }
-
+    // TODO: analyze, refactor, describe
     public function insertPaste($id, $data, $arbLifespan = FALSE)
     {
 
@@ -180,7 +174,7 @@ class Storage
                         'Parent' => $data['Parent'],
                         'Lifespan' => $data['Lifespan'],
                         'IP' => base64_encode($data['IP']),
-                        'Data' => $this->cleanHTML($data['Content'])
+                        'Data' => addslashes($data['Content'])
         );
 
         if ($paste['Protection'] > 0 && ($this->config['private'] || $arbLifespan)) {
@@ -198,6 +192,7 @@ class Storage
         return $result;
     }
 
+    // TODO: analyze, refactor, describe
     public function checkID($id)
     {
         $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
@@ -210,6 +205,7 @@ class Storage
         return $output;
     }
 
+    // TODO: analyze, refactor, describe
     public function getLastID()
     {
         if (!is_int($this->config['id_length'])) {
