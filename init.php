@@ -124,25 +124,18 @@ if ( ($requested[0] !== 'install.php') && !file_exists('./INSTALL_LOCK') ) {
     header('Location: ' . implode('/', array_reverse($requested)));
 }
 
-// TODO: rewrite this //////////////////
-$requri = $_SERVER['REQUEST_URI'];
-$scrnam = $_SERVER['SCRIPT_NAME'];
-
-$reqhash = '';
-$info = explode('/', str_replace($scrnam, '', $requri));
-$requri = str_replace('?', '', $info[0]);
-
-if (file_exists('./INSTALL_LOCK') && $SPB_CONFIG['rewrite_enabled']) {
-    $requri = array_key_exists('i', $_GET) ? $_GET['i'] : '';
+// Ordinary operational mode, clarify the request
+$request = array('id' => '', 'mode' => '');
+if (($requested[0] === 'index.php') && array_key_exists('i', $_GET)) {
+    if (preg_match('/^(.+)@(.+)$/', $_GET['i'], $parts)) {
+        $request['id'] = $parts[1];
+        $request['mode'] = $parts[2];
+    }
+    else {
+        $request['id'] = $_GET['i'];
+        $request['mode'] = '';
+    }
 }
-
-if (strstr($requri, '@')) {
-    $tempRequri = explode('@', $requri, 2);
-    $requri = $tempRequri[0];
-    $reqhash = $tempRequri[1];
-}
-// End of TODO ///////////////////////////
-
 
 // Data structure to be used in templates
 $page = array(

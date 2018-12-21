@@ -251,7 +251,7 @@ class Bin
                 if ($id == FALSE) {
                     $output = $now . '/';
                 } else {
-                    $output = $now . '/' . $file . '?' . $id;
+                    $output = $now . '/' . $file . '?i=' . $id;
                 }
                 break;
         }

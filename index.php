@@ -17,7 +17,7 @@ $page['title'] = ( $SPB_CONFIG['pastebin_title']
                  ? htmlspecialchars($SPB_CONFIG['pastebin_title'], ENT_COMPAT, 'UTF-8', FALSE)
                  : t('Pastebin on %s', array($_SERVER['SERVER_NAME'])) )
                . ' &raquo; '
-               . ($requri ? $requri : t('Welcome!'));
+               . ($request['id'] ? $request['id'] : t('Welcome!'));
 $page['tagline'] = $SPB_CONFIG['tagline'];
 $page['confirmURL'] = NULL;
 $page['showForms'] = TRUE;
@@ -64,8 +64,8 @@ if (array_key_exists($ckey, $_COOKIE) && $_COOKIE[$ckey] !== NULL) {
 
 if (!$bin->connect()) {
     $page['messages']['error'][] = t('Data storage is unavailable - check config!');
-} elseif (substr($requri, - 1) != "!" && !$post_values['adminProceed'] && $reqhash === 'raw') {
-    if ($pasted = $bin->readPaste($requri)) {
+} elseif (substr($request['id'], - 1) != "!" && !$post_values['adminProceed'] && $request['mode'] === 'raw') {
+    if ($pasted = $bin->readPaste($request['id'])) {
         header('Content-Type: text/plain; charset=utf-8');
         echo $bin->rawHTML($bin->noHighlight($pasted['Data']));
         exit(0);
@@ -74,12 +74,12 @@ if (!$bin->connect()) {
         header('Content-Type: text/plain; charset=utf-8');
         die(t('There was an error!'));
     }
-} elseif ($requri && substr($requri, - 1) != '!') {
+} elseif ($request['id'] && substr($request['id'], - 1) != '!') {
 
-    if ($pasted = $bin->readPaste($requri)) {
+    if ($pasted = $bin->readPaste($request['id'])) {
 
         $page['showPaste'] = TRUE;
-        $page['paste'] = array('ID' => $requri);
+        $page['paste'] = array('ID' => $request['id']);
 
         $pasted['Data'] = array( 'Orig' => $pasted['Data'],
                                  'noHighlight' => array() );
@@ -97,7 +97,7 @@ if (!$bin->connect()) {
         }
 
         if (gmdate('U') > $pasted['Lifespan']) {
-            $bin->dropPaste($requri);
+            $bin->dropPaste($request['id']);
             $page['messages']['warn'][] = t('This data has either expired or doesn\'t exist!');
             $page['showPaste'] = FALSE;
         } else {
@@ -133,7 +133,7 @@ if (!$bin->connect()) {
             $page['paste']['values'] = array(
                 'protection' => $pasted['Protection'],
                 'paste' => $pasted['Data']['noHighlight']['Dirty'],
-                'parent' => $requri,
+                'parent' => $request['id'],
             );
 
         }
@@ -143,10 +143,10 @@ if (!$bin->connect()) {
         $page['showPasteForm'] = TRUE;
     }
 
-} elseif ($requri && substr($requri, - 1) == '!') {
+} elseif ($request['id'] && substr($request['id'], - 1) == '!') {
 
     $page['showExclamWarning'] = TRUE;
-    $page['thisURL'] = $bin->linker(substr($requri, 0, - 1));
+    $page['thisURL'] = $bin->linker(substr($request['id'], 0, - 1) . ($request['mode'] ? '@' . $request['mode'] : ''));
 
 } else {
     $page['showPasteForm'] = TRUE;
@@ -154,7 +154,7 @@ if (!$bin->connect()) {
 
 $bin->cleanUp($SPB_CONFIG['recent_posts']);
 
-if ($SPB_CONFIG['recent_posts'] && substr($requri, - 1) != '!') {
+if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
     $page['recentPosts'] = $bin->getLastPosts($SPB_CONFIG['recent_posts']);
 
     if (count($page['recentPosts']) > 0) {
@@ -164,16 +164,16 @@ if ($SPB_CONFIG['recent_posts'] && substr($requri, - 1) != '!') {
         }
         $page['showRecent'] = TRUE;
     }
-    if (!$requri) {
+    if (!$request['id']) {
         $page['showAdminForm'] = FALSE;
-        $page['thisURL'] = $bin->linker($requri);
+        $page['thisURL'] = $bin->linker($request['id']);
     }
 }
 
 if ($post_values['adminAction'] === 'delete' && $bin->hasher(hash($SPB_CONFIG['algo'], $post_values['adminPass']), $SPB_CONFIG['salts']) === $bin->hashedAdminPassword()) {
-    $bin->dropPaste($requri);
-    $page['messages']['success'][] = t('Data %s has been deleted!', array($requri));
-    $requri = NULL;
+    $bin->dropPaste($request['id']);
+    $page['messages']['success'][] = t('Data %s has been deleted!', array($request['id']));
+    $request['id'] = NULL;
     $page['showPaste'] = FALSE;
     $page['showPasteForm'] = FALSE;
     $page['showAdminForm'] = FALSE;
@@ -192,7 +192,7 @@ if ($post_values['submit']) {
                         'IP' => $_SERVER['REMOTE_ADDR'],
                         'Lifespan' => $post_values['lifespan'],
                         'Protect' => $post_values['privacy'],
-                        'Parent' => $requri,
+                        'Parent' => $request['id'],
                         'Content' => $post_values['pasteEnter']
         );
 
