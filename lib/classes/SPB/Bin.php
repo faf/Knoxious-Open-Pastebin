@@ -30,7 +30,6 @@ class Bin
 
 // Temporary wrapper methods
     public function write($data, $file) { return $this->storage->write($data, $file); }
-    public function serializer($data) { return $this->storage->serializer($data); }
     public function connect() { return $this->storage->connect(); }
     public function insertPaste($id, $data, $arbLifespan = FALSE) { return $this->storage->insertPaste($id, $data, $arbLifespan); }
     public function readPaste($id) { return $this->storage->readPaste($id); }
@@ -94,7 +93,7 @@ class Bin
 
     public function getLastPosts($amount)
     {
-        $index = $this->storage->deserializer($this->storage->read($this->storage->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->storage->read($this->storage->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
         $index = array_reverse($index);
         $int = 0;
         $result = array();
@@ -196,7 +195,7 @@ class Bin
             return false;
         }
 
-        $index = $this->storage->deserializer($this->storage->read($this->storage->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->storage->read($this->storage->setDataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
 
         if (is_array($index) && count($index) > $amount + 1) {
             shuffle($index);

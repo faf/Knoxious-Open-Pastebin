@@ -73,7 +73,7 @@ if (!$stop) {
     }
 
     if (!$stop) {
-        $bin->write($bin->serializer(array()), $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
+        $bin->write(serialize(array()), $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
         $bin->write('FORBIDDEN', $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'index.html');
         chmod($SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX', $SPB_CONFIG['file_bitmask']);
         chmod($SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'index.html', $SPB_CONFIG['file_bitmask']);
