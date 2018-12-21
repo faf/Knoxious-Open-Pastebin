@@ -24,8 +24,6 @@ if (!$stop) {
                    'success' => FALSE,
                    'result' => '' );
 
-    $passLen = array(8, 9, 10, 11, 12);
-    shuffle($passLen);
     if ($SPB_CONFIG['admin_password'] === $bin->hasher(hash($SPB_CONFIG['algo'], 'password'),
                                                        $SPB_CONFIG['salts'])
         || !isset($SPB_CONFIG['admin_password'])) {
@@ -44,10 +42,8 @@ if (!$stop) {
     $step = array( 'step' => t('Quick salts check.'),
                    'success' => FALSE,
                    'result' => '' );
-        $no_salts = count($SPB_CONFIG['salts']);
-    $saltLen = array(8, 9, 10, 11, 12, 14, 16, 25, 32);
-    shuffle($saltLen);
-    if ($no_salts < 4
+
+    if (count($SPB_CONFIG['salts']) < 4
         || $SPB_CONFIG['salts'][1] === 'str001'
         || $SPB_CONFIG['salts'][2] === 'str002'
         || $SPB_CONFIG['salts'][3] === 'str003'
@@ -69,22 +65,26 @@ if (!$stop) {
                    'success' => FALSE,
                    'result' => '' );
 
-// TODO: check results
     if (!is_dir($SPB_CONFIG['storage'])) {
-        mkdir($SPB_CONFIG['storage']);
-        chmod($SPB_CONFIG['storage'], $SPB_CONFIG['dir_bitmask']);
+        if (!mkdir($SPB_CONFIG['storage'], $SPB_CONFIG['dir_bitmask'])) {
+            $step['result'] = t('Cannot create data storage, check config!');
+            $stop = TRUE;
+        }
     }
-    $bin->write($bin->serializer(array()), $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
-    $bin->write('FORBIDDEN', $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'index.html');
-    chmod($SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX', $SPB_CONFIG['file_bitmask']);
-    chmod($SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'index.html', $SPB_CONFIG['file_bitmask']);
 
-    if (!$bin->connect()) {
-        $step['result'] = t('Cannot connect to data storage, check config!');
-        $stop = TRUE;
-    } else {
-        $step['result'] = t('Connection established!');
-        $step['success'] = TRUE;
+    if (!$stop) {
+        $bin->write($bin->serializer(array()), $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
+        $bin->write('FORBIDDEN', $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'index.html');
+        chmod($SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX', $SPB_CONFIG['file_bitmask']);
+        chmod($SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'index.html', $SPB_CONFIG['file_bitmask']);
+
+        if (!$bin->connect()) {
+            $step['result'] = t('Cannot connect to data storage, check config!');
+            $stop = TRUE;
+        } else {
+            $step['result'] = t('Connection established!');
+            $step['success'] = TRUE;
+        }
     }
     $page['installList'][] = $step;
 }
