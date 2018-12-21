@@ -94,9 +94,9 @@ if (!$stop) {
         mkdir($SPB_CONFIG['data_dir']);
         chmod($SPB_CONFIG['data_dir'], $SPB_CONFIG['dir_bitmask']);
     }
-    $bin->write($bin->serializer(array()), $SPB_CONFIG['data_dir'] . '/' . $SPB_CONFIG['index_file']);
+    $bin->write($bin->serializer(array()), $SPB_CONFIG['data_dir'] . '/INDEX');
     $bin->write('FORBIDDEN', $SPB_CONFIG['data_dir'] . '/index.html');
-    chmod($SPB_CONFIG['data_dir'] . '/' . $SPB_CONFIG['index_file'], $SPB_CONFIG['file_bitmask']);
+    chmod($SPB_CONFIG['data_dir'] . '/INDEX', $SPB_CONFIG['file_bitmask']);
     chmod($SPB_CONFIG['data_dir'] . '/index.html', $SPB_CONFIG['file_bitmask']);
 
     if (!$bin->connect()) {
