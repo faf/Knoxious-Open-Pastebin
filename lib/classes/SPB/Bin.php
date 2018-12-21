@@ -30,7 +30,7 @@ class Bin
 
 // Temporary wrapper methods
     public function write($data, $file) { return $this->storage->write($data, $file); }
-    public function ready() { return $this->storage->ready(); }
+
     public function insertPaste($id, $data, $arbLifespan = FALSE) { return $this->storage->insertPaste($id, $data, $arbLifespan); }
     public function readPaste($id) { return $this->storage->readPaste($id); }
     public function dropPaste($id) { return $this->storage->dropPaste($id); }
@@ -41,10 +41,9 @@ class Bin
     }
 // End of temporary wrapper methods
 
-
-    public function thisDir()
-    {
-        return dirname($_SERVER['SCRIPT_FILENAME']);
+    // TODO: decribe
+    public function ready() {
+        return $this->storage->available();
     }
 
     public function generateID($id = FALSE, $iterations = 0)

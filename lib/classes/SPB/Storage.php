@@ -20,8 +20,8 @@ class Storage
      */
     private $config;
 
-    // TODO: describe
-    public static $bitmask_dir = 0770;
+    // TODO: refactor, describe
+    static public $bitmask_dir = 0770;
 
     // TODO: describe
     private $bitmask_file = 0660;
@@ -32,8 +32,8 @@ class Storage
         $this->config = $config;
     }
 
-    // TODO: analyze, refactor, describe
-    public function ready()
+    // TODO: describe
+    public function available()
     {
         return is_writeable($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX')
                && is_writeable($this->config['storage']);
@@ -77,7 +77,7 @@ class Storage
         $path = $this->config['storage'] . DIRECTORY_SEPARATOR . substr($filename, 0, 1);
 
         if (!file_exists($path) && is_writable($this->config['storage'])) {
-            mkdir($path, $this->bitmask_dir);
+            mkdir($path, self::$bitmask_dir);
             $this->write('FORBIDDEN', $path . DIRECTORY_SEPARATOR . 'index.html');
         }
 
@@ -89,7 +89,7 @@ class Storage
             }
 
             if (!file_exists($path) && is_writable($parent)) {
-                mkdir($path, $this->bitmask_dir);
+                mkdir($path, self::$bitmask_dir);
                 $this->write('FORBIDDEN', $path . DIRECTORY_SEPARATOR . 'index.html');
             }
         }
