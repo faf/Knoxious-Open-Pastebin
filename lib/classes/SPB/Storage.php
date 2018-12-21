@@ -64,8 +64,6 @@ class Storage
             $this->config['max_folder_depth'] = 1;
         }
 
-        $info = pathinfo($filename);
-
         $path = $this->config['data_dir'] . '/' . substr($filename, 0, 1);
 
         if (!file_exists($path) && is_writable($this->config['data_dir'])) {
