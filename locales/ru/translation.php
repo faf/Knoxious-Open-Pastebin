@@ -11,6 +11,7 @@ $translation = array(
     'Author\'s IP address' => 'IP-адрес автора',
     'Back to main page' => 'Вернуться на главную страницу',
     'Cannot connect to data storage, check config!' => 'Невозможно соединиться с хранилищем данных, проверьте конфигурацию!',
+    'Cannot create data storage, check config!' => 'Невозможно создать хранилище данных, проверьте конфигурацию!',
     'Checking data storage connection.' => 'Проверяю соединение с хранилищем данных.',
     "Congratulations, your Pastebin has now been installed!\nThis message will expire in 30 minutes!" => "Поздравляю, Ваш Pastebin установлен!\nСрок жизни этого сообщения истечёт через 30 минут!",
     'Connection established!' => 'Соединение установлено!',
