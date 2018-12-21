@@ -16,14 +16,8 @@ if (ISINCLUDED != '1') {
 /* Config, please read and edit very carefully. */
 $SPB_CONFIG = array(
 
-// Change the following to suit your needs.
-// File and directory permissions should work in most cases.
 // Name of the data storage directory
     'storage' => 'data',
-// Permissions bitmask for directory
-    'dir_bitmask' => 0775,
-// Permissions bitmask for file
-    'file_bitmask' => 0664,
 
 // Maximum depth of folder structure
 // Example, 2 would be './data/a/b' for the paste id 'abcde'

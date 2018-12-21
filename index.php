@@ -62,12 +62,12 @@ if (array_key_exists($ckey, $_COOKIE) && $_COOKIE[$ckey] !== NULL) {
     $page['author'] = $SPB_CONFIG['author'];
 }
 
-if (!$bin->connect()) {
+if (!$bin->ready()) {
     $page['messages']['error'][] = t('Data storage is unavailable - check config!');
 } elseif (substr($request['id'], - 1) != "!" && !$post_values['adminProceed'] && $request['mode'] === 'raw') {
     if ($pasted = $bin->readPaste($request['id'])) {
         header('Content-Type: text/plain; charset=utf-8');
-        echo stripslashes(stripslashes(($bin->noHighlight($pasted['Data']));
+        echo stripslashes(stripslashes($bin->noHighlight($pasted['Data'])));
         exit(0);
     } else {
         header('HTTP/1.0 500 Internal Server Error');

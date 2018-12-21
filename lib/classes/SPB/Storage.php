@@ -21,9 +21,22 @@ class Storage
     private $config;
 
     // TODO: describe
+    public static $bitmask_dir = 0770;
+
+    // TODO: describe
+    private $bitmask_file = 0660;
+
+    // TODO: describe
     public function __construct($config)
     {
         $this->config = $config;
+    }
+
+    // TODO: analyze, refactor, describe
+    public function ready()
+    {
+        return is_writeable($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX')
+               && is_writeable($this->config['storage']);
     }
 
     // TODO: describe
@@ -47,16 +60,13 @@ class Storage
         }
         $write = fwrite($open, $data);
         fclose($open);
+        chmod($file, $this->bitmask_file);
         return $write;
     }
 
     // TODO: analyze, refactor, describe
-    public function dataPath($filename = FALSE, $justPath = FALSE)
+    public function dataPath($filename, $justPath = FALSE)
     {
-        if (!$filename) {
-            return $this->config['storage'];
-        }
-
         $filename = str_replace('!', '', $filename);
 
         $this->config['max_folder_depth'] = (int) $this->config['max_folder_depth'];
@@ -67,10 +77,8 @@ class Storage
         $path = $this->config['storage'] . DIRECTORY_SEPARATOR . substr($filename, 0, 1);
 
         if (!file_exists($path) && is_writable($this->config['storage'])) {
-            mkdir($path);
-            chmod($path, $this->config['dir_bitmask']);
+            mkdir($path, $this->bitmask_dir);
             $this->write('FORBIDDEN', $path . DIRECTORY_SEPARATOR . 'index.html');
-            chmod($path . DIRECTORY_SEPARATOR . 'index.html', $this->config['file_bitmask']);
         }
 
         for ($i = 1; $i <= $this->config['max_folder_depth'] - 1; $i ++) {
@@ -81,10 +89,8 @@ class Storage
             }
 
             if (!file_exists($path) && is_writable($parent)) {
-                mkdir($path);
-                chmod($path, $this->config['dir_bitmask']);
+                mkdir($path, $this->bitmask_dir);
                 $this->write('FORBIDDEN', $path . DIRECTORY_SEPARATOR . 'index.html');
-                chmod($path . DIRECTORY_SEPARATOR . 'index.html', $this->config['file_bitmask']);
             }
         }
 
@@ -95,19 +101,14 @@ class Storage
         }
     }
 
-    // TODO: analyze, refactor, describe
-    public function connect()
-    {
-        return is_writeable($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX')
-               && is_writeable($this->dataPath());
-    }
+
 
     // TODO: analyze, refactor, describe
     public function readPaste($id)
     {
         $result = array();
         if (!file_exists($this->dataPath($id))) {
-            $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+            $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
             if (in_array($id, $index)) {
                 $this->dropPaste($id, TRUE);
             }
@@ -131,7 +132,7 @@ class Storage
             $result = unlink($this->dataPath($id));
         }
 
-        $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
         if (in_array($id, $index)) {
             $key = array_keys($index, $id);
         } elseif (in_array('!' . $id, $index)) {
@@ -144,7 +145,7 @@ class Storage
         }
 
         $index = array_values($index);
-        $result = $this->write(serialize($index), $this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX');
+        $result = $this->write(serialize($index), $this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
 
         return $result;
     }
@@ -183,11 +184,10 @@ class Storage
             $paste['Protection'] = 0;
         }
 
-        $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
         $index[] = $id;
-        $this->write(serialize($index), $this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX');
+        $this->write(serialize($index), $this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
         $result = $this->write(serialize($paste), $this->dataPath($paste['ID']));
-        chmod($this->dataPath($paste['ID']), $this->config['file_bitmask']);
 
         return $result;
     }
@@ -195,7 +195,7 @@ class Storage
     // TODO: analyze, refactor, describe
     public function checkID($id)
     {
-        $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
         if (in_array($id, $index) || in_array('!' . $id, $index)) {
             $output = TRUE;
         } else {
@@ -215,7 +215,7 @@ class Storage
             $this->config['id_length'] = 32;
         }
 
-        $index = unserialize($this->read($this->dataPath() . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
         $index = array_reverse($index);
         $output = strlen(str_replace('!', NULL, $index[0]));
         if ($output < 1) {
