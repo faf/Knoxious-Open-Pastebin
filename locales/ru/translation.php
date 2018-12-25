@@ -83,3 +83,41 @@ $translation = array(
     'in %s' => 'в течение %s',
     'more info' => 'подробнее',
 );
+
+// List of all language-specific functions
+$translation_functions = array(
+    'translate_time' => function($number, $units) {
+                            $ru_units = array(
+                                'seconds' => array( 0 => 'секунд',
+                                                    1 => 'секунда',
+                                                    2 => 'секунды', ),
+                                'minutes' => array( 0 => 'минут',
+                                                    1 => 'минута',
+                                                    2 => 'минуты', ),
+                                'hours' => array( 0 => 'часов',
+                                                  1 => 'час',
+                                                  2 => 'часа', ),
+                                'days' => array( 0 => 'дней',
+                                                 1 => 'день',
+                                                 2 => 'дня', ),
+                                'weeks' => array( 0 => 'недель',
+                                                  1 => 'неделя',
+                                                  2 => 'недели', ),
+                                'years' => array( 0 => 'лет',
+                                                  1 => 'год',
+                                                  2 => 'года', ),
+                            );
+                            $result = $number . ' ' ;
+                            if ((int) $number > 20) {
+                                $number = substr($number, -1);
+                            }
+                            $number = (int) $number;
+                            $form = 0;
+                            if ($number === 1) {
+                                $form = 1;
+                            } elseif ($number > 1 && $number < 5) {
+                                $form = 2;
+                            }
+                            return $result . $ru_units[$units][$form];
+                        },
+);
