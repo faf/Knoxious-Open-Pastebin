@@ -84,20 +84,16 @@ class Bin
         }
     }
 
-    public function checkAuthor($author = FALSE)
+    // TODO: describe
+    public function getAuthorName($author)
     {
-        if ($author == FALSE) {
-            return $this->config['author'];
+        if (($author === FALSE) || preg_match('/^\s*$/', $author)) {
+            $author = $this->config['author'];
         }
-
-        if (preg_match('/^\s/', $author) || preg_match('/\s$/', $author) || preg_match('/^\s$/', $author)) {
-            return $this->config['author'];
-        } else {
-            return addslashes(htmlspecialchars($author));
-        }
+        return addslashes(htmlspecialchars($author));
     }
 
-    // TODO: refactor, describe
+    // TODO: describe
     public function getRecentPosts()
     {
         $result = array();
@@ -299,41 +295,6 @@ class Bin
 
         return $output;
     }
-
-    public function event($time, $single = FALSE)
-    {
-        $context = array(array(60 * 60 * 24 * 365, 'years'), array(60 * 60 * 24 * 7, 'weeks'), array(60 * 60 * 24, 'days'), array(60 * 60, 'hours'), array(60, 'minutes'), array(1, 'seconds'));
-
-        $now = gmdate('U');
-        $difference = $now - $time;
-
-        for ($i = 0, $n = count($context); $i < $n; $i ++) {
-
-            $seconds = $context[$i][0];
-            $name = $context[$i][1];
-
-            if (($count = floor($difference / $seconds)) > 0) {
-                break;
-            }
-        }
-
-        $print = ($count == 1) ? '1 ' . substr($name, 0, - 1) : $count . ' ' . $name;
-
-        if ($single) {
-            return $print;
-        }
-
-        if ($i + 1 < $n) {
-            $seconds2 = $context[$i + 1][0];
-            $name2 = $context[$i + 1][1];
-
-            if (($count2 = floor(($difference - ($seconds * $count)) / $seconds2)) > 0) {
-                $print .= ($count2 == 1) ? ' 1 ' . substr($name2, 0, - 1) : ' ' . $count2 . ' ' . $name2;
-            }
-        }
-        return $print;
-    }
-
 
 ///////////////////
 

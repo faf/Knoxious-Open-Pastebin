@@ -43,7 +43,7 @@ if (is_array($SPB_CONFIG['lifespan'])) {
         $key = array_keys($SPB_CONFIG['lifespan'], $span);
         $key = $key[0];
         $hint = $span
-                ? $bin->event(time() - ($span * 24 * 60 * 60), TRUE)
+                ? $translator->humanReadableRelativeTime(time() - ($span * 24 * 60 * 60), TRUE)
                 : t('Never');
         $page['lifespansOptions'][] = array( 'value' => $key,
                                              'hint' => $hint );
@@ -53,7 +53,7 @@ if (is_array($SPB_CONFIG['lifespan'])) {
 $ckey = $bin->getCookieName();
 
 if ($post_values['author'] && is_numeric($SPB_CONFIG['author_cookie'])) {
-    setcookie($ckey, $bin->checkAuthor($post_values['author']), time() + $SPB_CONFIG['author_cookie']);
+    setcookie($ckey, $bin->getAuthorName($post_values['author']), time() + $SPB_CONFIG['author_cookie']);
 }
 
 if (array_key_exists($ckey, $_COOKIE) && $_COOKIE[$ckey] !== NULL) {
@@ -87,13 +87,13 @@ if (!$bin->ready()) {
         $pasted['Data']['Dirty'] = htmlspecialchars(stripslashes($pasted['Data']['Orig']));
         $pasted['Data']['noHighlight']['Dirty'] = $bin->noHighlight($pasted['Data']['Dirty']);
 
-        $page['paste']['Size'] = $translator->humanReadableFilesize(mb_strlen($pasted['Data']['Orig']));
+        $page['paste']['Size'] = $translator->humanReadableFileSize(mb_strlen($pasted['Data']['Orig']));
 
         if ($pasted['Lifespan'] == 0) {
             $pasted['Lifespan'] = time() + time();
             $page['paste']['lifeString'] = t('Never');
         } else {
-            $page['paste']['lifeString'] = t('in %s', array($bin->event(time() - ($pasted['Lifespan'] - time()))));
+            $page['paste']['lifeString'] = t('in %s', array($translator->humanReadableRelativeTime(time() - ($pasted['Lifespan'] - time()))));
         }
 
         if (gmdate('U') > $pasted['Lifespan']) {
@@ -102,7 +102,7 @@ if (!$bin->ready()) {
             $page['showPaste'] = FALSE;
         } else {
             $page['paste']['Author'] = $pasted['Author'];
-            $page['paste']['DatetimeRelative'] = $bin->event($pasted['Datetime']);
+            $page['paste']['DatetimeRelative'] = $translator->humanReadableRelativeTime($pasted['Datetime']);
             $page['paste']['Datetime'] = date($SPB_CONFIG['datetime_format'], $pasted['Datetime']);
         }
 
@@ -160,7 +160,7 @@ if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
     if (count($page['recentPosts']) > 0) {
         foreach ($page['recentPosts'] as &$paste) {
             $paste['PasteURL'] = $bin->linker($paste['ID']);
-            $paste['Datetime'] = $bin->event($paste['Datetime']);
+            $paste['Datetime'] = $translator->humanReadableRelativeTime($paste['Datetime']);
         }
         $page['showRecent'] = TRUE;
     }
@@ -188,7 +188,7 @@ if ($post_values['submit']) {
     } else {
 
         $paste = array( 'ID' => $bin->generateID(),
-                        'Author' => $bin->checkAuthor($post_values['author']),
+                        'Author' => $bin->getAuthorName($post_values['author']),
                         'IP' => $_SERVER['REMOTE_ADDR'],
                         'Lifespan' => $post_values['lifespan'],
                         'Protect' => $post_values['privacy'],
@@ -205,7 +205,7 @@ if ($post_values['submit']) {
             $page['showPaste'] = FALSE;
         } else {
             $page['messages']['error'][] = t('Something went wrong.');
-            $page['messages']['warn'][] = t('The size of data must be between %d bytes and %s', array(10, $translator->humanReadableFilesize($SPB_CONFIG['max_bytes'])));
+            $page['messages']['warn'][] = t('The size of data must be between %d bytes and %s', array(10, $translator->humanReadableFileSize($SPB_CONFIG['max_bytes'])));
         }
     }
 }
