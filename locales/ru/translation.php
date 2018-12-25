@@ -78,6 +78,7 @@ $translation = array(
     'You are about to access a data that the author has marked as requiring confirmation to view.' => 'Вы собираетесь получить доступ к данным, которые автор пометил как требующие подтверждения для просмотра.',
     'Your data has been successfully recorded!' => 'Ваши данные были успешно записаны!',
     'Your name' => 'Ваше имя',
+    'b Kb Mb' => 'байт Кб Мб',
     'click here' => 'кликните здесь',
     'in %s' => 'в течение %s',
     'more info' => 'подробнее',
