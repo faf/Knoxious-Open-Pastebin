@@ -65,24 +65,12 @@ if (!$stop) {
                    'success' => FALSE,
                    'result' => '' );
 
-    if (!is_dir($SPB_CONFIG['storage'])) {
-        // TODO: fix this mess
-        if (!mkdir($SPB_CONFIG['storage'], \SPB\Storage::$bitmask_dir)) {
-            $step['result'] = t('Cannot create data storage, check config!');
-            $stop = TRUE;
-        }
-    }
-
-    if (!$stop) {
-        $bin->write(serialize(array()), $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
-        $bin->write('FORBIDDEN', $SPB_CONFIG['storage'] . DIRECTORY_SEPARATOR . 'index.html');
-        if (!$bin->ready()) {
-            $step['result'] = t('Cannot connect to data storage, check config!');
-            $stop = TRUE;
-        } else {
-            $step['result'] = t('Connection established!');
-            $step['success'] = TRUE;
-        }
+    if ($bin->ready() || $bin->initStorage()) {
+        $step['result'] = t('Connection established!');
+        $step['success'] = TRUE;
+    } else {
+        $step['result'] = t('Cannot connect to data storage, check config!');
+        $stop = TRUE;
     }
     $page['installList'][] = $step;
 }

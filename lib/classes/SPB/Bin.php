@@ -28,9 +28,10 @@ class Bin
         $this->storage = new Storage($config);
     }
 
-// Temporary wrapper methods
-    public function write($data, $file) { return $this->storage->write($data, $file); }
 
+
+
+// Temporary wrapper methods /////////////////////////
     public function insertPaste($id, $data, $arbLifespan = FALSE) { return $this->storage->insertPaste($id, $data, $arbLifespan); }
     public function readPaste($id) { return $this->storage->readPaste($id); }
     public function dropPaste($id) { return $this->storage->dropPaste($id); }
@@ -39,12 +40,20 @@ class Bin
     {
         return $this->hasher($this->config['admin_password'], $this->config['salts']);
     }
-// End of temporary wrapper methods
+// End of temporary wrapper methods /////////////////////////
+
+
 
     // TODO: decribe
     public function ready() {
-        return $this->storage->available();
+        return $this->storage->isAvailable();
     }
+
+    // TODO: decribe
+    public function initStorage() {
+        return $this->storage->init();
+    }
+
 
     public function generateID($id = FALSE, $iterations = 0)
     {
@@ -88,26 +97,29 @@ class Bin
         }
     }
 
-    public function getLastPosts($amount)
+    // TODO: refactor, describe
+    public function getRecentPosts()
     {
-        $index = unserialize($this->storage->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
-        $index = array_reverse($index);
-        $int = 0;
         $result = array();
-        if (count($index) > 0) {
-            foreach ($index as $row) {
-                if ($int < $amount && substr($row, 0, 1) != '!') {
-                    $result[$int] = $this->storage->readPaste($row);
-                    $int ++;
-                } elseif ($int <= $amount && substr($row, 0, 1) == '!') {
-                    $int = $int;
-                } else {
-                    return $result;
-                }
+        $index = $this->storage->getIndex();
+        if (!is_array($index) || !count($index)) {
+            return $result;
+        }
+        $index = array_reverse($index);
+        $i = 0;
+        foreach ($index as $row) {
+            if (substr($row, 0, 1) != '!') {
+                $result[$i] = $this->storage->readPaste($row);
+                $i++;
+            }
+            if ($i == $this->config['recent_posts']) {
+                break;
             }
         }
         return $result;
     }
+
+
 
     public function lineHighlight()
     {
@@ -192,7 +204,7 @@ class Bin
             return false;
         }
 
-        $index = unserialize($this->storage->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = $this->storage->getIndex();
 
         if (is_array($index) && count($index) > $amount + 1) {
             shuffle($index);
@@ -322,23 +334,23 @@ class Bin
         return $print;
     }
 
-    public function humanReadableFilesize($size)
+
+///////////////////
+
+    // TODO: describe
+    public function getCookieName()
     {
-        // Snippet from: http://www.jonasjohn.de/snippets/php/readable-filesize.htm
-        $mod = 1024;
-
-        $units = explode(' ', 'b Kb Mb Gb Tb Pb');
-        for ($i = 0; $size > $mod; $i ++) {
-            $size /= $mod;
-        }
-
-        return round($size, 2) . ' ' . $units[$i];
+        return strtoupper(sha1(str_rot13(md5($_SERVER['REMOTE_ADDR']
+                                             . $_SERVER['SERVER_ADDR']
+                                             . $_SERVER['HTTP_USER_AGENT']
+                                             . $_SERVER['SCRIPT_FILENAME']))));
     }
 
-    public function token($generate = FALSE)
+    // TODO: describe
+    public function token($single = FALSE)
     {
         $times = array(((int) date('G') - 1), ((int) date('G')), ((int) date('G') + 1));
-        if ($generate) {
+        if ($single) {
             return $this->_token($times[1]);
         } else {
             if ($times[1] == 23) {
@@ -354,11 +366,7 @@ class Bin
         }
     }
 
-    public function cookieName()
-    {
-        return strtoupper(sha1(str_rot13(md5($_SERVER['REMOTE_ADDR'] . $_SERVER['SERVER_ADDR'] . $_SERVER['HTTP_USER_AGENT'] . $_SERVER['SCRIPT_FILENAME']))));
-    }
-
+    // TODO: describe
     private function _token($value)
     {
         return strtoupper(sha1(md5($value

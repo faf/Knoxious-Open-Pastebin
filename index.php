@@ -50,7 +50,7 @@ if (is_array($SPB_CONFIG['lifespan'])) {
     }
 }
 
-$ckey = $bin->cookieName();
+$ckey = $bin->getCookieName();
 
 if ($post_values['author'] && is_numeric($SPB_CONFIG['author_cookie'])) {
     setcookie($ckey, $bin->checkAuthor($post_values['author']), time() + $SPB_CONFIG['author_cookie']);
@@ -87,7 +87,7 @@ if (!$bin->ready()) {
         $pasted['Data']['Dirty'] = htmlspecialchars(stripslashes($pasted['Data']['Orig']));
         $pasted['Data']['noHighlight']['Dirty'] = $bin->noHighlight($pasted['Data']['Dirty']);
 
-        $page['paste']['Size'] = $bin->humanReadableFilesize(mb_strlen($pasted['Data']['Orig']));
+        $page['paste']['Size'] = $translator->humanReadableFilesize(mb_strlen($pasted['Data']['Orig']));
 
         if ($pasted['Lifespan'] == 0) {
             $pasted['Lifespan'] = time() + time();
@@ -155,7 +155,7 @@ if (!$bin->ready()) {
 $bin->cleanUp($SPB_CONFIG['recent_posts']);
 
 if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
-    $page['recentPosts'] = $bin->getLastPosts($SPB_CONFIG['recent_posts']);
+    $page['recentPosts'] = $bin->getRecentPosts();
 
     if (count($page['recentPosts']) > 0) {
         foreach ($page['recentPosts'] as &$paste) {
@@ -205,7 +205,7 @@ if ($post_values['submit']) {
             $page['showPaste'] = FALSE;
         } else {
             $page['messages']['error'][] = t('Something went wrong.');
-            $page['messages']['warn'][] = t('The size of data must be between %d bytes and %s', array(10, $bin->humanReadableFilesize($SPB_CONFIG['max_bytes'])));
+            $page['messages']['warn'][] = t('The size of data must be between %d bytes and %s', array(10, $translator->humanReadableFilesize($SPB_CONFIG['max_bytes'])));
         }
     }
 }

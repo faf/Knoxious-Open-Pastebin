@@ -71,6 +71,20 @@ class Translator
         return $this->populate_string($string, $values);
     }
 
+    // TODO: describe
+    public function humanReadableFilesize($size)
+    {
+        // Based upon snippet from http://www.jonasjohn.de/snippets/php/readable-filesize.htm
+        $mod = 1024;
+
+        $units = explode(' ', $this->translate('b Kb Mb'));
+        for ($i = 0; ($size > $mod) && ($i < count($units)); $i ++) {
+            $size /= $mod;
+        }
+
+        return round($size, 2) . ' ' . $units[$i];
+    }
+
     /**
      * Populate a string with data using its placeholders.
      *

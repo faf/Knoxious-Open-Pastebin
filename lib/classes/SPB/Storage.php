@@ -20,8 +20,8 @@ class Storage
      */
     private $config;
 
-    // TODO: refactor, describe
-    static public $bitmask_dir = 0770;
+    // TODO: describe
+    private $bitmask_dir = 0770;
 
     // TODO: describe
     private $bitmask_file = 0660;
@@ -33,15 +33,41 @@ class Storage
     }
 
     // TODO: describe
-    public function available()
+    public function isAvailable()
     {
-        return is_writeable($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX')
-               && is_writeable($this->config['storage']);
+        return is_dir($this->config['storage'])
+               && is_writeable($this->config['storage'])
+               && is_file($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX')
+               && is_writeable($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
     }
 
     // TODO: describe
-    public function read($file)
+    public function init()
     {
+        if (!is_dir($this->config['storage'])) {
+            if (!mkdir($this->config['storage'], $this->bitmask_file)) {
+                return FALSE;
+            }
+        }
+
+        return $this->write(serialize(array()),
+                            $this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX')
+               && $this->write('FORBIDDEN',
+                               $this->config['storage'] . DIRECTORY_SEPARATOR . 'index.html');
+    }
+
+    // TODO: describe
+    public function getIndex()
+    {
+        return unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
+    }
+
+    // TODO: describe
+    private function read($file)
+    {
+        if (!is_file($file) || !is_readable($file)) {
+            return FALSE;
+        }
         $open = fopen($file, 'r');
         if (!$open) {
             return FALSE;
@@ -52,16 +78,16 @@ class Storage
     }
 
     // TODO: describe
-    public function write($data, $file)
+    private function write($data, $file)
     {
         $open = fopen($file, 'w');
         if (!$open) {
             return FALSE;
         }
-        $write = fwrite($open, $data);
+        $result = fwrite($open, $data);
         fclose($open);
         chmod($file, $this->bitmask_file);
-        return $write;
+        return $result;
     }
 
     // TODO: analyze, refactor, describe
@@ -70,14 +96,14 @@ class Storage
         $filename = str_replace('!', '', $filename);
 
         $this->config['max_folder_depth'] = (int) $this->config['max_folder_depth'];
-        if ($this->config['max_folder_depth'] < 1 || !is_numeric($this->config['max_folder_depth'])) {
+        if ($this->config['max_folder_depth'] < 1) {
             $this->config['max_folder_depth'] = 1;
         }
 
         $path = $this->config['storage'] . DIRECTORY_SEPARATOR . substr($filename, 0, 1);
 
         if (!file_exists($path) && is_writable($this->config['storage'])) {
-            mkdir($path, self::$bitmask_dir);
+            mkdir($path, $this->bitmask_dir);
             $this->write('FORBIDDEN', $path . DIRECTORY_SEPARATOR . 'index.html');
         }
 
@@ -89,7 +115,7 @@ class Storage
             }
 
             if (!file_exists($path) && is_writable($parent)) {
-                mkdir($path, self::$bitmask_dir);
+                mkdir($path, $this->bitmask_dir);
                 $this->write('FORBIDDEN', $path . DIRECTORY_SEPARATOR . 'index.html');
             }
         }
@@ -110,7 +136,7 @@ class Storage
         if (!file_exists($this->dataPath($id))) {
             $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
             if (in_array($id, $index)) {
-                $this->dropPaste($id, TRUE);
+                $this->dropPaste($id);
             }
             return false;
         }
