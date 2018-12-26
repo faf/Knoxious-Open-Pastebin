@@ -20,13 +20,13 @@ if (ISINCLUDED != '1') {
                     <div id="pasteID">
                         <strong><?php echo t('ID:'); ?></strong> <?php echo $page['paste']['ID']; ?>
                     </div>
-                    <strong><?php echo t('Posted by'); ?></strong> <?php echo stripslashes($page['paste']['Author']); ?>, <em title="<?php echo t('%s ago', array($page['paste']['DatetimeRelative'])); ?>"><?php echo $page['paste']['Datetime']; ?></em><br/>
-                    <strong><?php echo t('Expires'); ?></strong> <?php echo $page['paste']['lifeString']; ?><br/>
-                    <strong><?php echo t('Size'); ?></strong> <?php echo $page['paste']['Size']; ?>
+                    <strong><?php echo t('Posted by:'); ?></strong> <?php echo stripslashes($page['paste']['Author']); ?>, <em title="<?php echo t('%s ago', array($page['paste']['DatetimeRelative'])); ?>"><?php echo $page['paste']['Datetime']; ?></em><br/>
+                    <strong><?php echo t('Expires:'); ?></strong> <?php echo $page['paste']['lifeString']; ?><br/>
+                    <strong><?php echo t('Size:'); ?></strong> <?php echo $page['paste']['Size']; ?>
 
                 </div>
 <?php if ($page['showAuthorIP']) { ?>
-                <div class="success"><strong><?php echo t('Author\'s IP address'); ?></strong> <a href="https://whois.domaintools.com/<?php echo $page['paste']['IP']; ?>"><?php echo $page['paste']['IP']; ?></a></div>
+                <div class="success"><strong><?php echo t('Author\'s IP address:'); ?></strong> <a href="https://whois.domaintools.com/<?php echo $page['paste']['IP']; ?>"><?php echo $page['paste']['IP']; ?></a></div>
 <?php }
 
 if ($page['showParentLink']) {?>
