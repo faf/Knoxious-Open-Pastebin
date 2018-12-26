@@ -187,8 +187,7 @@ if ($post_values['submit']) {
         $page['showForms'] = FALSE;
     } else {
 
-        $paste = array( 'ID' => $bin->generateID(),
-                        'Author' => $bin->getAuthorName($post_values['author']),
+        $paste = array( 'Author' => $bin->getAuthorName($post_values['author']),
                         'IP' => $_SERVER['REMOTE_ADDR'],
                         'Lifespan' => $post_values['lifespan'],
                         'Protect' => $post_values['privacy'],
@@ -198,7 +197,7 @@ if ($post_values['submit']) {
 
         if ($post_values['pasteEnter'] == $post_values['originalPaste'] && strlen($post_values['pasteEnter']) > 10) {
             $page['messages']['error'][] = t('Please don\'t just repost what has already been posted!');
-        } elseif (strlen($post_values['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && $bin->insertPaste($paste['ID'], $paste)) {
+        } elseif (strlen($post_values['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && ($paste['ID'] = $bin->insertPaste($paste))) {
             $page['messages']['success'][] = t('Your data has been successfully recorded!');
             $page['confirmURL'] = $bin->linker($paste['ID']);
             $page['showForms'] = FALSE;

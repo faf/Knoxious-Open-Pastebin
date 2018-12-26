@@ -11,6 +11,8 @@
 
 namespace SPB;
 
+define('MAX_ID_GEN_ITERATIONS', 10);
+
 class Storage
 {
 
@@ -90,8 +92,46 @@ class Storage
         return $result;
     }
 
+/////////////////////////
+
+    // TODO: describe
+    private function _generateID($length)
+    {
+        $chars = '0123456789abcdefghijklmnopqrstuvwxyz';
+        if ($this->config['hexlike_ids']) {
+            $chars = '0123456789abcdefabcdef';
+        }
+        $result = '';
+        $i = 0;
+        while ($i < $length) {
+            $result .= $chars[mt_rand(0, strlen($chars) - 1)];
+            $i++;
+        }
+        return $result;
+    }
+
+    // TODO: describe
+    private function newID($id = FALSE, $iteration = 0)
+    {
+        if (($iteration >= MAX_ID_GEN_ITERATIONS) && ($id != FALSE)) {
+            $id = $this->_generateID($this->getLastID() + 1);
+        } else {
+            $id = $this->_generateID($this->getLastID());
+        }
+
+        $iteration++;
+        if ( ($this->config['rewrite_enabled'] && (is_dir($id) || file_exists($id)))
+             || $this->checkID($id) ) {
+
+            $id = $this->newID($id, $iteration);
+        }
+
+        return $id;
+    }
+
 
 /////////////////////////
+
 
     // TODO: analyze, refactor, describe
     public function dataPath($filename, $justPath = FALSE)
@@ -180,8 +220,10 @@ class Storage
     }
 
     // TODO: analyze, refactor, describe
-    public function insertPaste($id, $data, $arbLifespan = FALSE)
+    public function insertPaste($data, $arbLifespan = FALSE)
     {
+
+        $id = $this->newID();
 
         if ($arbLifespan && $data['Lifespan'] > 0) {
             $data['Lifespan'] = time() + $data['Lifespan'];
@@ -218,7 +260,7 @@ class Storage
         $this->write(serialize($index), $this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
         $result = $this->write(serialize($paste), $this->dataPath($paste['ID']));
 
-        return $result;
+        return $result ? $paste['ID'] : FALSE;
     }
 
     // TODO: analyze, refactor, describe

@@ -29,10 +29,10 @@ class Bin
     }
 
 
-
-
 // Temporary wrapper methods /////////////////////////
-    public function insertPaste($id, $data, $arbLifespan = FALSE) { return $this->storage->insertPaste($id, $data, $arbLifespan); }
+    public function insertPaste($data, $arbLifespan = FALSE) {
+        return $this->storage->insertPaste($data, $arbLifespan);
+    }
     public function readPaste($id) { return $this->storage->readPaste($id); }
     public function dropPaste($id) { return $this->storage->dropPaste($id); }
 
@@ -48,36 +48,6 @@ class Bin
     // TODO: decribe
     public function initStorage() {
         return $this->storage->init();
-    }
-
-
-    public function generateID($id = FALSE, $iterations = 0)
-    {
-        $checkArray = array('install', 'recent', 'raw');
-
-        if ($iterations > 0 && $iterations < 4 && $id != FALSE) {
-            $id = $this->generateRandomString($this->storage->getLastID());
-        } elseif ($iterations > 3 && $id != FALSE) {
-            $id = $this->generateRandomString($this->storage->getLastID() + 1);
-        }
-
-        if (!$id) {
-            $id = $this->generateRandomString($this->storage->getLastID());
-        }
-
-        if ($id == 'INDEX' || in_array($id, $checkArray)) {
-            $id = $this->generateRandomString($this->storage->getLastID());
-        }
-
-        if ($this->config['rewrite_enabled'] && (is_dir($id) || file_exists($id))) {
-            $id = $this->generateID($id, $iterations + 1);
-        }
-
-        if (!$this->storage->checkID($id) && !in_array($id, $checkArray)) {
-            return $id;
-        }  else {
-            return $this->generateID($id, $iterations + 1);
-        }
     }
 
     // TODO: describe
@@ -163,27 +133,6 @@ class Bin
         }
         $output = implode("\n", $output);
         return $output;
-    }
-
-    public function generateRandomString($length)
-    {
-        $checkArray = array('install', 'recent', 'raw', 0);
-
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyz';
-        if ($this->config['hexlike_ids']) {
-            $characters = '0123456789abcdefabcdef';
-        }
-
-        $output = '';
-        for ($p = 0; $p < $length; $p ++) {
-            $output .= $characters[mt_rand(0, strlen($characters) - 1)];
-        }
-
-        if (is_bool($output) || $output == NULL || strlen($output) < $length || in_array($output, $checkArray)) {
-            return $this->generateRandomString($length);
-        } else {
-            return (string) $output;
-        }
     }
 
     public function cleanUp($amount)

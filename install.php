@@ -75,15 +75,14 @@ if (!$stop) {
 }
 
 if (!$stop) {
-    $paste_new = array( 'ID' => $bin->generateRandomString($SPB_CONFIG['id_length']),
-                        'Author' => 'System',
+    $paste_new = array( 'Author' => 'System',
                         'IP' => $_SERVER['REMOTE_ADDR'],
                         'Lifespan' => 1800,
                         'Protect' => 0,
                         'Parent' => NULL,
                         'Content' => $SPB_CONFIG['line_highlight'] . t("Congratulations, your Pastebin has now been installed!\nThis message will expire in 30 minutes!")
     );
-    $bin->insertPaste($paste_new['ID'], $paste_new, TRUE);
+    $bin->insertPaste($paste_new, TRUE);
     $page['installed'] = TRUE;
 }
 
