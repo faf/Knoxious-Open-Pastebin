@@ -24,9 +24,8 @@ if (!$stop) {
                    'success' => FALSE,
                    'result' => '' );
 
-    if ($SPB_CONFIG['admin_password'] === $bin->hasher(hash($SPB_CONFIG['algo'], 'password'),
-                                                       $SPB_CONFIG['salts'])
-        || !isset($SPB_CONFIG['admin_password'])) {
+    if (!isset($SPB_CONFIG['admin_password'])
+        || $bin->checkPassword('password')) {
 
         $step['result'] = t('Password is still default!');
         $stop = TRUE;
@@ -44,10 +43,10 @@ if (!$stop) {
                    'result' => '' );
 
     if (count($SPB_CONFIG['salts']) < 4
-        || $SPB_CONFIG['salts'][1] === 'str001'
-        || $SPB_CONFIG['salts'][2] === 'str002'
-        || $SPB_CONFIG['salts'][3] === 'str003'
-        || $SPB_CONFIG['salts'][4] === 'str004') {
+        || $SPB_CONFIG['salts'][0] === 'str001'
+        || $SPB_CONFIG['salts'][1] === 'str002'
+        || $SPB_CONFIG['salts'][2] === 'str003'
+        || $SPB_CONFIG['salts'][3] === 'str004') {
 
         $step['result'] = t('Salt strings are inadequate!');
         $stop = TRUE;

@@ -106,7 +106,7 @@ if (!$bin->ready()) {
             $page['paste']['Datetime'] = date($SPB_CONFIG['datetime_format'], $pasted['Datetime']);
         }
 
-        if ($post_values['adminAction'] == 'ip' && $bin->hasher(hash($SPB_CONFIG['algo'], $post_values['adminPass']), $SPB_CONFIG['salts']) === $bin->hashedAdminPassword()) {
+        if ($post_values['adminAction'] == 'ip' && $bin->checkPassword($post_values['adminPass'])) {
             $page['showAuthorIP'] = TRUE;
             $page['paste']['IP'] = base64_decode($pasted['IP']);
         }
@@ -170,7 +170,7 @@ if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
     }
 }
 
-if ($post_values['adminAction'] === 'delete' && $bin->hasher(hash($SPB_CONFIG['algo'], $post_values['adminPass']), $SPB_CONFIG['salts']) === $bin->hashedAdminPassword()) {
+if ($post_values['adminAction'] === 'delete' && $bin->checkPassword($post_values['adminPass'])) {
     $bin->dropPaste($request['id']);
     $page['messages']['success'][] = t('Data %s has been deleted!', array($request['id']));
     $request['id'] = NULL;

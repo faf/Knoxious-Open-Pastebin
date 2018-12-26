@@ -52,10 +52,10 @@ $SPB_CONFIG = array(
 // Please make them at least 6 characters or more!
     'salts' => array(
 
-        1 => 'str001',
-        2 => 'str002',
-        3 => 'str003',
-        4 => 'str004'
+        'str001',
+        'str002',
+        'str003',
+        'str004'
 
     ),
 

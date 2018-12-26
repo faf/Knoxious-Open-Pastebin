@@ -36,12 +36,8 @@ class Bin
     public function readPaste($id) { return $this->storage->readPaste($id); }
     public function dropPaste($id) { return $this->storage->dropPaste($id); }
 
-    public function hashedAdminPassword()
-    {
-        return $this->hasher($this->config['admin_password'], $this->config['salts']);
-    }
-// End of temporary wrapper methods /////////////////////////
 
+// End of temporary wrapper methods /////////////////////////
 
 
     // TODO: decribe
@@ -262,41 +258,46 @@ class Bin
         return $output;
     }
 
-    public function hasher($string, $salts = NULL)
+///////////////////
+
+    // TODO: describe
+    public function checkPassword($password)
     {
-        if (!is_array($salts)) {
-            $salts = NULL;
-        }
-
-        if (count($salts) < 2) {
-            $salts = NULL;
-        }
-
-        $hashedSalt = NULL;
-
-        if ($salts) {
-            $hashedSalt = array(NULL, NULL);
-            $longIP = ip2long($_SERVER['REMOTE_ADDR']);
-
-            for ($i = 0; $i < strlen(max($salts)); $i ++) {
-                $hashedSalt[0] .= $salts[1][$i] . $salts[3][$i] . ($longIP * $i);
-                $hashedSalt[1] .= $salts[2][$i] . $salts[4][$i] . ($longIP + $i);
-            }
-
-            $hashedSalt[0] = hash($this->config['algo'], $hashedSalt[0]);
-            $hashedSalt[1] = hash($this->config['algo'], $hashedSalt[1]);
-        }
-
-        if (is_array($hashedSalt)) {
-            $output = hash($this->config['algo'], $hashedSalt[0] . $string . $hashedSalt[1]);
+        $hash1 = $this->makeHash(hash($this->config['algo'], $password));
+        $hash2 = $this->makeHash($this->config['admin_password']);
+        if (function_exists('hash_equals')) {
+            return hash_equals($hash1, $hash2);
         } else {
-            $output = hash($this->config['algo'], $string);
+            return strcmp($hash1, $hash2) ? FALSE : TRUE;
         }
-
-        return $output;
     }
 
-///////////////////
+    // TODO: describe
+    public function makeHash($string)
+    {
+        $salts = $this->config['salts'];
+        $ip = ip2long($_SERVER['REMOTE_ADDR']);
+        $hashSalts = array();
+        if (count($salts) < 4) {
+            $hashSalts = $salts;
+            $hashSalts[] = hash($this->config['algo'], $ip);
+            $hashSalts[] = $ip;
+        } else {
+            $length = 0;
+            foreach ($salts as $salt) {
+                $length = $length < strlen($salt) ? strlen($salt) : $length;
+            }
+            $hashSalts = array('', '');
+            for ($i = 0; $i < $length; $i++) {
+                $hashSalts[0] .= substr($salts[0], $i + 1, 1) . substr($salts[2], $i + 1, 1) . ($ip * $i);
+                $hashSalts[1] .= substr($salts[1], $i + 1, 1) . substr($salts[3], $i + 1, 1) . ($ip + $i);
+            }
+        }
+        return hash($this->config['algo'],
+                    hash($this->config['algo'], $hashSalts[0])
+                    . $string
+                    . hash($this->config['algo'], $hashSalts[1]));
+    }
 
     // TODO: describe
     public function getCookieName()

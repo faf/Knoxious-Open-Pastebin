@@ -33,6 +33,11 @@ if (is_array($SPB_CONFIG['lifespan'])) {
         $SPB_CONFIG['algo'] = 'sha256';
     }
 
+    // Define empty salts array if they are missed
+    if (!$SPB_CONFIG['salts'] || !is_array($SPB_CONFIG['salts'])) {
+        $SPB_CONFIG['salts'] = array();
+    }
+
     // Adjust possible lifespans
     if ($SPB_CONFIG['infinity']) {
         $SPB_CONFIG['lifespan'] = $SPB_CONFIG['infinity_default']
