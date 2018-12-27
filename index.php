@@ -113,11 +113,11 @@ if (!$bin->ready()) {
 
         if (strlen($pasted['Parent']) > 0) {
             $page['showParentLink'] = TRUE;
-            $page['paste']['Parent'] = $bin->linker($pasted['Parent']);
+            $page['paste']['Parent'] = $bin->makeLink($pasted['Parent']);
         }
-        $page['paste']['URL'] = $bin->linker($pasted['ID']);
+        $page['paste']['URL'] = $bin->makeLink($pasted['ID']);
 
-        $page['rawLink'] = $bin->linker($pasted['ID'] . '@raw');
+        $page['rawLink'] = $bin->makeLink($pasted['ID'] . '@raw');
 
         $page['paste']['Lines'] = array();
         $lines = explode("\n", $pasted['Data']['Dirty']);
@@ -146,7 +146,7 @@ if (!$bin->ready()) {
 } elseif ($request['id'] && substr($request['id'], - 1) == '!') {
 
     $page['showExclamWarning'] = TRUE;
-    $page['thisURL'] = $bin->linker(substr($request['id'], 0, - 1) . ($request['mode'] ? '@' . $request['mode'] : ''));
+    $page['thisURL'] = $bin->makeLink(substr($request['id'], 0, - 1) . ($request['mode'] ? '@' . $request['mode'] : ''));
 
 } else {
     $page['showPasteForm'] = TRUE;
@@ -159,14 +159,14 @@ if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
 
     if (count($page['recentPosts']) > 0) {
         foreach ($page['recentPosts'] as &$paste) {
-            $paste['PasteURL'] = $bin->linker($paste['ID']);
+            $paste['PasteURL'] = $bin->makeLink($paste['ID']);
             $paste['Datetime'] = $translator->humanReadableRelativeTime($paste['Datetime']);
         }
         $page['showRecent'] = TRUE;
     }
     if (!$request['id']) {
         $page['showAdminForm'] = FALSE;
-        $page['thisURL'] = $bin->linker($request['id']);
+        $page['thisURL'] = $bin->makeLink($request['id']);
     }
 }
 
@@ -199,7 +199,7 @@ if ($post_values['submit']) {
             $page['messages']['error'][] = t('Please don\'t just repost what has already been posted!');
         } elseif (strlen($post_values['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && ($paste['ID'] = $bin->insertPaste($paste))) {
             $page['messages']['success'][] = t('Your data has been successfully recorded!');
-            $page['confirmURL'] = $bin->linker($paste['ID']);
+            $page['confirmURL'] = $bin->makeLink($paste['ID']);
             $page['showForms'] = FALSE;
             $page['showPaste'] = FALSE;
         } else {

@@ -81,6 +81,7 @@ class Bin
         return $result;
     }
 
+////////////////////
 
 
     public function lineHighlight()
@@ -176,38 +177,19 @@ class Bin
         return $result;
     }
 
-    public function linker($id = FALSE)
-    {
-        $dir = dirname($_SERVER['SCRIPT_NAME']);
-
-        if (strlen($dir) > 1) {
-            $now = $this->config['protocol'] . '://' . $_SERVER['SERVER_NAME'] . $dir;
-        } else {
-            $now = $this->config['protocol'] . '://' . $_SERVER['SERVER_NAME'];
-        }
-
-        $file = basename($_SERVER['SCRIPT_NAME']);
-
-        switch ($this->config['rewrite_enabled']) {
-            case TRUE:
-                if ($id == FALSE) {
-                    $output = $now . '/';
-                } else {
-                    $output = $now . '/' . $id;
-                }
-                break;
-            case FALSE:
-                if ($id == FALSE) {
-                    $output = $now . '/';
-                } else {
-                    $output = $now . '/' . $file . '?i=' . $id;
-                }
-                break;
-        }
-        return $output;
-    }
-
 ///////////////////
+
+    // TODO: describe
+    public function makeLink($id = FALSE)
+    {
+        $basepath = $this->config['protocol'] . '://' . $_SERVER['SERVER_NAME'];
+        $selfname = $_SERVER['PHP_SELF'];
+        if ($id === FALSE) {
+            return $basepath . $selfname;
+        }
+        $selfname = preg_replace('/\/[^\/]*$/', '', $selfname);
+        return $basepath . $selfname . '/' . ($this->config['rewrite_enabled'] ? $id : '?i=' . $id);
+    }
 
     // TODO: describe
     public function checkPassword($password)

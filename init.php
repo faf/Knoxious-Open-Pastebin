@@ -153,5 +153,5 @@ $page = array(
                          'success' => array(),
                          'warn' => array(),
     ),
-    'baseURL' => $bin->linker(),
+    'baseURL' => $bin->makeLink(),
 );
