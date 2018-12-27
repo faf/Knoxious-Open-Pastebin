@@ -61,7 +61,11 @@ class Storage
     // TODO: describe
     public function getIndex()
     {
-        return unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
+        $result = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
+        if (!is_array($result)) {
+            $result = array();
+        }
+        return $result;
     }
 
     // TODO: describe
@@ -177,18 +181,23 @@ class Storage
     {
         $result = array();
         if (!file_exists($this->dataPath($id))) {
-            $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
+            $index = $this->getIndex();
             if (in_array($id, $index)) {
                 $this->dropPaste($id);
             }
-            return false;
+            return FALSE;
         }
-        $result = unserialize($this->read($this->dataPath($id)));
 
+        $result = unserialize($this->read($this->dataPath($id)));
         if (count($result) < 1) {
             $result = FALSE;
+        } else {
+            $lifespan = ($result['Lifespan'] === 0) ? time() + time() : $result['Lifespan'];
+            if (gmdate('U') > $lifespan) {
+                $this->dropPaste($id);
+                $result = FALSE;
+            }
         }
-
         return $result;
     }
 

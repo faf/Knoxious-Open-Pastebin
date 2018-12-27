@@ -144,6 +144,11 @@ if ( ($requested[0] !== 'install.php') && !$installed) {
     header('Location: ' . implode('/', array_reverse($requested)));
 }
 
+// Clean old pastes if need to
+if ($installed && $SPB_CONFIG['autoclean']) {
+    $bin->autoClean($SPB_CONFIG['recent_posts'] ? $SPB_CONFIG['recent_posts'] : 10);
+}
+
 // Ordinary operational mode, clarify the request
 $request = array('id' => '', 'mode' => '');
 if (($requested[0] === 'index.php') && array_key_exists('i', $_GET)) {

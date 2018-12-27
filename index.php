@@ -154,8 +154,6 @@ if (!$bin->ready()) {
     $page['showPasteForm'] = TRUE;
 }
 
-$bin->cleanUp($SPB_CONFIG['recent_posts']);
-
 if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
     $page['recentPosts'] = $bin->getRecentPosts();
 

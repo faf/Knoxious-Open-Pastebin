@@ -28,17 +28,23 @@ class Bin
         $this->storage = new Storage($config);
     }
 
-
-// Temporary wrapper methods /////////////////////////
+    // TODO: refactor, describe
     public function insertPaste($data, $arbLifespan = FALSE) {
+        // TODO: implement hook
         return $this->storage->insertPaste($data, $arbLifespan);
     }
-    public function readPaste($id) { return $this->storage->readPaste($id); }
-    public function dropPaste($id) { return $this->storage->dropPaste($id); }
 
+    // TODO: describe
+    public function readPaste($id) {
+        // TODO: implement hook
+        return $this->storage->readPaste($id);
+    }
 
-// End of temporary wrapper methods /////////////////////////
-
+    // TODO: describe
+    public function dropPaste($id) {
+        // TODO: implement hook
+        return $this->storage->dropPaste($id);
+    }
 
     // TODO: decribe
     public function ready() {
@@ -63,15 +69,12 @@ class Bin
     public function getRecentPosts()
     {
         $result = array();
-        $index = $this->storage->getIndex();
-        if (!is_array($index) || !count($index)) {
-            return $result;
-        }
-        $index = array_reverse($index);
+        $index = array_reverse($this->storage->getIndex());
         $i = 0;
-        foreach ($index as $row) {
-            if (substr($row, 0, 1) != '!') {
-                $result[$i] = $this->storage->readPaste($row);
+        foreach ($index as $id) {
+            $item = $this->readPaste($id);
+            if ($item) {
+                $result[$i] = $item;
                 $i++;
             }
             if ($i == $this->config['recent_posts']) {
@@ -81,50 +84,20 @@ class Bin
         return $result;
     }
 
-////////////////////
-
-    public function cleanUp($amount)
+    // TODO: describe
+    public function autoClean($count)
     {
-        if (!$this->config['autoclean']) {
-            return false;
-        }
-
-        if (!file_exists('INSTALL_LOCK')) {
-            return false;
-        }
-
         $index = $this->storage->getIndex();
-
-        if (is_array($index) && count($index) > $amount + 1) {
-            shuffle($index);
-        }
-
-        $int = 0;
-        $result = array();
-        if (count($index) > 0) {
-            foreach ($index as $row) {
-                if ($int < $amount) {
-                    $result[] = $this->storage->readPaste(str_replace('!', NULL, $row));
-                } else {
+        $i = 0;
+        foreach ($index as $id) {
+            if (!$this->storage->readPaste($id)) {
+                $i++;
+                if ($i == $count) {
                     break;
                 }
-                $int ++;
             }
         }
-
-        foreach ($result as $paste) {
-            if ($paste['Lifespan'] == 0) {
-                $paste['Lifespan'] = time() + time();
-            }
-
-            if (gmdate('U') > $paste['Lifespan']) {
-                $this->storage->dropPaste($paste['ID']);
-            }
-        }
-        return $result;
     }
-
-///////////////////
 
     // TODO: describe
     public function makeLink($id = FALSE)
