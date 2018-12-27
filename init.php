@@ -24,19 +24,9 @@ if (!include_once('config.php')) {
 // TODO: Set default values in case of broken or missed configuration
 if (is_array($SPB_CONFIG['lifespan'])) {
     // Convert all lifespan values to float
-    array_walk($SPB_CONFIG['lifespan'], function(&$val,$name) { $val = (float) $val; } );
+    array_walk($SPB_CONFIG['lifespan'], function(&$val, $name) { $val = (float) $val; } );
     // Remove duplicates from the list of lifespans
     $SPB_CONFIG['lifespan'] = array_unique($SPB_CONFIG['lifespan']);
-
-    // Set hashing algorithm if missed
-    if (!$SPB_CONFIG['algo']) {
-        $SPB_CONFIG['algo'] = 'sha256';
-    }
-
-    // Define empty salts array if they are missed
-    if (!$SPB_CONFIG['salts'] || !is_array($SPB_CONFIG['salts'])) {
-        $SPB_CONFIG['salts'] = array();
-    }
 
     // Adjust possible lifespans
     if ($SPB_CONFIG['infinity']) {
@@ -44,9 +34,31 @@ if (is_array($SPB_CONFIG['lifespan'])) {
                                   ? array_merge( array('0'), (array) $SPB_CONFIG['lifespan'] )
                                   : array_merge( (array) $SPB_CONFIG['lifespan'], array('0') );
     }
-
-    date_default_timezone_set($SPB_CONFIG['timezone'] ? $SPB_CONFIG['timezone'] : 'UTC');
 }
+
+// Adjust line highlighting setting
+if (!in_array('line_highlight', $SPB_CONFIG)
+    || preg_match('/^\s*$/', $SPB_CONFIG['line_highlight'])) {
+
+    $SPB_CONFIG['line_highlight'] = FALSE;
+} elseif (strlen($SPB_CONFIG['line_highlight']) > 6) {
+    $SPB_CONFIG['line_highlight'] = substr($SPB_CONFIG['line_highlight'], 0, 6);
+} elseif (strlen($SPB_CONFIG['line_highlight']) == 1) {
+    $SPB_CONFIG['line_highlight'] .= $SPB_CONFIG['line_highlight'];
+}
+
+// Set hashing algorithm if missed
+if (!$SPB_CONFIG['algo']) {
+    $SPB_CONFIG['algo'] = 'sha256';
+}
+
+// Define empty salts array if they are missed
+if (!$SPB_CONFIG['salts'] || !is_array($SPB_CONFIG['salts'])) {
+    $SPB_CONFIG['salts'] = array();
+}
+
+// Set timezone
+date_default_timezone_set($SPB_CONFIG['timezone'] ? $SPB_CONFIG['timezone'] : 'UTC');
 
 // Simple autoloader
 spl_autoload_register(

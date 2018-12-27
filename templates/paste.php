@@ -44,7 +44,7 @@ if ($page['showParentLink']) {?>
                 <div id="retrievedPaste">
                     <div id="lineNumbers">
                         <ol id="orderedList" class="monoText">
-<?php foreach ($page['paste']['Lines'] as $line) { ?>
+<?php foreach ($page['paste']['Lines'] as &$line) { ?>
                             <li class="line"><pre><?php echo $line; ?>&nbsp;</pre></li>
 <?php } ?>
                         </ol>

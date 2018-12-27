@@ -80,7 +80,7 @@ if (!$stop) {
                         'Lifespan' => 1800,
                         'Protect' => 0,
                         'Parent' => NULL,
-                        'Content' => $SPB_CONFIG['line_highlight'] . t("Congratulations, your Pastebin has now been installed!\nThis message will expire in 30 minutes!")
+                        'Content' => (string) $SPB_CONFIG['line_highlight'] . t("Congratulations, your Pastebin has now been installed!\nThis message will expire in 30 minutes!")
     );
     $bin->insertPaste($paste_new, TRUE);
     $page['installed'] = TRUE;

@@ -83,59 +83,6 @@ class Bin
 
 ////////////////////
 
-
-    public function lineHighlight()
-    {
-        if ($this->config['line_highlight'] == FALSE || strlen($this->config['line_highlight']) < 1) {
-            return false;
-        }
-
-        if (strlen($this->config['line_highlight']) > 6) {
-            return substr($this->config['line_highlight'], 0, 6);
-        }
-
-        if (strlen($this->config['line_highlight']) == 1) {
-            return $this->config['line_highlight'] . $this->config['line_highlight'];
-        }
-
-        return $this->config['line_highlight'];
-    }
-
-    public function filterHighlight($line)
-    {
-        if ($this->lineHighlight() == FALSE) {
-            return $line;
-        }
-
-        $len = strlen($this->lineHighlight());
-        if (substr($line, 0, $len) == $this->lineHighlight()) {
-            $line = '<span class="lineHighlight">' . substr($line, $len) . '</span>';
-        }
-
-        return $line;
-    }
-
-    public function noHighlight($data)
-    {
-        if ($this->lineHighlight() == FALSE) {
-            return $data;
-        }
-        $output = array();
-
-        $lines = explode("\n", $data);
-        foreach ($lines as $line) {
-            $len = strlen($this->lineHighlight());
-
-            if (substr($line, 0, $len) == $this->lineHighlight()) {
-                $output[] = substr($line, $len);
-            } else {
-                $output[] = $line;
-            }
-        }
-        $output = implode("\n", $output);
-        return $output;
-    }
-
     public function cleanUp($amount)
     {
         if (!$this->config['autoclean']) {

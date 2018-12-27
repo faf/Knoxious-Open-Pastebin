@@ -30,7 +30,7 @@ $page['showExclamWarning'] = FALSE;
 $page['showPasteForm'] = FALSE;
 $page['editionMode'] = FALSE;
 $page['privacy'] = $SPB_CONFIG['private'];
-$page['lineHighlight'] = $bin->lineHighlight();
+$page['lineHighlight'] = $SPB_CONFIG['line_highlight'];
 $page['edit'] = $SPB_CONFIG['editing'];
 $page['token'] = $bin->token(TRUE);
 $page['thisURL'] = '';
@@ -67,7 +67,7 @@ if (!$bin->ready()) {
 } elseif (substr($request['id'], - 1) != "!" && !$post_values['adminProceed'] && $request['mode'] === 'raw') {
     if ($pasted = $bin->readPaste($request['id'])) {
         header('Content-Type: text/plain; charset=utf-8');
-        echo stripslashes(stripslashes($bin->noHighlight($pasted['Data'])));
+        echo stripslashes(stripslashes($pasted['Data']));
         exit(0);
     } else {
         header('HTTP/1.0 500 Internal Server Error');
@@ -81,11 +81,8 @@ if (!$bin->ready()) {
         $page['showPaste'] = TRUE;
         $page['paste'] = array('ID' => $request['id']);
 
-        $pasted['Data'] = array( 'Orig' => $pasted['Data'],
-                                 'noHighlight' => array() );
-
+        $pasted['Data'] = array('Orig' => $pasted['Data']);
         $pasted['Data']['Dirty'] = htmlspecialchars(stripslashes($pasted['Data']['Orig']));
-        $pasted['Data']['noHighlight']['Dirty'] = $bin->noHighlight($pasted['Data']['Dirty']);
 
         $page['paste']['Size'] = $translator->humanReadableFileSize(mb_strlen($pasted['Data']['Orig']));
 
@@ -122,7 +119,12 @@ if (!$bin->ready()) {
         $page['paste']['Lines'] = array();
         $lines = explode("\n", $pasted['Data']['Dirty']);
         foreach ($lines as $line) {
-            $page['paste']['Lines'][] = str_replace(array("\n", "\r"), '&nbsp;', $bin->filterHighlight($line));
+            $page['paste']['Lines'][] = str_replace("\r", '&nbsp;', $line);
+        }
+        if ($SPB_CONFIG['line_highlight'] !== FALSE) {
+            foreach ($page['paste']['Lines'] as &$line) {
+                $line = preg_replace('/^' . $SPB_CONFIG['line_highlight'] . '(.+)$/', '<span class="lineHighlight">\1</span>', $line);
+            }
         }
 
         if ($SPB_CONFIG['editing']) {
@@ -132,7 +134,7 @@ if (!$bin->ready()) {
 
             $page['paste']['values'] = array(
                 'protection' => $pasted['Protection'],
-                'paste' => $pasted['Data']['noHighlight']['Dirty'],
+                'paste' => $pasted['Data']['Dirty'],
                 'parent' => $request['id'],
             );
 
