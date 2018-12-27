@@ -11,6 +11,13 @@
 
 namespace SPB;
 
+define('SECS_SECOND', 1);
+define('SECS_MINUTE', 60);
+define('SECS_HOUR', 60 * 60);
+define('SECS_DAY', 60 * 60);
+define('SECS_WEEK', 7 * 24 * 60 * 60);
+define('SECS_YEAR', 365 * 24 * 60 * 60);
+
 /**
  * Simple translator class
  */
@@ -89,12 +96,12 @@ class Translator
     // TODO: describe
     public function humanReadableRelativeTime($time, $singleLevel = FALSE)
     {
-        $context = array( array(60 * 60 * 24 * 365, 'years'),
-                          array(60 * 60 * 24 * 7, 'weeks'),
-                          array(60 * 60 * 24, 'days'),
-                          array(60 * 60, 'hours'),
-                          array(60, 'minutes'),
-                          array(1, 'seconds') );
+        $context = array( array(SECS_YEAR, 'years'),
+                          array(SECS_WEEK, 'weeks'),
+                          array(SECS_DAY, 'days'),
+                          array(SECS_HOUR, 'hours'),
+                          array(SECS_MINUTE, 'minutes'),
+                          array(SECS_SECOND, 'seconds') );
         $now = gmdate('U');
         $difference = $now - $time;
         $seconds = 0;
