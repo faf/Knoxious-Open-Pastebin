@@ -18,24 +18,25 @@ if (ISINCLUDED != '1') {
 <!-- Begin of messages block -->
 <?php
 // Display errors
-if (count($page['messages']['error'])) {
-    foreach ($page['messages']['error'] as $message) {
+$messages = $page->getField('messages');
+if (count($messages['errors'])) {
+    foreach ($messages['errors'] as $message) {
 ?>
             <div class="error"><?php echo $message; ?></div>
 <?php
     }
 }
 // Display warnings
-if (count($page['messages']['warn'])) {
-    foreach ($page['messages']['warn'] as $message) {
+if (count($messages['warnings'])) {
+    foreach ($messages['warnings'] as $message) {
 ?>
             <div class="warn"><?php echo $message; ?></div>
 <?php
     }
 }
 // Display info messages
-if (count($page['messages']['success'])) {
-    foreach ($page['messages']['success'] as $message) {
+if (count($messages['info'])) {
+    foreach ($messages['info'] as $message) {
 ?>
             <div class="success"><?php echo $message; ?></div>
 <?php

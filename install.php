@@ -12,17 +12,16 @@
 define('ISINCLUDED', 1);
 require_once('init.php');
 
-$page['contentTemplate'] = 'installation.php';
-$page['title'] = t('Installing Pastebin');
-$page['installList'] = array();
-$page['installed'] = FALSE;
+$page->setField('contentTemplate', 'installation.php');
+$page->setField('title', t('Installing Pastebin'));
+$page->setField('installed', FALSE);
 
 $stop = FALSE;
-
+$installList = array();
 if (!$stop) {
-    $step = array( 'step' => t('Quick password check.'),
+    $step = array( 'step'    => t('Quick password check.'),
                    'success' => FALSE,
-                   'result' => '' );
+                   'result'  => '' );
 
     if (!isset($SPB_CONFIG['admin_password'])
         || $bin->checkPassword('password')) {
@@ -34,13 +33,13 @@ if (!$stop) {
         $step['result'] = t('Password is not default!');
         $step['success'] = TRUE;
     }
-    $page['installList'][] = $step;
+    $installList[] = $step;
 }
 
 if (!$stop) {
-    $step = array( 'step' => t('Quick salts check.'),
+    $step = array( 'step'    => t('Quick salts check.'),
                    'success' => FALSE,
-                   'result' => '' );
+                   'result'  => '' );
 
     if (count($SPB_CONFIG['salts']) < 4
         || $SPB_CONFIG['salts'][0] === 'str001'
@@ -56,13 +55,13 @@ if (!$stop) {
         $step['success'] = TRUE;
     }
 
-    $page['installList'][] = $step;
+    $installList[] = $step;
 }
 
 if (!$stop) {
-    $step = array( 'step' => t('Checking data storage connection.'),
+    $step = array( 'step'    => t('Checking data storage connection.'),
                    'success' => FALSE,
-                   'result' => '' );
+                   'result'  => '' );
 
     if ($bin->ready() || $bin->initStorage()) {
         $step['result'] = t('Connection established!');
@@ -71,7 +70,7 @@ if (!$stop) {
         $step['result'] = t('Cannot connect to data storage, check config!');
         $stop = TRUE;
     }
-    $page['installList'][] = $step;
+    $installList[] = $step;
 }
 
 if (!$stop) {
@@ -81,8 +80,10 @@ if (!$stop) {
                            'Protect'  => 0,
                            'Parent'   => NULL,
                            'Content'  => (string) $SPB_CONFIG['line_highlight'] . t("Congratulations, your Pastebin has now been installed!\nThis message will expire in 30 minutes!")));
-    $page['installed'] = TRUE;
+    $page->setField('installed', TRUE);
 }
+
+$page->setField('installList', $installList);
 
 // Primitive template
 include('templates/layout.php');

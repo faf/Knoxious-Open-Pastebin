@@ -15,19 +15,18 @@ if (ISINCLUDED != '1') {
     die('Forbidden!');
 }
 ?><!doctype html>
-<html lang="<?php echo $page['locale']; ?>">
+<html lang="<?php echo $page->getField('locale'); ?>">
     <head>
         <meta charset="utf-8"/>
-        <title><?php echo $page['title']; ?></title>
+        <title><?php echo $page->getField('title'); ?></title>
         <meta name="robots" content="noindex, nofollow"/>
-        <link rel="stylesheet" type="text/css" href="<?php echo $page['stylesheet']; ?>" media="screen, print"/>
+        <link rel="stylesheet" type="text/css" href="<?php echo $page->getField('stylesheet'); ?>" media="screen, print"/>
         <script type="text/javascript" src="js/main.js"></script>
     </head>
     <body>
         <div id="siteWrapper">
 <?php
-include('messages.php');
-include($page['contentTemplate']);
+include($page->getField('contentTemplate'));
 ?>
         </div>
     </body>

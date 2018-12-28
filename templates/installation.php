@@ -18,17 +18,17 @@ if (ISINCLUDED != '1') {
 ?>
 <!-- Begin of installation block -->
             <div id="installer" class="installer">
-                <h1><?php echo $page['title']; ?></h1>
-<?php if (count($page['installList'])) { ?>
+                <h1><?php echo $page->getField('title'); ?></h1>
+<?php if (count($page->getField('installList'))) { ?>
                 <ul id="installList">
-<?php foreach ($page['installList'] as $item) { ?>
+<?php foreach ($page->getField('installList') as $item) { ?>
                     <li><?php echo $item['step']; ?> <span class="<?php echo $item['success'] ? 'success' : 'error'; ?>"><?php echo $item['result']; ?></span></li>
 <?php } ?>
                 </ul>
 <?php }
-if ($page['installed']) { ?>
+if ($page->getField('installed')) { ?>
                 <div id="confirmInstalled">
-                    <a href="<?php echo $page['baseURL']; ?>"><?php echo t('Go to main page of installed Pastebin!'); ?></a>
+                    <a href="<?php echo $page->getField('baseUrl'); ?>"><?php echo t('Go to main page of installed Pastebin!'); ?></a>
                     <br/>
                 </div>
                 <div id="confirmInstalled" class="warn"><?php echo t('It is recommended to adjust directory permissions'); ?></div>

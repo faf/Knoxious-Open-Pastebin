@@ -22,7 +22,7 @@ if (ISINCLUDED != '1') {
                 <div id="hiddenAdmin">
                     <h2><?php echo t('Administrate'); ?></h2>
                     <div id="adminFunctions">
-                        <form id="adminForm" action="<?php echo $page['thisURL']; ?>" method="post">
+                        <form id="adminForm" action="<?php echo $page->getField('thisUrl'); ?>" method="post">
                             <label for="adminPass"><?php echo t('Password'); ?></label>
                             <br/>
                             <input id="adminPass" type="password" name="adminPass" value="<?php echo $post_values['adminPass']; ?>"/>

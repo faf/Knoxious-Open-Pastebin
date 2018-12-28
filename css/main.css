@@ -64,7 +64,7 @@ pre {
     margin-bottom: 3px;
 }
 
-.confirmURL {
+.confirmUrl {
     border-bottom: 1px solid #cccccc;
     text-align: center;
     font-size: medium;
@@ -194,7 +194,7 @@ ul#postList {
     width: 100%;
 }
 
-#emphasizedURL {
+#emphasizedUrl {
     font-size: x-large;
     width: 100%;
     overflow: auto;

@@ -15,25 +15,27 @@ if (ISINCLUDED != '1') {
     die('Forbidden!');
 }
 
+include('messages.php');
+
 // Show link to a posted data
-if ($page['confirmURL']) { ?>
-            <div class="confirmURL"><?php echo t('URL to your data is'); ?> <a href="<?php echo $page['confirmURL']; ?>"><?php echo $page['confirmURL']; ?></a></div>
+if ($page->getField('confirmUrl')) { ?>
+            <div class="confirmUrl"><?php echo t('URL to your data is'); ?> <a href="<?php echo $page->getField('confirmUrl'); ?>"><?php echo $page->getField('confirmUrl'); ?></a></div>
 <?php
 }
 
-if ($page['showForms']) {
+if ($page->getField('showForms')) {
 ?>
 <!-- Begin of menu block -->
             <div id="recentPosts" class="recentPosts">
-                <h2 id="newPost"><a href="<?php echo $page['baseURL']; ?>"><?php echo t('Create'); ?></a></h2>
+                <h2 id="newPost"><a href="<?php echo $page->getField('baseUrl'); ?>"><?php echo t('Create'); ?></a></h2>
                 <div class="spacer">&nbsp;</div>
 <?php
 // Display the list of recent posts
-    if ($page['showRecent']) {
+    if ($page->getField('showRecent')) {
         include('recent_posts.php');
     }
 // Display admin form
-    if ($page['showAdminForm']) {
+    if ($page->getField('showAdminForm')) {
         include('admin_form.php');
     }
 ?>
@@ -45,23 +47,23 @@ if ($page['showForms']) {
 <!-- Begin of main content block -->
             <div id="pastebin" class="pastebin">
 <!-- Begin of head block -->
-                <h1><?php echo $page['title']; ?></h1>
-<?php if ($page['tagline']) { ?>
-                <div id="tagline"><?php echo $page['tagline']; ?></div>
+                <h1><?php echo $page->getField('title'); ?></h1>
+<?php if ($page->getField('tagline')) { ?>
+                <div id="tagline"><?php echo $page->getField('tagline'); ?></div>
 <?php } ?>
                 <div id="result"></div>
 <!-- End of head block -->
 <?php
 // Display data
-if ($page['showPost']) {
+if ($page->getField('showPost')) {
     include('post.php');
 }
 // Display warning for access to dangerous data
-if ($page['showExclamWarning']) {
+if ($page->getField('showExclamWarning')) {
     include('warning.php');
 }
 // Display creation / edition form
-if (($page['showForms']) && ($page['showPostForm'])) {
+if (($page->getField('showForms')) && ($page->getField('showPostForm'))) {
     include('post_form.php');
 }
 ?>

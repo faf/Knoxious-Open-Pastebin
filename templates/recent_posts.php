@@ -18,8 +18,8 @@ if (ISINCLUDED != '1') {
 <!-- Begin of recent data list -->
                 <h2><?php echo t('Recent'); ?></h2>
                 <ul id="postList" class="recentPosts">
-<?php foreach ($page['recentPosts'] as $post_) {?>
-                    <li id="<?php echo $post_['ID']; ?>" class="postItem"><a href="<?php echo $post_['PostURL']; ?>"><?php echo stripslashes($post_['Author']); ?></a><br/><?php echo t('%s ago', array($post_['Datetime'])); ?></li>
+<?php foreach ($page->getField('recentPosts') as $post_) {?>
+                    <li id="<?php echo $post_['ID']; ?>" class="postItem"><a href="<?php echo $post_['postUrl']; ?>"><?php echo stripslashes($post_['Author']); ?></a><br/><?php echo t('%s ago', array($post_['Datetime'])); ?></li>
 <?php } ?>
                 </ul>
 <!-- End of recent data list -->

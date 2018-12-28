@@ -18,19 +18,19 @@ if (ISINCLUDED != '1') {
 <!-- Begin of data block -->
                 <div id="aboutPost">
                     <div id="postID">
-                        <strong><?php echo t('ID:'); ?></strong> <?php echo $page['post']['ID']; ?>
+                        <strong><?php echo t('ID:'); ?></strong> <?php echo $page->getField('postID'); ?>
                     </div>
-                    <strong><?php echo t('Posted by:'); ?></strong> <?php echo stripslashes($page['post']['Author']); ?>, <em title="<?php echo t('%s ago', array($page['post']['DatetimeRelative'])); ?>"><?php echo $page['post']['Datetime']; ?></em><br/>
-                    <strong><?php echo t('Expires:'); ?></strong> <?php echo $page['post']['lifeString']; ?><br/>
-                    <strong><?php echo t('Size:'); ?></strong> <?php echo $page['post']['Size']; ?>
+                    <strong><?php echo t('Posted by:'); ?></strong> <?php echo stripslashes($page->getField('postAuthor')); ?>, <em title="<?php echo t('%s ago', array($page->getField('postDatetimeRelative'))); ?>"><?php echo $page->getField('postDatetime'); ?></em><br/>
+                    <strong><?php echo t('Expires:'); ?></strong> <?php echo $page->getField('postLifeString'); ?><br/>
+                    <strong><?php echo t('Size:'); ?></strong> <?php echo $page->getField('postSize'); ?>
 
                 </div>
-<?php if ($page['showAuthorIP']) { ?>
-                <div class="success"><strong><?php echo t('Author\'s IP address:'); ?></strong> <a href="https://whois.domaintools.com/<?php echo $page['post']['IP']; ?>"><?php echo $page['post']['IP']; ?></a></div>
+<?php if ($page->getField('showAuthorIP')) { ?>
+                <div class="success"><strong><?php echo t('Author\'s IP address:'); ?></strong> <a href="https://whois.domaintools.com/<?php echo $page->getField('postIP'); ?>"><?php echo $page->getField('postIP'); ?></a></div>
 <?php }
 
-if ($page['showParentLink']) {?>
-                <div class="warn"><strong><?php echo t('This is a derivative of'); ?></strong> <a href="<?php echo $page['post']['Parent']; ?>"><?php echo $page['post']['Parent']; ?></a></div>
+if ($page->getField('showParentLink')) {?>
+                <div class="warn"><strong><?php echo t('This is a derivative of'); ?></strong> <a href="<?php echo $page->getField('postParent'); ?>"><?php echo $page->getField('postParent'); ?></a></div>
 <?php }
 ?>
                 <div id="styleBar">
@@ -38,13 +38,13 @@ if ($page['showParentLink']) {?>
                     <a href="#" onclick="return toggleExpand();"><?php echo t('Expand'); ?></a>
                     <a href="#" onclick="return toggleWrap();"><?php echo t('Wrap'); ?></a>
                     <a href="#" onclick="return toggleStyle();"><?php echo t('Style'); ?></a>
-                    <a href="<?php echo $page['rawLink']; ?>"><?php echo t('Raw'); ?></a>
+                    <a href="<?php echo $page->getField('rawLink'); ?>"><?php echo t('Raw'); ?></a>
                 </div>
                 <div class="spacer">&nbsp;</div>
                 <div id="retrievedPost">
                     <div id="lineNumbers">
                         <ol id="orderedList" class="monoText">
-<?php foreach ($page['post']['Lines'] as &$line) { ?>
+<?php foreach ($page->getField('postLines') as &$line) { ?>
                             <li class="line"><pre><?php echo $line; ?>&nbsp;</pre></li>
 <?php } ?>
                         </ol>

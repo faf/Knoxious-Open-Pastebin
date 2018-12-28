@@ -115,7 +115,7 @@ class Storage
     }
 
     // TODO: describe
-    private function _generateId($length)
+    private function _generateID($length)
     {
         $chars = '0123456789abcdefghijklmnopqrstuvwxyz';
         if ($this->config['hexlike_ids']) {
@@ -131,19 +131,19 @@ class Storage
     }
 
     // TODO: describe
-    private function newId($id = FALSE, $iteration = 0)
+    private function newID($id = FALSE, $iteration = 0)
     {
         if (($iteration >= MAX_ID_GEN_ITERATIONS) && ($id != FALSE)) {
-            $id = $this->_generateId($this->getIdLength() + 1);
+            $id = $this->_generateID($this->getIDLength() + 1);
         } else {
-            $id = $this->_generateId($this->getIdLength());
+            $id = $this->_generateID($this->getIDLength());
         }
 
         $iteration++;
         if ( ($this->config['rewrite_enabled'] && (is_dir($id) || file_exists($id)))
-             || $this->checkId($id) ) {
+             || $this->checkID($id) ) {
 
-            $id = $this->newId($id, $iteration);
+            $id = $this->newID($id, $iteration);
         }
 
         return $id;
@@ -231,7 +231,7 @@ class Storage
     // TODO: describe
     public function createPost($data)
     {
-        $id = $this->newId();
+        $id = $this->newID();
         $post = array( 'ID'         => $id,
                         'Datetime'   => time(),
                         'Author'     => $data['Author'],
@@ -247,14 +247,14 @@ class Storage
     }
 
     // TODO: describe
-    public function checkId($id)
+    public function checkID($id)
     {
         $index = $this->getIndex();
         return in_array($id, $index) ? TRUE : FALSE;
     }
 
     // TODO: describe
-    public function getIdLength()
+    public function getIDLength()
     {
         $result = $this->config['id_length'];
         $index = array_reverse($this->getIndex());

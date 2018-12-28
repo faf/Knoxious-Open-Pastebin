@@ -157,11 +157,11 @@ $requested = array_reverse(explode('/', $_SERVER['SCRIPT_NAME']));
 if ( ($requested[0] !== 'install.php') && !$installed) {
     $requested[0] = 'install.php';
     header('Location: ' . implode('/', array_reverse($requested)));
-    exit();
+    exit(0);
 } elseif ( ($requested[0] === 'install.php') && $installed ) {
     $requested[0] = 'index.php';
     header('Location: ' . implode('/', array_reverse($requested)));
-    exit();
+    exit(0);
 }
 
 // Clean old posts if need to
@@ -183,12 +183,6 @@ if (($requested[0] === 'index.php') && array_key_exists('i', $_GET)) {
 }
 
 // Data structure to be used in templates
-$page = array(
-    'locale' => $SPB_CONFIG['locale'],
-    'stylesheet' => $SPB_CONFIG['stylesheet'],
-    'messages' => array( 'error' => array(),
-                         'success' => array(),
-                         'warn' => array(),
-    ),
-    'baseURL' => $bin->makeLink(),
-);
+$page = new \SPB\Page(array('locale'     => $SPB_CONFIG['locale'],
+                            'stylesheet' => $SPB_CONFIG['stylesheet'],
+                            'baseUrl'    => $bin->makeLink()));
