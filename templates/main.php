@@ -46,14 +46,20 @@ if ($page->getField('showForms')) {
 ?>
 <!-- Begin of main content block -->
             <div id="pastebin" class="pastebin">
+<?php
+if ($page->getField('showTitle')) { ?>
 <!-- Begin of head block -->
                 <h1><?php echo $page->getField('title'); ?></h1>
-<?php if ($page->getField('tagline')) { ?>
+<?php
+    if ($page->getField('tagline')) { ?>
                 <div id="tagline"><?php echo $page->getField('tagline'); ?></div>
-<?php } ?>
+<?php
+    } ?>
                 <div id="result"></div>
 <!-- End of head block -->
 <?php
+}
+
 // Display data
 if ($page->getField('showPost')) {
     include('post.php');
