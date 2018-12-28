@@ -196,10 +196,7 @@ if ($post_values['submit']) {
                         'Content' => $post_values['pasteEnter']
         );
 
-        if (!is_array($SPB_CONFIG['lifespan'])
-            || (($SPB_CONFIG['lifespan'][$post_values['lifespan']] === FALSE)
-                  || ($SPB_CONFIG['lifespan'][$post_values['lifespan']] === 0))) {
-
+        if (!is_array($SPB_CONFIG['lifespan']) || ($SPB_CONFIG['lifespan'][$post_values['lifespan']] === 0.0)) {
             $paste['Lifespan'] = 0;
         } else {
             $paste['Lifespan'] = time() + ($SPB_CONFIG['lifespan'][$post_values['lifespan']] * SECS_DAY);
