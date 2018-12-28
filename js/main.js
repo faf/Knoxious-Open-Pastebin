@@ -105,7 +105,7 @@ function toggleStyle(){
     return false;
 }
 
-function submitPaste(targetButton) {
+function submitPost(targetButton) {
     var disabledButton = document.createElement('input');
     var parentContainer = document.getElementById('submitContainer');
     disabledButton.setAttribute('value', 'Posting...');

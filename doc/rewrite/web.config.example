@@ -3,7 +3,7 @@
     <system.webServer>
         <rewrite>
             <rules>
-                <rule name="Knoxious Pastebin" patternSyntax="ECMAScript">
+                <rule name="Simpliest Pastebin" patternSyntax="ECMAScript">
                     <match url="^([_0-9a-z-@]+)" negate="false" />
                     <action type="Rewrite" url="index.php?i={R:1}" />
                     <conditions logicalGrouping="MatchAll">

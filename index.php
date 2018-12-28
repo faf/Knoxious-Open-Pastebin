@@ -23,11 +23,11 @@ $page['confirmURL'] = NULL;
 $page['showForms'] = TRUE;
 $page['showRecent'] = FALSE;
 $page['showAdminForm'] = TRUE;
-$page['showPaste'] = FALSE;
+$page['showPost'] = FALSE;
 $page['showAuthorIP'] = FALSE;
 $page['showParentLink'] = FALSE;
 $page['showExclamWarning'] = FALSE;
-$page['showPasteForm'] = FALSE;
+$page['showPostForm'] = FALSE;
 $page['editionMode'] = FALSE;
 $page['privacy'] = $SPB_CONFIG['private'];
 $page['lineHighlight'] = $SPB_CONFIG['line_highlight'];
@@ -65,9 +65,9 @@ if (array_key_exists($ckey, $_COOKIE) && $_COOKIE[$ckey] !== NULL) {
 if (!$bin->ready()) {
     $page['messages']['error'][] = t('Data storage is unavailable - check config!');
 } elseif (substr($request['id'], - 1) != "!" && !$post_values['adminProceed'] && $request['mode'] === 'raw') {
-    if ($pasted = $bin->readPaste($request['id'])) {
+    if ($post = $bin->readPost($request['id'])) {
         header('Content-Type: text/plain; charset=utf-8');
-        echo stripslashes(stripslashes($pasted['Data']));
+        echo stripslashes(stripslashes($post['Data']));
         exit(0);
     } else {
         header('HTTP/1.0 500 Internal Server Error');
@@ -76,65 +76,65 @@ if (!$bin->ready()) {
     }
 } elseif ($request['id'] && substr($request['id'], - 1) != '!') {
 
-    if ($pasted = $bin->readPaste($request['id'])) {
+    if ($post = $bin->readPost($request['id'])) {
 
-        $page['showPaste'] = TRUE;
-        $page['paste'] = array('ID' => $request['id']);
+        $page['showPost'] = TRUE;
+        $page['post'] = array('ID' => $request['id']);
 
-        $pasted['Data'] = array('Orig' => $pasted['Data']);
-        $pasted['Data']['Dirty'] = htmlspecialchars(stripslashes($pasted['Data']['Orig']));
+        $post['Data'] = array('Orig' => $post['Data']);
+        $post['Data']['Dirty'] = htmlspecialchars(stripslashes($post['Data']['Orig']));
 
-        $page['paste']['Size'] = $translator->humanReadableFileSize(mb_strlen($pasted['Data']['Orig']));
+        $page['post']['Size'] = $translator->humanReadableFileSize(mb_strlen($post['Data']['Orig']));
 
-        if ($pasted['Lifespan'] == 0) {
-            $pasted['Lifespan'] = time() + time();
-            $page['paste']['lifeString'] = t('Never');
+        if ($post['Lifespan'] == 0) {
+            $post['Lifespan'] = time() + time();
+            $page['post']['lifeString'] = t('Never');
         } else {
-            $page['paste']['lifeString'] = t('in %s', array($translator->humanReadableRelativeTime(time() - ($pasted['Lifespan'] - time()))));
+            $page['post']['lifeString'] = t('in %s', array($translator->humanReadableRelativeTime(time() - ($post['Lifespan'] - time()))));
         }
 
-        if (gmdate('U') > $pasted['Lifespan']) {
-            $bin->deletePaste($request['id']);
+        if (gmdate('U') > $post['Lifespan']) {
+            $bin->deletePost($request['id']);
             $page['messages']['warn'][] = t('This data has either expired or doesn\'t exist!');
-            $page['showPaste'] = FALSE;
+            $page['showPost'] = FALSE;
         } else {
-            $page['paste']['Author'] = $pasted['Author'];
-            $page['paste']['DatetimeRelative'] = $translator->humanReadableRelativeTime($pasted['Datetime']);
-            $page['paste']['Datetime'] = date($SPB_CONFIG['datetime_format'], $pasted['Datetime']);
+            $page['post']['Author'] = $post['Author'];
+            $page['post']['DatetimeRelative'] = $translator->humanReadableRelativeTime($post['Datetime']);
+            $page['post']['Datetime'] = date($SPB_CONFIG['datetime_format'], $post['Datetime']);
         }
 
         if ($post_values['adminAction'] == 'ip' && $bin->checkPassword($post_values['adminPass'])) {
             $page['showAuthorIP'] = TRUE;
-            $page['paste']['IP'] = base64_decode($pasted['IP']);
+            $page['post']['IP'] = base64_decode($post['IP']);
         }
 
-        if (strlen($pasted['Parent']) > 0) {
+        if (strlen($post['Parent']) > 0) {
             $page['showParentLink'] = TRUE;
-            $page['paste']['Parent'] = $bin->makeLink($pasted['Parent']);
+            $page['post']['Parent'] = $bin->makeLink($post['Parent']);
         }
-        $page['paste']['URL'] = $bin->makeLink($pasted['ID']);
+        $page['post']['URL'] = $bin->makeLink($post['ID']);
 
-        $page['rawLink'] = $bin->makeLink($pasted['ID'] . '@raw');
+        $page['rawLink'] = $bin->makeLink($post['ID'] . '@raw');
 
-        $page['paste']['Lines'] = array();
-        $lines = explode("\n", $pasted['Data']['Dirty']);
+        $page['post']['Lines'] = array();
+        $lines = explode("\n", $post['Data']['Dirty']);
         foreach ($lines as $line) {
-            $page['paste']['Lines'][] = str_replace("\r", '&nbsp;', $line);
+            $page['post']['Lines'][] = str_replace("\r", '&nbsp;', $line);
         }
         if ($SPB_CONFIG['line_highlight'] !== FALSE) {
-            foreach ($page['paste']['Lines'] as &$line) {
+            foreach ($page['post']['Lines'] as &$line) {
                 $line = preg_replace('/^' . $SPB_CONFIG['line_highlight'] . '(.+)$/', '<span class="lineHighlight">\1</span>', $line);
             }
         }
 
         if ($SPB_CONFIG['editing']) {
 
-            $page['showPasteForm'] = TRUE;
+            $page['showPostForm'] = TRUE;
             $page['editionMode'] = TRUE;
 
-            $page['paste']['values'] = array(
-                'protection' => $pasted['Protection'],
-                'paste' => $pasted['Data']['Dirty'],
+            $page['post']['values'] = array(
+                'protection' => $post['Protection'],
+                'post' => $post['Data']['Dirty'],
                 'parent' => $request['id'],
             );
 
@@ -142,7 +142,7 @@ if (!$bin->ready()) {
 
     } else {
         $page['messages']['warn'][] = t('This data has either expired or doesn\'t exist!');
-        $page['showPasteForm'] = TRUE;
+        $page['showPostForm'] = TRUE;
     }
 
 } elseif ($request['id'] && substr($request['id'], - 1) == '!') {
@@ -151,7 +151,7 @@ if (!$bin->ready()) {
     $page['thisURL'] = $bin->makeLink(substr($request['id'], 0, - 1) . ($request['mode'] ? '@' . $request['mode'] : ''));
 
 } else {
-    $page['showPasteForm'] = TRUE;
+    $page['showPostForm'] = TRUE;
 }
 
 if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
@@ -159,7 +159,7 @@ if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
 
     if (count($page['recentPosts']) > 0) {
         foreach ($page['recentPosts'] as &$post) {
-            $post['PasteURL'] = $bin->makeLink($post['ID']);
+            $post['PostURL'] = $bin->makeLink($post['ID']);
             $post['Datetime'] = $translator->humanReadableRelativeTime($post['Datetime']);
         }
         $page['showRecent'] = TRUE;
@@ -171,11 +171,11 @@ if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
 }
 
 if ($post_values['adminAction'] === 'delete' && $bin->checkPassword($post_values['adminPass'])) {
-    $bin->deletePaste($request['id']);
+    $bin->deletePost($request['id']);
     $page['messages']['success'][] = t('Data %s has been deleted!', array($request['id']));
     $request['id'] = NULL;
-    $page['showPaste'] = FALSE;
-    $page['showPasteForm'] = FALSE;
+    $page['showPost'] = FALSE;
+    $page['showPostForm'] = FALSE;
     $page['showAdminForm'] = FALSE;
 }
 
@@ -189,29 +189,29 @@ if ($post_values['submit']) {
         $page['messages']['error'][] = t('Spambot detected!');
         $page['showForms'] = FALSE;
     } else {
-        $paste = array( 'Author' => $bin->getSafeAuthorName($post_values['author']),
+        $post = array( 'Author' => $bin->getSafeAuthorName($post_values['author']),
                         'IP' => $_SERVER['REMOTE_ADDR'],
                         'Protect' => $post_values['privacy'],
                         'Parent' => $request['id'],
-                        'Content' => $post_values['pasteEnter']
+                        'Content' => $post_values['postEnter']
         );
 
         if (!is_array($SPB_CONFIG['lifespan']) || ($SPB_CONFIG['lifespan'][$post_values['lifespan']] === 0.0)) {
-            $paste['Lifespan'] = 0;
+            $post['Lifespan'] = 0;
         } else {
-            $paste['Lifespan'] = time() + ($SPB_CONFIG['lifespan'][$post_values['lifespan']] * SECS_DAY);
+            $post['Lifespan'] = time() + ($SPB_CONFIG['lifespan'][$post_values['lifespan']] * SECS_DAY);
         }
 
-        if ($post_values['pasteEnter'] == $post_values['originalPaste'] && strlen($post_values['pasteEnter']) > MIN_PASTE_LENGTH) {
+        if ($post_values['postEnter'] == $post_values['originalPost'] && strlen($post_values['postEnter']) > MIN_POST_LENGTH) {
             $page['messages']['error'][] = t('Please don\'t just repost what has already been posted!');
-        } elseif (strlen($post_values['pasteEnter']) > MIN_PASTE_LENGTH && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && ($paste['ID'] = $bin->createPaste($paste))) {
+        } elseif (strlen($post_values['postEnter']) > MIN_POST_LENGTH && mb_strlen($post['Content']) <= $SPB_CONFIG['max_bytes'] && ($post['ID'] = $bin->createPost($post))) {
             $page['messages']['success'][] = t('Your data has been successfully recorded!');
-            $page['confirmURL'] = $bin->makeLink($paste['ID']);
+            $page['confirmURL'] = $bin->makeLink($post['ID']);
             $page['showForms'] = FALSE;
-            $page['showPaste'] = FALSE;
+            $page['showPost'] = FALSE;
         } else {
             $page['messages']['error'][] = t('Something went wrong.');
-            $page['messages']['warn'][] = t('The size of data must be between %d bytes and %s', array(MIN_PASTE_LENGTH, $translator->humanReadableFileSize($SPB_CONFIG['max_bytes'])));
+            $page['messages']['warn'][] = t('The size of data must be between %d bytes and %s', array(MIN_POST_LENGTH, $translator->humanReadableFileSize($SPB_CONFIG['max_bytes'])));
         }
     }
 }

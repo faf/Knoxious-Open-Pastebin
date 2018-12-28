@@ -29,21 +29,21 @@ class Bin
     }
 
     // TODO: refactor, describe
-    public function createPaste($data) {
+    public function createPost($data) {
         // TODO: implement hook
-        return $this->storage->createPaste($data);
+        return $this->storage->createPost($data);
     }
 
     // TODO: describe
-    public function readPaste($id) {
+    public function readPost($id) {
         // TODO: implement hook
-        return $this->storage->readPaste($id);
+        return $this->storage->readPost($id);
     }
 
     // TODO: describe
-    public function deletePaste($id) {
+    public function deletePost($id) {
         // TODO: implement hook
-        return $this->storage->deletePaste($id);
+        return $this->storage->deletePost($id);
     }
 
     // TODO: decribe
@@ -72,7 +72,7 @@ class Bin
         $index = array_reverse($this->storage->getIndex());
         $i = 0;
         foreach ($index as $id) {
-            $item = $this->readPaste($id);
+            $item = $this->readPost($id);
             if ($item && !$item['Protection']) {
                 $result[$i] = $item;
                 $i++;
@@ -90,7 +90,7 @@ class Bin
         $index = $this->storage->getIndex();
         $i = 0;
         foreach ($index as $id) {
-            if (!$this->storage->readPaste($id)) {
+            if (!$this->storage->readPost($id)) {
                 $i++;
                 if ($i == $count) {
                     break;

@@ -25,7 +25,7 @@ if ($page['showForms']) {
 ?>
 <!-- Begin of menu block -->
             <div id="recentPosts" class="recentPosts">
-                <h2 id="newPaste"><a href="<?php echo $page['baseURL']; ?>"><?php echo t('Create'); ?></a></h2>
+                <h2 id="newPost"><a href="<?php echo $page['baseURL']; ?>"><?php echo t('Create'); ?></a></h2>
                 <div class="spacer">&nbsp;</div>
 <?php
 // Display the list of recent posts
@@ -53,16 +53,16 @@ if ($page['showForms']) {
 <!-- End of head block -->
 <?php
 // Display data
-if ($page['showPaste']) {
-    include('paste.php');
+if ($page['showPost']) {
+    include('post.php');
 }
 // Display warning for access to dangerous data
 if ($page['showExclamWarning']) {
     include('warning.php');
 }
 // Display creation / edition form
-if (($page['showForms']) && ($page['showPasteForm'])) {
-    include('paste_form.php');
+if (($page['showForms']) && ($page['showPostForm'])) {
+    include('post_form.php');
 }
 ?>
             </div>

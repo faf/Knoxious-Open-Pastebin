@@ -16,21 +16,21 @@ if (ISINCLUDED != '1') {
 }
 ?>
 <!-- Begin of data block -->
-                <div id="aboutPaste">
-                    <div id="pasteID">
-                        <strong><?php echo t('ID:'); ?></strong> <?php echo $page['paste']['ID']; ?>
+                <div id="aboutPost">
+                    <div id="postID">
+                        <strong><?php echo t('ID:'); ?></strong> <?php echo $page['post']['ID']; ?>
                     </div>
-                    <strong><?php echo t('Posted by:'); ?></strong> <?php echo stripslashes($page['paste']['Author']); ?>, <em title="<?php echo t('%s ago', array($page['paste']['DatetimeRelative'])); ?>"><?php echo $page['paste']['Datetime']; ?></em><br/>
-                    <strong><?php echo t('Expires:'); ?></strong> <?php echo $page['paste']['lifeString']; ?><br/>
-                    <strong><?php echo t('Size:'); ?></strong> <?php echo $page['paste']['Size']; ?>
+                    <strong><?php echo t('Posted by:'); ?></strong> <?php echo stripslashes($page['post']['Author']); ?>, <em title="<?php echo t('%s ago', array($page['post']['DatetimeRelative'])); ?>"><?php echo $page['post']['Datetime']; ?></em><br/>
+                    <strong><?php echo t('Expires:'); ?></strong> <?php echo $page['post']['lifeString']; ?><br/>
+                    <strong><?php echo t('Size:'); ?></strong> <?php echo $page['post']['Size']; ?>
 
                 </div>
 <?php if ($page['showAuthorIP']) { ?>
-                <div class="success"><strong><?php echo t('Author\'s IP address:'); ?></strong> <a href="https://whois.domaintools.com/<?php echo $page['paste']['IP']; ?>"><?php echo $page['paste']['IP']; ?></a></div>
+                <div class="success"><strong><?php echo t('Author\'s IP address:'); ?></strong> <a href="https://whois.domaintools.com/<?php echo $page['post']['IP']; ?>"><?php echo $page['post']['IP']; ?></a></div>
 <?php }
 
 if ($page['showParentLink']) {?>
-                <div class="warn"><strong><?php echo t('This is a derivative of'); ?></strong> <a href="<?php echo $page['paste']['Parent']; ?>"><?php echo $page['paste']['Parent']; ?></a></div>
+                <div class="warn"><strong><?php echo t('This is a derivative of'); ?></strong> <a href="<?php echo $page['post']['Parent']; ?>"><?php echo $page['post']['Parent']; ?></a></div>
 <?php }
 ?>
                 <div id="styleBar">
@@ -41,10 +41,10 @@ if ($page['showParentLink']) {?>
                     <a href="<?php echo $page['rawLink']; ?>"><?php echo t('Raw'); ?></a>
                 </div>
                 <div class="spacer">&nbsp;</div>
-                <div id="retrievedPaste">
+                <div id="retrievedPost">
                     <div id="lineNumbers">
                         <ol id="orderedList" class="monoText">
-<?php foreach ($page['paste']['Lines'] as &$line) { ?>
+<?php foreach ($page['post']['Lines'] as &$line) { ?>
                             <li class="line"><pre><?php echo $line; ?>&nbsp;</pre></li>
 <?php } ?>
                         </ol>

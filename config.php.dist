@@ -20,8 +20,8 @@ $SPB_CONFIG = array(
     'storage' => 'data',
 
 // Maximum depth of folder structure
-// Example, 2 would be './data/a/b' for the paste id 'abcde'
-// 3 would be './data/a/b/c' for the paste id 'abcde'. Leave if you are unsure!
+// Example, 2 would be './data/a/b' for the post id 'abcde'
+// 3 would be './data/a/b/c' for the post id 'abcde'. Leave if you are unsure!
 // Note this will always default to be AT LEAST 1.
 // NEVER CHANGE THIS ONCE INSTALLED!!!
     'max_folder_depth' => 1,
@@ -38,7 +38,7 @@ $SPB_CONFIG = array(
 // For a full list, consult the function hash_algos();
     'algo' => 'sha256',
 
-// Pastebin Admin Password, strong one is mucho recommended!
+// Pastebin admin password, strong one is mucho recommended!
 // If a plaintext password is acceptable then use the following
     'admin_password' => hash('sha256', 'password'),
 // Storing plaintext passwords is not recommended.
@@ -48,7 +48,7 @@ $SPB_CONFIG = array(
 // Then insert the output into the variable below and uncomment
 #    'admin_password' => '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8',
 
-// Pastebin Salts, 4 sequences of random letters and numbers!
+// Pastebin salts, 4 sequences of random letters and numbers!
 // Please make them at least 6 characters or more!
     'salts' => array(
 
@@ -94,10 +94,10 @@ $SPB_CONFIG = array(
     'recent_posts' => FALSE,
 #    'recent_posts' => 10,
 
-// Allow editing of pastes? (TRUE or FALSE)
+// Allow editing of posts? (TRUE or FALSE)
     'editing' => FALSE,
 
-// Maximum paste size in Bytes
+// Maximum post size in Bytes
     'max_bytes' => 524288,
 
 // Default Author Name
@@ -108,9 +108,9 @@ $SPB_CONFIG = array(
     'author_cookie' => FALSE,
 #    'author_cookie' => 3600,
 
-// Paste Lifespan (age in days), array for multiple, FALSE for no expiry.
-// commented out is 1 week, 10 minutes, 1 hour, 1 day, 1 month and 1 year.
-// (Also no expiry) - Initial value is DEFAULT.
+// Post lifespan (age in days), array for multiple, FALSE for no expiry.
+// first commented out option is 1 week, 10 minutes, 1 hour, 1 day, 1 month, and 1 year.
+// second commented out option is 1 week
     'lifespan' => FALSE,
 #    'lifespan' => array(7, 1/24/6, 1/24, 1/24, 1, 30, 365),
 #    'lifespan' => array(7),

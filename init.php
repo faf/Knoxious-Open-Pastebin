@@ -9,10 +9,11 @@
  *
  */
 
-// TODO: describe
+// Maximum length of string highlighting marker
 define('MAX_HIGHLIGHT_MARKER_LENGTH', 6);
+// Maximum length of post ID
 define('MAX_ID_LENGTH', 64);
-define('MIN_PASTE_LENGTH', 10);
+define('MIN_POST_LENGTH', 10);
 define('SECS_SECOND', 1);
 define('SECS_MINUTE', 60);
 define('SECS_HOUR', 60 * 60);
@@ -107,10 +108,10 @@ function t($string, $values = array())
 }
 
 // Check required PHP version
-if (substr(phpversion(), 0, 3) < 5.3) {
+if (substr(phpversion(), 0, 3) < 5.4) {
     header('HTTP/1.0 500 Internal Server Error');
     header('Content-Type: text/plain; charset=utf-8');
-    die(t('PHP 5.3 or higher is required to run this pastebin. This version is %s', phpversion()));
+    die(t('PHP 5.4 or higher is required to run this pastebin. This version is %s', phpversion()));
 }
 
 // Check required PHP extensions
@@ -139,8 +140,8 @@ foreach (array( 'adminAction',
                 'author',
                 'email',
                 'lifespan',
-                'originalPaste',
-                'pasteEnter',
+                'originalPost',
+                'postEnter',
                 'privacy',
                 'submit',
                 'token') as $key) {
@@ -163,7 +164,7 @@ if ( ($requested[0] !== 'install.php') && !$installed) {
     exit();
 }
 
-// Clean old pastes if need to
+// Clean old posts if need to
 if ($installed && $SPB_CONFIG['autoclean']) {
     $bin->autoClean($SPB_CONFIG['recent_posts'] ? $SPB_CONFIG['recent_posts'] : 10);
 }

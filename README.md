@@ -12,16 +12,16 @@ This project is absolutely different. It should be simple. And it should be secu
 
 There are two reason of why it was based upon Knoxious Open Pastebin:
 
-1. It is desirable to preserve the original format of stored pastes.
+1. It is desirable to preserve the original format of stored posts.
 2. I'm lazy. ;)
 
 ## Features
 
 * Line highlighting
-* Derivative pastes
+* Derivative posts
 * CSRF and spam protection
-* Paste privacy settings
-* Paste lifespan settings
+* Post privacy settings
+* Post lifespan settings
 
 ## Server requirements
 

@@ -40,10 +40,10 @@ if ($page['lineHighlight']) { ?><br/><?php echo t('To highlight lines, prefix th
                             <div><strong><?php echo t('Note:'); ?></strong> <?php echo t('If you want to put a message up asking if the user wants to continue, add an "!" suffix to your URL.'); ?></div>
                             <div class="spacer">&nbsp;</div>
                         </div>
-                        <form id="pasteForm" action="<?php echo $page['editionMode'] ? $page['paste']['URL'] : $page['baseURL']; ?>" method="post" name="pasteForm" enctype="multipart/form-data">
+                        <form id="postForm" action="<?php echo $page['editionMode'] ? $page['post']['URL'] : $page['baseURL']; ?>" method="post" name="postForm" enctype="multipart/form-data">
                             <div>
-                                <label for="pasteEnter" class="pasteEnterLabel"><?php if ($page['editionMode']) { echo t('Edit this post:'); } else { echo t('Paste your text here:'); } ?></label>
-                                 <textarea id="pasteEnter" name="pasteEnter" onkeydown="return catchTab(event)" onkeyup="return true;"><?php if ($page['editionMode']) { echo $page['paste']['values']['paste']; } ?></textarea>
+                                <label for="postEnter" class="postEnterLabel"><?php if ($page['editionMode']) { echo t('Edit this post:'); } else { echo t('Paste your text here:'); } ?></label>
+                                 <textarea id="postEnter" name="postEnter" onkeydown="return catchTab(event)" onkeyup="return true;"><?php if ($page['editionMode']) { echo $page['post']['values']['post']; } ?></textarea>
                             </div>
                             <div class="spacer">&nbsp;</div>
                             <div id="secondaryFormContainer">
@@ -85,11 +85,11 @@ if ($page['lifespans']) {
 if ($page['privacy']) { ?>
                                 <div id="privacyContainer">
                                     <label for="privacy"><?php echo t('Visibility'); ?></label>
-                                    <select name="privacy" id="privacy" <?php if ($page['editionMode'] && $page['paste']['values']['protection']) { ?> disabled<?php } ?>>
+                                    <select name="privacy" id="privacy" <?php if ($page['editionMode'] && $page['post']['values']['protection']) { ?> disabled<?php } ?>>
                                         <option value="0"><?php echo t('Public'); ?></option>
-                                        <option value="1"<?php if ($page['editionMode'] && $page['paste']['values']['protection']) { ?> selected<?php } ?>><?php echo t('Private'); ?></option>
+                                        <option value="1"<?php if ($page['editionMode'] && $page['post']['values']['protection']) { ?> selected<?php } ?>><?php echo t('Private'); ?></option>
                                     </select>
-<?php if ($page['editionMode'] && $page['paste']['values']['protection']) { ?>
+<?php if ($page['editionMode'] && $page['post']['values']['protection']) { ?>
                                     <input type="hidden" name="privacy" value="1"/>
 <?php } ?>
                                 </div>
@@ -102,12 +102,12 @@ if ($page['privacy']) { ?>
                                 <div class="spacer">&nbsp;</div>
                                 <input type="text" name="email" id="poison" style="display: none;" value=""/>
                                 <div id="submitContainer" class="submitContainer">
-                                    <input type="submit" name="submit" value="<?php echo t('Submit'); ?>" onclick="return submitPaste(this);" id="submitButton"/>
+                                    <input type="submit" name="submit" value="<?php echo t('Submit'); ?>" onclick="return submitPost(this);" id="submitButton"/>
                                 </div>
 <?php if ($page['editionMode']) { ?>
-                                <input type="hidden" name="originalPaste" id="originalPaste" value="<?php echo $page['paste']['values']['paste']; ?>"/>
-                                <input type="hidden" name="parent" id="parentThread" value="<?php echo $page['paste']['values']['parent']; ?>"/>
-                                <input type="hidden" name="thisURI" id="thisURI" value="<?php echo $page['paste']['URL']; ?>"/>
+                                <input type="hidden" name="originalPost" id="originalPost" value="<?php echo $page['post']['values']['post']; ?>"/>
+                                <input type="hidden" name="parent" id="parentThread" value="<?php echo $page['post']['values']['parent']; ?>"/>
+                                <input type="hidden" name="thisURI" id="thisURI" value="<?php echo $page['post']['URL']; ?>"/>
                                 <div class="spacer">&nbsp;</div><div class="spacer">&nbsp;</div>
 <?php } ?>
                             </div>

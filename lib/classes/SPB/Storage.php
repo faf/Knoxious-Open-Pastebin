@@ -181,7 +181,7 @@ class Storage
     }
 
     // TODO: describe
-    public function readPaste($id)
+    public function readPost($id)
     {
         $id = (string) $id;
         $index = $this->getIndex();
@@ -202,14 +202,14 @@ class Storage
             }
         }
         if ($delete) {
-            $this->deletePaste($id);
+            $this->deletePost($id);
             return FALSE;
         }
         return $result;
     }
 
     // TODO: describe
-    public function deletePaste($id)
+    public function deletePost($id)
     {
         $id = (string) $id;
         $index = $this->getIndex();
@@ -229,10 +229,10 @@ class Storage
     }
 
     // TODO: describe
-    public function createPaste($data)
+    public function createPost($data)
     {
         $id = $this->newId();
-        $paste = array( 'ID'         => $id,
+        $post = array( 'ID'         => $id,
                         'Datetime'   => time(),
                         'Author'     => $data['Author'],
                         'Protection' => $data['Protect'],
@@ -243,7 +243,7 @@ class Storage
         );
         $index = $this->getIndex();
         $index[] = $id;
-        return $this->write(serialize($paste), $this->buildDataPath($id)) && $this->setIndex($index) ? $id : FALSE;
+        return $this->write(serialize($post), $this->buildDataPath($id)) && $this->setIndex($index) ? $id : FALSE;
     }
 
     // TODO: describe
