@@ -86,4 +86,4 @@ if (!$stop) {
 $page->setField('installList', $installList);
 
 // Primitive template
-include('templates/layout.php');
+include('templates/' . $SPB_CONFIG['theme'] . '/layout.php');

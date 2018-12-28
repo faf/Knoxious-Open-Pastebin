@@ -75,6 +75,11 @@ if (!$SPB_CONFIG['salts'] || !is_array($SPB_CONFIG['salts'])) {
     $SPB_CONFIG['salts'] = array();
 }
 
+// Define theme
+if (!in_array('theme', $SPB_CONFIG) || !is_dir('templates/' . $SPB_CONFIG['theme'])) {
+    $SPB_CONFIG['theme'] = 'default';
+}
+
 // Set timezone
 date_default_timezone_set($SPB_CONFIG['timezone'] ? $SPB_CONFIG['timezone'] : 'UTC');
 

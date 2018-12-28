@@ -216,4 +216,4 @@ $page->setField('messages', array('errors'   => $errors,
                                   'info'     => $info));
 
 // Primitive template
-include('templates/layout.php');
+include('templates/' . $SPB_CONFIG['theme'] . '/layout.php');

@@ -75,8 +75,11 @@ $SPB_CONFIG = array(
 // Hexlike IDs (only uses numbers 0-9, letters a-f)
     'hexlike_ids' => FALSE,
 
+// Layout theme
+    'theme' => 'default',
+
 // URL of the Pastebin stylesheet (one can use own)
-    'stylesheet' => 'css/main.css',
+    'stylesheet' => 'css/default/main.css',
 
 // Enable Line Highlighting
 // Looks for a 2-6 character long highlight string, FALSE for Disabled.
