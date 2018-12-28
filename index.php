@@ -148,6 +148,15 @@ if (!$bin->ready()) {
     $page->setField('showPostForm', TRUE);
 }
 
+if ($post_values['adminAction'] === 'delete' && $bin->checkPassword($post_values['adminPass'])) {
+    $bin->deletePost($request['id']);
+    $info[] = t('Data %s has been deleted!', array($request['id']));
+    $request['id'] = NULL;
+    $page->setFields(array('showPost'      => FALSE,
+                           'showPostForm'  => FALSE,
+                           'showAdminForm' => FALSE));
+}
+
 if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
     $recentPosts = $bin->getRecentPosts();
     if (count($recentPosts) > 0) {
@@ -162,15 +171,6 @@ if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
         $page->setFields(array('showAdminForm' => FALSE,
                                'thisUrl'       => $bin->makeLink($request['id'])));
     }
-}
-
-if ($post_values['adminAction'] === 'delete' && $bin->checkPassword($post_values['adminPass'])) {
-    $bin->deletePost($request['id']);
-    $info[] = t('Data %s has been deleted!', array($request['id']));
-    $request['id'] = NULL;
-    $page->setFields(array('showPost'      => FALSE,
-                           'showPostForm'  => FALSE,
-                           'showAdminForm' => FALSE));
 }
 
 if ($post_values['submit']) {
