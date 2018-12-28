@@ -158,9 +158,9 @@ if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
     $page['recentPosts'] = $bin->getRecentPosts();
 
     if (count($page['recentPosts']) > 0) {
-        foreach ($page['recentPosts'] as &$paste) {
-            $paste['PasteURL'] = $bin->makeLink($paste['ID']);
-            $paste['Datetime'] = $translator->humanReadableRelativeTime($paste['Datetime']);
+        foreach ($page['recentPosts'] as &$post) {
+            $post['PasteURL'] = $bin->makeLink($post['ID']);
+            $post['Datetime'] = $translator->humanReadableRelativeTime($post['Datetime']);
         }
         $page['showRecent'] = TRUE;
     }
