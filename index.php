@@ -17,8 +17,8 @@ $warnings = array();
 $info = array();
 
 $page->setFields(array('contentTemplate'   => 'main.php',
-                       'title'             =>   ($SPB_CONFIG['pastebin_title']
-                                                 ? htmlspecialchars($SPB_CONFIG['pastebin_title'], ENT_COMPAT, 'UTF-8', FALSE)
+                       'title'             =>   ($SPB_CONFIG['title']
+                                                 ? htmlspecialchars($SPB_CONFIG['title'], ENT_COMPAT, 'UTF-8', FALSE)
                                                  : t('Pastebin on %s', array($_SERVER['SERVER_NAME'])))
                                                 . ' &raquo; ' . ($request['id'] ? $request['id'] : t('Welcome!')),
                        'tagline'           => $SPB_CONFIG['tagline'],

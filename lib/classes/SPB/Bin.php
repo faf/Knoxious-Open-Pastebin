@@ -115,7 +115,7 @@ class Bin
     public function checkPassword($password)
     {
         $hash1 = $this->makeHash(hash($this->config['algo'], $password));
-        $hash2 = $this->makeHash($this->config['admin_password']);
+        $hash2 = $this->makeHash($this->config['password']);
         if (function_exists('hash_equals')) {
             return hash_equals($hash1, $hash2);
         } else {
@@ -184,7 +184,7 @@ class Bin
     {
         return strtoupper(sha1(md5($value
                                    . $_SERVER['REMOTE_ADDR']
-                                   . $this->config['admin_password']
+                                   . $this->config['password']
                                    . $_SERVER['SERVER_ADDR']
                                    . $_SERVER['HTTP_USER_AGENT']
                                    . $_SERVER['SCRIPT_FILENAME'])));

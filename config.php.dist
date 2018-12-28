@@ -27,8 +27,8 @@ $SPB_CONFIG = array(
     'max_folder_depth' => 1,
 
 // Pastebin title, FALSE value uses the default 'Pastebin on ' . $_SERVER['SERVER_NAME']
-    'pastebin_title' => FALSE,
-#    'pastebin_title' => 'Simpliest Pastebin',
+    'title' => FALSE,
+#    'title' => 'Simpliest Pastebin',
 
 // Pastebin tagline (Message under the name/title), FALSE leaves this blank
     'tagline' => FALSE,
@@ -40,13 +40,13 @@ $SPB_CONFIG = array(
 
 // Pastebin admin password, strong one is mucho recommended!
 // If a plaintext password is acceptable then use the following
-    'admin_password' => hash('sha256', 'password'),
+    'password' => hash('sha256', 'password'),
 // Storing plaintext passwords is not recommended.
 // You should consider a hashed password using the algorithm chosen above
 // Example:
 //   echo hash('sha256', 'password') . "\n";
 // Then insert the output into the variable below and uncomment
-#    'admin_password' => '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8',
+#    'password' => '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8',
 
 // Pastebin salts, 4 sequences of random letters and numbers!
 // Please make them at least 6 characters or more!

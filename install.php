@@ -23,7 +23,7 @@ if (!$stop) {
                    'success' => FALSE,
                    'result'  => '' );
 
-    if (!isset($SPB_CONFIG['admin_password'])
+    if (!isset($SPB_CONFIG['password'])
         || $bin->checkPassword('password')) {
 
         $step['result'] = t('Password is still default!');
