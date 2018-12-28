@@ -33,8 +33,8 @@ if (ISINCLUDED != '1') {
                             <div class="spacer">&nbsp;</div>
                             <div><strong><?php echo t('What to do'); ?></strong></div>
                             <div>
-<?php echo t('Just paste your text, sourcecode or log into the textarea below, add a name if you wish then submit the data!');
-if ($page['lineHighlight']) { echo t('To highlight lines, prefix them with'); ?> <em><?php echo $page['lineHighlight']; ?></em><?php } ?>
+<?php echo t('Just paste your text, sourcecode or log into the textarea below, add a name if you wish then submit the data.');
+if ($page['lineHighlight']) { ?><br/><?php echo t('To highlight lines, prefix them with'); ?> <em><?php echo $page['lineHighlight']; ?></em><?php } ?>
                             </div>
                             <div class="spacer">&nbsp;</div>
                             <div><strong><?php echo t('Note:'); ?></strong> <?php echo t('If you want to put a message up asking if the user wants to continue, add an "!" suffix to your URL.'); ?></div>
@@ -70,7 +70,7 @@ if ($page['lifespans']) {
     } else {
 ?>
                                     <div id="expireTime">
-                                        <input type="hidden" name="lifespan" value="0"/><?php echo $page['lifespanOptions'][0]['hint']; ?>
+                                        <input type="hidden" name="lifespan" value="0"/><?php echo $page['lifespansOptions'][0]['hint']; ?>
                                     </div>
 <?php
     }
