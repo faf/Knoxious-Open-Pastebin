@@ -43,7 +43,7 @@ if (is_array($SPB_CONFIG['lifespan'])) {
         $key = array_keys($SPB_CONFIG['lifespan'], $span);
         $key = $key[0];
         $hint = $span
-                ? $translator->humanReadableRelativeTime(time() - ($span * 24 * 60 * 60), TRUE)
+                ? $translator->humanReadableRelativeTime(time() - ($span * SECS_DAY), TRUE)
                 : t('Never');
         $page['lifespansOptions'][] = array( 'value' => $key,
                                              'hint' => $hint );
@@ -53,7 +53,7 @@ if (is_array($SPB_CONFIG['lifespan'])) {
 $ckey = $bin->getCookieName();
 
 if ($post_values['author'] && is_numeric($SPB_CONFIG['author_cookie'])) {
-    setcookie($ckey, $bin->getAuthorName($post_values['author']), time() + $SPB_CONFIG['author_cookie']);
+    setcookie($ckey, $bin->getSafeAuthorName($post_values['author']), time() + $SPB_CONFIG['author_cookie']);
 }
 
 if (array_key_exists($ckey, $_COOKIE) && $_COOKIE[$ckey] !== NULL) {
@@ -182,18 +182,28 @@ if ($post_values['adminAction'] === 'delete' && $bin->checkPassword($post_values
 if ($post_values['submit']) {
     $acceptTokens = $bin->token();
 
-    if ($post_values['email'] !== '' || !in_array($post_values['token'], $acceptTokens)) {
+    if (($post_values['email'] !== '')
+        || (!in_array($post_values['token'], $acceptTokens))
+        || (is_array($SPB_CONFIG['lifespan'])
+            && !array_key_exists($post_values['lifespan'], $SPB_CONFIG['lifespan']))) {
         $page['messages']['error'][] = t('Spambot detected!');
         $page['showForms'] = FALSE;
     } else {
-
-        $paste = array( 'Author' => $bin->getAuthorName($post_values['author']),
+        $paste = array( 'Author' => $bin->getSafeAuthorName($post_values['author']),
                         'IP' => $_SERVER['REMOTE_ADDR'],
-                        'Lifespan' => $post_values['lifespan'],
                         'Protect' => $post_values['privacy'],
                         'Parent' => $request['id'],
                         'Content' => $post_values['pasteEnter']
         );
+
+        if (!is_array($SPB_CONFIG['lifespan'])
+            || (($SPB_CONFIG['lifespan'][$post_values['lifespan']] === FALSE)
+                  || ($SPB_CONFIG['lifespan'][$post_values['lifespan']] === 0))) {
+
+            $paste['Lifespan'] = 0;
+        } else {
+            $paste['Lifespan'] = time() + ($SPB_CONFIG['lifespan'][$post_values['lifespan']] * SECS_DAY);
+        }
 
         if ($post_values['pasteEnter'] == $post_values['originalPaste'] && strlen($post_values['pasteEnter']) > 10) {
             $page['messages']['error'][] = t('Please don\'t just repost what has already been posted!');

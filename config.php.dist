@@ -115,14 +115,6 @@ $SPB_CONFIG = array(
 #    'lifespan' => array(7, 1/24/6, 1/24, 1/24, 1, 30, 365),
 #    'lifespan' => array(7),
 
-// Enables no expiry, if you set 'lifespan' to FALSE
-// you do not need to bother with this. (TRUE or FALSE)
-    'infinity' => FALSE,
-
-// Make Infinity default? (TRUE or FALSE) This makes sure the post doesn't expire
-// by default. Requires 'infinity' to be TRUE
-    'infinity_default' => FALSE,
-
 // Enables Private Posting (TRUE or FALSE)
     'private' => FALSE,
 

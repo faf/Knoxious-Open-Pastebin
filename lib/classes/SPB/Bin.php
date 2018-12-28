@@ -29,9 +29,9 @@ class Bin
     }
 
     // TODO: refactor, describe
-    public function insertPaste($data, $arbLifespan = FALSE) {
+    public function insertPaste($data) {
         // TODO: implement hook
-        return $this->storage->insertPaste($data, $arbLifespan);
+        return $this->storage->insertPaste($data);
     }
 
     // TODO: describe
@@ -57,7 +57,7 @@ class Bin
     }
 
     // TODO: describe
-    public function getAuthorName($author)
+    public function getSafeAuthorName($author)
     {
         if (($author === FALSE) || preg_match('/^\s*$/', $author)) {
             $author = $this->config['author'];
@@ -73,7 +73,7 @@ class Bin
         $i = 0;
         foreach ($index as $id) {
             $item = $this->readPaste($id);
-            if ($item) {
+            if ($item && !$item['Protection']) {
                 $result[$i] = $item;
                 $i++;
             }

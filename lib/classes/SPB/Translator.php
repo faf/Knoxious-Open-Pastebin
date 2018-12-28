@@ -11,13 +11,6 @@
 
 namespace SPB;
 
-define('SECS_SECOND', 1);
-define('SECS_MINUTE', 60);
-define('SECS_HOUR', 60 * 60);
-define('SECS_DAY', 60 * 60);
-define('SECS_WEEK', 7 * 24 * 60 * 60);
-define('SECS_YEAR', 365 * 24 * 60 * 60);
-
 /**
  * Simple translator class
  */

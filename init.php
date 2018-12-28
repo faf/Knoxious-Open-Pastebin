@@ -9,6 +9,17 @@
  *
  */
 
+// TODO: describe
+define('MAX_ID_LENGTH', 64);
+define('MAX_HIGHLIGHT_MARKER_LENGTH', 6);
+define('SECS_SECOND', 1);
+define('SECS_MINUTE', 60);
+define('SECS_HOUR', 60 * 60);
+define('SECS_DAY', 24 * 60 * 60);
+define('SECS_WEEK', 7 * 24 * 60 * 60);
+define('SECS_YEAR', 365 * 24 * 60 * 60);
+
+
 // Prevent this code from direct access
 if (ISINCLUDED != '1') {
     header('HTTP/1.0 403 Forbidden');
@@ -22,18 +33,19 @@ if (!include_once('config.php')) {
 }
 
 // TODO: Set default values in case of broken or missed configuration
+if (!in_array('id_length', $SPB_CONFIG) || !is_int($SPB_CONFIG['id_length'])) {
+    $SPB_CONFIG['id_length'] = 1;
+} elseif ($SPB_CONFIG['id_length'] > MAX_ID_LENGTH) {
+    $SPB_CONFIG['id_length'] = MAX_ID_LENGTH;
+}
+
 if (is_array($SPB_CONFIG['lifespan'])) {
     // Convert all lifespan values to float
     array_walk($SPB_CONFIG['lifespan'], function(&$val, $name) { $val = (float) $val; } );
     // Remove duplicates from the list of lifespans
     $SPB_CONFIG['lifespan'] = array_unique($SPB_CONFIG['lifespan']);
-
-    // Adjust possible lifespans
-    if ($SPB_CONFIG['infinity']) {
-        $SPB_CONFIG['lifespan'] = $SPB_CONFIG['infinity_default']
-                                  ? array_merge( array('0'), (array) $SPB_CONFIG['lifespan'] )
-                                  : array_merge( (array) $SPB_CONFIG['lifespan'], array('0') );
-    }
+} else {
+    $SPB_CONFIG['lifespan'] = FALSE;
 }
 
 // Adjust line highlighting setting
@@ -41,8 +53,8 @@ if (!in_array('line_highlight', $SPB_CONFIG)
     || preg_match('/^\s*$/', $SPB_CONFIG['line_highlight'])) {
 
     $SPB_CONFIG['line_highlight'] = FALSE;
-} elseif (strlen($SPB_CONFIG['line_highlight']) > 6) {
-    $SPB_CONFIG['line_highlight'] = substr($SPB_CONFIG['line_highlight'], 0, 6);
+} elseif (strlen($SPB_CONFIG['line_highlight']) > MAX_HIGHLIGHT_MARKER_LENGTH) {
+    $SPB_CONFIG['line_highlight'] = substr($SPB_CONFIG['line_highlight'], 0, MAX_HIGHLIGHT_MARKER_LENGTH);
 } elseif (strlen($SPB_CONFIG['line_highlight']) == 1) {
     $SPB_CONFIG['line_highlight'] .= $SPB_CONFIG['line_highlight'];
 }

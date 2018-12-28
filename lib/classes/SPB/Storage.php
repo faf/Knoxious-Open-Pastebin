@@ -15,7 +15,6 @@ define('MAX_ID_GEN_ITERATIONS', 10);
 
 class Storage
 {
-
     /**
      * Data storage configuration
      * @var array
@@ -96,10 +95,14 @@ class Storage
         return $result;
     }
 
-/////////////////////////
+    // TODO: describe
+    private function remove($file)
+    {
+        return is_file($file) ? unlink($this->dataPath($id)) : FALSE;
+    }
 
     // TODO: describe
-    private function _generateID($length)
+    private function _generateId($length)
     {
         $chars = '0123456789abcdefghijklmnopqrstuvwxyz';
         if ($this->config['hexlike_ids']) {
@@ -115,19 +118,19 @@ class Storage
     }
 
     // TODO: describe
-    private function newID($id = FALSE, $iteration = 0)
+    private function newId($id = FALSE, $iteration = 0)
     {
         if (($iteration >= MAX_ID_GEN_ITERATIONS) && ($id != FALSE)) {
-            $id = $this->_generateID($this->getLastID() + 1);
+            $id = $this->_generateId($this->getIdLength() + 1);
         } else {
-            $id = $this->_generateID($this->getLastID());
+            $id = $this->_generateId($this->getIdLength());
         }
 
         $iteration++;
         if ( ($this->config['rewrite_enabled'] && (is_dir($id) || file_exists($id)))
-             || $this->checkID($id) ) {
+             || $this->checkId($id) ) {
 
-            $id = $this->newID($id, $iteration);
+            $id = $this->newId($id, $iteration);
         }
 
         return $id;
@@ -140,8 +143,6 @@ class Storage
     // TODO: analyze, refactor, describe
     public function dataPath($filename, $justPath = FALSE)
     {
-        $filename = str_replace('!', '', $filename);
-
         $this->config['max_folder_depth'] = (int) $this->config['max_folder_depth'];
         if ($this->config['max_folder_depth'] < 1) {
             $this->config['max_folder_depth'] = 1;
@@ -174,12 +175,13 @@ class Storage
         }
     }
 
-
-
     // TODO: analyze, refactor, describe
     public function readPaste($id)
     {
+// TODO: check in index
+
         $result = array();
+
         if (!file_exists($this->dataPath($id))) {
             $index = $this->getIndex();
             if (in_array($id, $index)) {
@@ -205,12 +207,11 @@ class Storage
     public function dropPaste($id)
     {
         $id = (string) $id;
-
         if (file_exists($this->dataPath($id))) {
             $result = unlink($this->dataPath($id));
         }
 
-        $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = $this->getIndex();
         if (in_array($id, $index)) {
             $key = array_keys($index, $id);
         } elseif (in_array('!' . $id, $index)) {
@@ -228,80 +229,44 @@ class Storage
         return $result;
     }
 
-    // TODO: analyze, refactor, describe
-    public function insertPaste($data, $arbLifespan = FALSE)
+///////////////////////////
+
+    // TODO: describe
+    public function insertPaste($data)
     {
-
-        $id = $this->newID();
-
-        if ($arbLifespan && $data['Lifespan'] > 0) {
-            $data['Lifespan'] = time() + $data['Lifespan'];
-        } elseif ($arbLifespan && $data['Lifespan'] == 0) {
-            $data['Lifespan'] = 0;
-        } else {
-            if ((($this->config['lifespan'][$data['Lifespan']] == FALSE || $this->config['lifespan'][$data['Lifespan']] == 0)
-                && $this->config['infinity'])
-                || !$this->config['lifespan']) {
-                $data['Lifespan'] = 0;
-            } else {
-                $data['Lifespan'] = time() + ($this->config['lifespan'][$data['Lifespan']] * 60 * 60 * 24);
-            }
-        }
-
-        $paste = array( 'ID' => $id,
-                        'Datetime' => time(),
-                        'Author' => $data['Author'],
+        $id = $this->newId();
+        $paste = array( 'ID'         => $id,
+                        'Datetime'   => time(),
+                        'Author'     => $data['Author'],
                         'Protection' => $data['Protect'],
-                        'Parent' => $data['Parent'],
-                        'Lifespan' => $data['Lifespan'],
-                        'IP' => base64_encode($data['IP']),
-                        'Data' => addslashes($data['Content'])
+                        'Parent'     => $data['Parent'],
+                        'Lifespan'   => $data['Lifespan'],
+                        'IP'         => base64_encode($data['IP']),
+                        'Data'       => addslashes($data['Content'])
         );
-
-        if ($paste['Protection'] > 0 && ($this->config['private'] || $arbLifespan)) {
-            $id = '!' . $id;
-        } else {
-            $paste['Protection'] = 0;
-        }
-
-        $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
+        $index = $this->getIndex();
         $index[] = $id;
-        $this->write(serialize($index), $this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
-        $result = $this->write(serialize($paste), $this->dataPath($paste['ID']));
-
-        return $result ? $paste['ID'] : FALSE;
+        return $this->write(serialize($paste), $this->dataPath($id))
+               && $this->write(serialize($index), $this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX')
+               ? $id
+               : FALSE;
     }
 
-    // TODO: analyze, refactor, describe
-    public function checkID($id)
+    // TODO: describe
+    public function checkId($id)
     {
-        $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
-        if (in_array($id, $index) || in_array('!' . $id, $index)) {
-            $output = TRUE;
-        } else {
-            $output = FALSE;
-        }
-
-        return $output;
+        $index = $this->getIndex();
+        return in_array($id, $index) ? TRUE : FALSE;
     }
 
-    // TODO: analyze, refactor, describe
-    public function getLastID()
+    // TODO: describe
+    public function getIdLength()
     {
-        if (!is_int($this->config['id_length'])) {
-            $this->config['id_length'] = 1;
+        $result = $this->config['id_length'];
+        $index = array_reverse($this->getIndex());
+        if (count($index)) {
+            $result = strlen($index[0]);
         }
-        if ($this->config['id_length'] > 32) {
-            $this->config['id_length'] = 32;
-        }
-
-        $index = unserialize($this->read($this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX'));
-        $index = array_reverse($index);
-        $output = strlen(str_replace('!', NULL, $index[0]));
-        if ($output < 1) {
-            $output = $this->config['id_length'];
-        }
-
-        return $output;
+        return $result;
     }
 }
