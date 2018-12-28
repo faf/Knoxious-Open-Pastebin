@@ -10,8 +10,9 @@
  */
 
 // TODO: describe
-define('MAX_ID_LENGTH', 64);
 define('MAX_HIGHLIGHT_MARKER_LENGTH', 6);
+define('MAX_ID_LENGTH', 64);
+define('MIN_PASTE_LENGTH', 10);
 define('SECS_SECOND', 1);
 define('SECS_MINUTE', 60);
 define('SECS_HOUR', 60 * 60);

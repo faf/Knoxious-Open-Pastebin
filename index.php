@@ -202,16 +202,16 @@ if ($post_values['submit']) {
             $paste['Lifespan'] = time() + ($SPB_CONFIG['lifespan'][$post_values['lifespan']] * SECS_DAY);
         }
 
-        if ($post_values['pasteEnter'] == $post_values['originalPaste'] && strlen($post_values['pasteEnter']) > 10) {
+        if ($post_values['pasteEnter'] == $post_values['originalPaste'] && strlen($post_values['pasteEnter']) > MIN_PASTE_LENGTH) {
             $page['messages']['error'][] = t('Please don\'t just repost what has already been posted!');
-        } elseif (strlen($post_values['pasteEnter']) > 10 && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && ($paste['ID'] = $bin->insertPaste($paste))) {
+        } elseif (strlen($post_values['pasteEnter']) > MIN_PASTE_LENGTH && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && ($paste['ID'] = $bin->insertPaste($paste))) {
             $page['messages']['success'][] = t('Your data has been successfully recorded!');
             $page['confirmURL'] = $bin->makeLink($paste['ID']);
             $page['showForms'] = FALSE;
             $page['showPaste'] = FALSE;
         } else {
             $page['messages']['error'][] = t('Something went wrong.');
-            $page['messages']['warn'][] = t('The size of data must be between %d bytes and %s', array(10, $translator->humanReadableFileSize($SPB_CONFIG['max_bytes'])));
+            $page['messages']['warn'][] = t('The size of data must be between %d bytes and %s', array(MIN_PASTE_LENGTH, $translator->humanReadableFileSize($SPB_CONFIG['max_bytes'])));
         }
     }
 }
