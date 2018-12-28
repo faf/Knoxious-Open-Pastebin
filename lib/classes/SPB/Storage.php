@@ -74,6 +74,9 @@ class Storage
     // TODO: describe
     private function read($file)
     {
+        if ($file === NULL) {
+            return FALSE;
+        }
         if (!is_file($file) || !is_readable($file)) {
             return FALSE;
         }
@@ -89,6 +92,9 @@ class Storage
     // TODO: describe
     private function write($data, $file)
     {
+        if ($file === NULL) {
+            return FALSE;
+        }
         $open = fopen($file, 'w');
         if (!$open) {
             return FALSE;
@@ -102,6 +108,9 @@ class Storage
     // TODO: describe
     private function remove($file)
     {
+        if ($file === NULL) {
+            return FALSE;
+        }
         return is_file($file) ? unlink($file) : FALSE;
     }
 
@@ -140,45 +149,36 @@ class Storage
         return $id;
     }
 
-
-/////////////////////////
-
-    // TODO: analyze, refactor, describe
-    private function buildDataPath($filename, $justPath = FALSE)
+    private function buildDataCell($path, $parent)
     {
-        $this->config['max_folder_depth'] = (int) $this->config['max_folder_depth'];
-        if ($this->config['max_folder_depth'] < 1) {
-            $this->config['max_folder_depth'] = 1;
+        if (file_exists($path)) {
+            return TRUE;
         }
-
-        $path = $this->config['storage'] . DIRECTORY_SEPARATOR . substr($filename, 0, 1);
-
-        if (!file_exists($path) && is_writable($this->config['storage'])) {
-            mkdir($path, $this->bitmask_dir);
-            $this->write('FORBIDDEN', $path . DIRECTORY_SEPARATOR . 'index.html');
+        if (!is_writable($parent)) {
+            return FALSE;
         }
-
-        for ($i = 1; $i <= $this->config['max_folder_depth'] - 1; $i ++) {
-            $parent = $path;
-
-            if (strlen($filename) > $i) {
-                $path .= DIRECTORY_SEPARATOR . substr($filename, $i, 1);
-            }
-
-            if (!file_exists($path) && is_writable($parent)) {
-                mkdir($path, $this->bitmask_dir);
-                $this->write('FORBIDDEN', $path . DIRECTORY_SEPARATOR . 'index.html');
-            }
-        }
-
-        if ($justPath) {
-            return $path;
-        } else {
-            return $path . DIRECTORY_SEPARATOR . $filename;
-        }
+        return mkdir($path, $this->bitmask_dir)
+               && $this->write('FORBIDDEN', $path . DIRECTORY_SEPARATOR . 'index.html');
     }
 
-///////////////////////////
+    // TODO: describe
+    private function buildDataPath($id)
+    {
+        $path = $this->config['storage'] . DIRECTORY_SEPARATOR . substr($id, 0, 1);
+        if (!$this->buildDataCell($path, $this->config['storage'])) {
+            return NULL;
+        }
+        for ($i = 1; $i <= $this->config['max_folder_depth'] - 1; $i++) {
+            $parent = $path;
+            if (strlen($id) > $i) {
+                $path .= DIRECTORY_SEPARATOR . substr($id, $i, 1);
+            }
+            if (!$this->buildDataCell($path, $parent)) {
+                return NULL;
+            }
+        }
+        return $path . DIRECTORY_SEPARATOR . $id;
+    }
 
     // TODO: describe
     public function readPaste($id)

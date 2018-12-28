@@ -40,6 +40,10 @@ if (!in_array('id_length', $SPB_CONFIG) || !is_int($SPB_CONFIG['id_length'])) {
     $SPB_CONFIG['id_length'] = MAX_ID_LENGTH;
 }
 
+$SPB_CONFIG['max_folder_depth'] = in_array('max_folder_depth', $SPB_CONFIG)
+                                  ? (int) $SPB_CONFIG['max_folder_depth'] || 1
+                                  : 1;
+
 if (is_array($SPB_CONFIG['lifespan'])) {
     // Convert all lifespan values to float
     array_walk($SPB_CONFIG['lifespan'], function(&$val, $name) { $val = (float) $val; } );
