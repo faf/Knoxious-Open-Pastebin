@@ -51,10 +51,8 @@ class Storage
             }
         }
 
-        return $this->write(serialize(array()),
-                            $this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX')
-               && $this->write('FORBIDDEN',
-                               $this->config['storage'] . DIRECTORY_SEPARATOR . 'index.html');
+        return $this->setIndex(array())
+               && $this->write('FORBIDDEN', $this->config['storage'] . DIRECTORY_SEPARATOR . 'index.html');
     }
 
     // TODO: describe
@@ -65,6 +63,12 @@ class Storage
             $result = array();
         }
         return $result;
+    }
+
+    // TODO: describe
+    public function setIndex($index)
+    {
+        return $this->write(serialize($index), $this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
     }
 
     // TODO: describe
@@ -98,7 +102,7 @@ class Storage
     // TODO: describe
     private function remove($file)
     {
-        return is_file($file) ? unlink($this->dataPath($id)) : FALSE;
+        return is_file($file) ? unlink($file) : FALSE;
     }
 
     // TODO: describe
@@ -139,9 +143,8 @@ class Storage
 
 /////////////////////////
 
-
     // TODO: analyze, refactor, describe
-    public function dataPath($filename, $justPath = FALSE)
+    private function buildDataPath($filename, $justPath = FALSE)
     {
         $this->config['max_folder_depth'] = (int) $this->config['max_folder_depth'];
         if ($this->config['max_folder_depth'] < 1) {
@@ -175,64 +178,58 @@ class Storage
         }
     }
 
-    // TODO: analyze, refactor, describe
-    public function readPaste($id)
-    {
-// TODO: check in index
-
-        $result = array();
-
-        if (!file_exists($this->dataPath($id))) {
-            $index = $this->getIndex();
-            if (in_array($id, $index)) {
-                $this->dropPaste($id);
-            }
-            return FALSE;
-        }
-
-        $result = unserialize($this->read($this->dataPath($id)));
-        if (count($result) < 1) {
-            $result = FALSE;
-        } else {
-            $lifespan = ($result['Lifespan'] === 0) ? time() + time() : $result['Lifespan'];
-            if (gmdate('U') > $lifespan) {
-                $this->dropPaste($id);
-                $result = FALSE;
-            }
-        }
-        return $result;
-    }
-
-    // TODO: analyze, refactor, describe
-    public function dropPaste($id)
-    {
-        $id = (string) $id;
-        if (file_exists($this->dataPath($id))) {
-            $result = unlink($this->dataPath($id));
-        }
-
-        $index = $this->getIndex();
-        if (in_array($id, $index)) {
-            $key = array_keys($index, $id);
-        } elseif (in_array('!' . $id, $index)) {
-            $key = array_keys($index, '!' . $id);
-        }
-        $key = $key[0];
-
-        if (isset($index[$key])) {
-            unset($index[$key]);
-        }
-
-        $index = array_values($index);
-        $result = $this->write(serialize($index), $this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX');
-
-        return $result;
-    }
-
 ///////////////////////////
 
     // TODO: describe
-    public function insertPaste($data)
+    public function readPaste($id)
+    {
+        $id = (string) $id;
+        $index = $this->getIndex();
+        if (!in_array($id, $index)) {
+            return FALSE;
+        }
+        $result = array();
+        $data = $this->read($this->buildDataPath($id));
+        $delete = FALSE;
+        if (!$data) {
+            $delete = TRUE;
+        } else {
+            $result = unserialize($data);
+            if (!is_array($result) || !count($result)) {
+                $delete = TRUE;
+            } elseif (gmdate('U') > (($result['Lifespan'] === 0) ? time() + time() : $result['Lifespan'])) {
+                $delete = TRUE;
+            }
+        }
+        if ($delete) {
+            $this->deletePaste($id);
+            return FALSE;
+        }
+        return $result;
+    }
+
+    // TODO: describe
+    public function deletePaste($id)
+    {
+        $id = (string) $id;
+        $index = $this->getIndex();
+        if (!in_array($id, $index)) {
+            return FALSE;
+        }
+
+        $key = array_keys($index, $id);
+        $key = $key[0];
+        unset($index[$key]);
+        $result = FALSE;
+        if ($this->setIndex(array_values($index))) {
+            $this->remove($this->buildDataPath($id));
+            $result = TRUE;
+        }
+        return $result;
+    }
+
+    // TODO: describe
+    public function createPaste($data)
     {
         $id = $this->newId();
         $paste = array( 'ID'         => $id,
@@ -246,10 +243,7 @@ class Storage
         );
         $index = $this->getIndex();
         $index[] = $id;
-        return $this->write(serialize($paste), $this->dataPath($id))
-               && $this->write(serialize($index), $this->config['storage'] . DIRECTORY_SEPARATOR . 'INDEX')
-               ? $id
-               : FALSE;
+        return $this->write(serialize($paste), $this->buildDataPath($id)) && $this->setIndex($index) ? $id : FALSE;
     }
 
     // TODO: describe

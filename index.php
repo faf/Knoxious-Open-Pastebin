@@ -94,7 +94,7 @@ if (!$bin->ready()) {
         }
 
         if (gmdate('U') > $pasted['Lifespan']) {
-            $bin->dropPaste($request['id']);
+            $bin->deletePaste($request['id']);
             $page['messages']['warn'][] = t('This data has either expired or doesn\'t exist!');
             $page['showPaste'] = FALSE;
         } else {
@@ -171,7 +171,7 @@ if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
 }
 
 if ($post_values['adminAction'] === 'delete' && $bin->checkPassword($post_values['adminPass'])) {
-    $bin->dropPaste($request['id']);
+    $bin->deletePaste($request['id']);
     $page['messages']['success'][] = t('Data %s has been deleted!', array($request['id']));
     $request['id'] = NULL;
     $page['showPaste'] = FALSE;
@@ -204,7 +204,7 @@ if ($post_values['submit']) {
 
         if ($post_values['pasteEnter'] == $post_values['originalPaste'] && strlen($post_values['pasteEnter']) > MIN_PASTE_LENGTH) {
             $page['messages']['error'][] = t('Please don\'t just repost what has already been posted!');
-        } elseif (strlen($post_values['pasteEnter']) > MIN_PASTE_LENGTH && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && ($paste['ID'] = $bin->insertPaste($paste))) {
+        } elseif (strlen($post_values['pasteEnter']) > MIN_PASTE_LENGTH && mb_strlen($paste['Content']) <= $SPB_CONFIG['max_bytes'] && ($paste['ID'] = $bin->createPaste($paste))) {
             $page['messages']['success'][] = t('Your data has been successfully recorded!');
             $page['confirmURL'] = $bin->makeLink($paste['ID']);
             $page['showForms'] = FALSE;

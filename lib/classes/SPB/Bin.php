@@ -29,9 +29,9 @@ class Bin
     }
 
     // TODO: refactor, describe
-    public function insertPaste($data) {
+    public function createPaste($data) {
         // TODO: implement hook
-        return $this->storage->insertPaste($data);
+        return $this->storage->createPaste($data);
     }
 
     // TODO: describe
@@ -41,9 +41,9 @@ class Bin
     }
 
     // TODO: describe
-    public function dropPaste($id) {
+    public function deletePaste($id) {
         // TODO: implement hook
-        return $this->storage->dropPaste($id);
+        return $this->storage->deletePaste($id);
     }
 
     // TODO: decribe

@@ -75,7 +75,7 @@ if (!$stop) {
 }
 
 if (!$stop) {
-    $bin->insertPaste(array('Author'   => 'System',
+    $bin->createPaste(array('Author'   => 'System',
                             'IP'       => $_SERVER['REMOTE_ADDR'],
                             'Lifespan' => (int) time() + 1800,
                             'Protect'  => 0,
