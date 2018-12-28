@@ -77,7 +77,7 @@ if (!$stop) {
 if (!$stop) {
     $bin->insertPaste(array('Author'   => 'System',
                             'IP'       => $_SERVER['REMOTE_ADDR'],
-                            'Lifespan' => 1800,
+                            'Lifespan' => (int) time() + 1800,
                             'Protect'  => 0,
                             'Parent'   => NULL,
                             'Content'  => (string) $SPB_CONFIG['line_highlight'] . t("Congratulations, your Pastebin has now been installed!\nThis message will expire in 30 minutes!")));
