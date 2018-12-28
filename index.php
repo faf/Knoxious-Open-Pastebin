@@ -23,6 +23,7 @@ $page->setFields(array('contentTemplate'   => 'main.php',
                                                 . ' &raquo; ' . ($request['id'] ? $request['id'] : t('Welcome!')),
                        'tagline'           => $SPB_CONFIG['tagline'],
                        'confirmUrl'        => NULL,
+                       'showTitle'         => TRUE,
                        'showForms'         => TRUE,
                        'showRecent'        => FALSE,
                        'showAdminForm'     => TRUE,
@@ -82,12 +83,10 @@ if (!$bin->ready()) {
     if ($post = $bin->readPost($request['id'])) {
 
         $page->setFields(array('showPost' =>  TRUE,
-                               'postID'   => $request['id']));
+                               'postID'   => $request['id'],
+                               'postSize' => $translator->humanReadableFileSize(mb_strlen($post['Data']))));
 
-        $post['Data'] = array('Orig' => $post['Data']);
-        $post['Data']['Dirty'] = htmlspecialchars(stripslashes($post['Data']['Orig']));
-
-        $page->setField('postSize', $translator->humanReadableFileSize(mb_strlen($post['Data']['Orig'])));
+        $post['Data'] = htmlspecialchars(stripslashes($post['Data']));
 
         if ($post['Lifespan'] == 0) {
             $post['Lifespan'] = time() + time();
@@ -118,7 +117,7 @@ if (!$bin->ready()) {
         $page->setFields(array('postUrl' => $bin->makeLink($post['ID']),
                                'rawLink' => $bin->makeLink($post['ID'] . '@raw')));
 
-        $lines = explode("\n", $post['Data']['Dirty']);
+        $lines = explode("\n", $post['Data']);
         foreach ($lines as &$line) {
             $line = str_replace("\r", '&nbsp;', $line);
         }
@@ -133,7 +132,7 @@ if (!$bin->ready()) {
             $page->setFields(array('showPostForm'   => TRUE,
                                    'editionMode'    => TRUE,
                                    'postProtection' => $post['Protection'],
-                                   'postPost'       => $post['Data']['Dirty']));
+                                   'postPost'       => $post['Data']));
         }
 
     } else {
@@ -160,9 +159,9 @@ if ($post_values['adminAction'] === 'delete' && $bin->checkPassword($post_values
 if ($SPB_CONFIG['recent_posts'] && substr($request['id'], - 1) != '!') {
     $recentPosts = $bin->getRecentPosts();
     if (count($recentPosts) > 0) {
-        foreach ($recentPosts as &$post) {
-            $post['postUrl'] = $bin->makeLink($post['ID']);
-            $post['Datetime'] = $translator->humanReadableRelativeTime($post['Datetime']);
+        foreach ($recentPosts as &$p) {
+            $p['postUrl'] = $bin->makeLink($p['ID']);
+            $p['Datetime'] = $translator->humanReadableRelativeTime($p['Datetime']);
         }
         $page->setFields(array('showRecent'  => TRUE,
                                'recentPosts' => $recentPosts));
@@ -180,8 +179,9 @@ if ($post_values['submit']) {
         || (!in_array($post_values['token'], $acceptTokens))
         || (is_array($SPB_CONFIG['lifespan'])
             && !array_key_exists($post_values['lifespan'], $SPB_CONFIG['lifespan']))) {
-        $error[] = t('Spambot detected!');
-        $page->setField('showForms', FALSE);
+        $errors[] = t('Spambot detected!');
+        $page->setFields(array('showForms' => FALSE,
+                               'showTitle' => FALSE));
     } else {
         $post = array('Author'  => $bin->getSafeAuthorName($post_values['author']),
                       'IP'      => $_SERVER['REMOTE_ADDR'],
@@ -201,7 +201,8 @@ if ($post_values['submit']) {
         } elseif (strlen($post_values['postEnter']) > MIN_POST_LENGTH && mb_strlen($post['Content']) <= $SPB_CONFIG['max_bytes'] && ($post['ID'] = $bin->createPost($post))) {
             $info[] = t('Your data has been successfully recorded!');
             $page->setFields(array('confirmUrl' => $bin->makeLink($post['ID']),
-                                   'showForms'  =>  FALSE,
+                                   'showForms'  => FALSE,
+                                   'showTitle'  => FALSE,
                                    'showPost'   => FALSE));
         } else {
             $errors[] = t('Something went wrong.');
