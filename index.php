@@ -12,6 +12,8 @@
 define('ISINCLUDED', 1);
 require_once('init.php');
 
+//TODO: add comments
+
 $errors = array();
 $warnings = array();
 $info = array();
@@ -183,30 +185,43 @@ if ($post_values['submit']) {
         $page->setFields(array('showForms' => FALSE,
                                'showTitle' => FALSE));
     } else {
-        $post = array('Author'  => $bin->getSafeAuthorName($post_values['author']),
-                      'IP'      => $_SERVER['REMOTE_ADDR'],
-                      'Protect' => $post_values['privacy'],
-                      'Parent'  => $request['id'],
-                      'Content' => $post_values['postEnter']
+        $post = array('Author'     => $bin->getSafeAuthorName($post_values['author']),
+                      'IP'         => $_SERVER['REMOTE_ADDR'],
+                      'Protection' => $post_values['privacy'],
+                      'Parent'     => $request['id'],
+                      'Content'    => $post_values['postEnter']
         );
-
-        if (!is_array($SPB_CONFIG['lifespan']) || ($SPB_CONFIG['lifespan'][$post_values['lifespan']] === 0.0)) {
-            $post['Lifespan'] = 0;
-        } else {
-            $post['Lifespan'] = time() + ($SPB_CONFIG['lifespan'][$post_values['lifespan']] * SECS_DAY);
+        // Check parent's existence and privacy setting
+        $check = TRUE;
+        if ($request['id']) {
+            $parent = $bin->readPost($request['id']);
+            if (!$parent) {
+                $errors[] = t('Unable to create derivative post for the absent one!');
+                $check = FALSE;
+            } elseif ($parent['Protection'] && !$post_values['privacy']) {
+                $errors[] = t('Unable to create public derivative post for the private one!');
+                $check = FALSE;
+            }
         }
+        if ($check) {
+            if (!is_array($SPB_CONFIG['lifespan']) || ($SPB_CONFIG['lifespan'][$post_values['lifespan']] === 0.0)) {
+                $post['Lifespan'] = 0;
+            } else {
+                $post['Lifespan'] = time() + ($SPB_CONFIG['lifespan'][$post_values['lifespan']] * SECS_DAY);
+            }
 
-        if ($post_values['postEnter'] == $post_values['originalPost'] && strlen($post_values['postEnter']) > MIN_POST_LENGTH) {
-            $errors[] = t('Please don\'t just repost what has already been posted!');
-        } elseif (strlen($post_values['postEnter']) > MIN_POST_LENGTH && mb_strlen($post['Content']) <= $SPB_CONFIG['max_bytes'] && ($post['ID'] = $bin->createPost($post))) {
-            $info[] = t('Your data has been successfully recorded!');
-            $page->setFields(array('confirmUrl' => $bin->makeLink($post['ID']),
-                                   'showForms'  => FALSE,
-                                   'showTitle'  => FALSE,
-                                   'showPost'   => FALSE));
-        } else {
-            $errors[] = t('Something went wrong.');
-            $warnings[] = t('The size of data must be between %d bytes and %s', array(MIN_POST_LENGTH, $translator->humanReadableFileSize($SPB_CONFIG['max_bytes'])));
+            if ($post_values['postEnter'] == $post_values['originalPost'] && strlen($post_values['postEnter']) > MIN_POST_LENGTH) {
+                $errors[] = t('Please don\'t just repost what has already been posted!');
+            } elseif (strlen($post_values['postEnter']) > MIN_POST_LENGTH && mb_strlen($post['Content']) <= $SPB_CONFIG['max_bytes'] && ($post['ID'] = $bin->createPost($post))) {
+                $info[] = t('Your data has been successfully recorded!');
+                $page->setFields(array('confirmUrl' => $bin->makeLink($post['ID']),
+                                       'showForms'  => FALSE,
+                                       'showTitle'  => FALSE,
+                                       'showPost'   => FALSE));
+            } else {
+                $errors[] = t('Something went wrong.');
+                $warnings[] = t('The size of data must be between %d bytes and %s', array(MIN_POST_LENGTH, $translator->humanReadableFileSize($SPB_CONFIG['max_bytes'])));
+            }
         }
     }
 }

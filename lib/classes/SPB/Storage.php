@@ -235,7 +235,7 @@ class Storage
         $post = array( 'ID'         => $id,
                         'Datetime'   => time(),
                         'Author'     => $data['Author'],
-                        'Protection' => $data['Protect'],
+                        'Protection' => $data['Protection'],
                         'Parent'     => $data['Parent'],
                         'Lifespan'   => $data['Lifespan'],
                         'IP'         => base64_encode($data['IP']),
