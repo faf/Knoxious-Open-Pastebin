@@ -1,0 +1,231 @@
+/*
+ * This file is a part of Simpliest Pastebin.
+ *
+ * Copyright 2009-2018 the original author or authors.
+ *
+ * Licensed under the terms of the MIT License.
+ * See the MIT for details (https://opensource.org/licenses/MIT).
+ *
+ */
+
+body, input, select, option {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1em;
+}
+
+h2 {
+    font-size: 1.3em;
+}
+
+a {
+    color: #336699;
+}
+
+pre {
+    display: inline;
+    font-family: inherit;
+}
+
+.success {
+    background-color: #aaffaa;
+    border: 1px solid #00CC00;
+    font-weight: bolder;
+    text-align: center;
+    padding: 2px;
+    color: #000000;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.warn {
+    background-color: #ffffaa;
+    border: 1px solid #cccc00;
+    font-weight: bolder;
+    text-align: center;
+    padding: 2px;
+    color: #000000;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.error {
+    background-color: #ffaaaa;
+    border: 1px solid #cc0000;
+    font-weight: bolder;
+    text-align: center;
+    padding: 2px;
+    color: #000000;
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+.confirmUrl {
+    border-bottom: 1px solid #cccccc;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+.plainText {
+    font-family: Arial, Helvetica, sans-serif;
+    border: none;
+    list-style-type: none;
+    margin-bottom: 25px;
+}
+
+.monoText {
+    font-family: "Courier New", Courier, mono;
+    list-style-type: decimal;
+}
+
+.infoMessage {
+    padding: 25px;
+    font-size: 1.1em;
+}
+
+.lineHighlight {
+    background-color: #ffffaa;
+    font-weight: bolder;
+    color: #000000;
+}
+
+.postEnterLabel {
+    display: block;
+}
+
+#lineNumbers {
+    background-color: #ffffff;
+    overflow: auto;
+    padding: 0;
+    margin: 0;
+}
+
+div#siteWrapper {
+    width: 100%;
+    margin: 0 auto;
+}
+
+div#pastebin {
+    width: 82%;
+    float: left;
+    position: relative;
+    padding-left: 1%;
+    border-left: 1px dotted #cccccc;
+}
+
+#postEnter {
+    width: 100%;
+    height: 250px;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+}
+
+ul#postList {
+    padding: 0;
+    margin-left: 0;
+    list-style-type: none;
+    margin-bottom: 50px;
+}
+
+#tagline {
+    margin-bottom: 10px;
+}
+
+#serviceList li {
+    margin-top: 7px;
+    margin-bottom: 7px;
+    list-style: square;
+}
+
+#authorContainer {
+    clear: both;
+    width: 100%;
+    float: left;
+    margin-bottom: 2em;
+}
+
+#lifespanContainer>select, #authorContainer>input {
+    float: left;
+}
+
+#submitContainer {
+    width: 100%;
+    display: block;
+    clear: both;
+}
+
+#lifespanContainer {
+    padding-top: 1em;
+    padding-bottom: 2.5em;
+}
+
+#authorContainer>label, #lifespanContainer>label {
+    display: block;
+    float: left;
+    margin-right: 1em;
+    min-width: 90px;
+}
+
+#retrievedPost {
+    width: 100%;
+    position: relative;
+    padding: 0;
+    margin: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #cccccc;
+}
+
+@media print {
+    body {
+        background: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10pt;
+    }
+
+    pre {
+        white-space: pre-wrap;
+        display: inline;
+    }
+
+    li {
+        padding: 0px;
+        margin: 0px;
+    }
+
+    a {
+        color: #336699;
+    }
+
+    #siteWrapper {
+        width: auto;
+    }
+
+    #retrievedPost {
+        border: none;
+    }
+
+    #lineNumbers {
+        max-height: none;
+        width: auto;
+    }
+
+    #pasteBin {
+        width: auto;
+        border: none;
+    }
+
+    #formContainer {
+        display: none;
+    }
+
+    #styleBar {
+        display: none;
+    }
+
+    .lineHighlight {
+        background-color: #ffffaa;
+        font-weight: bolder;
+        color: #000000;
+    }
+}
