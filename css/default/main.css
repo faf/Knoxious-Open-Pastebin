@@ -1,7 +1,7 @@
 /*
  * This file is a part of Simpliest Pastebin.
  *
- * Copyright 2009-2011 the original author or authors.
+ * Copyright 2009-2018 the original author or authors.
  *
  * Licensed under the terms of the MIT License.
  * See the MIT for details (https://opensource.org/licenses/MIT).
@@ -20,10 +20,6 @@ h2 {
 
 a {
     color: #336699;
-}
-
-img {
-    border: none;
 }
 
 pre {
@@ -68,10 +64,6 @@ pre {
     border-bottom: 1px solid #cccccc;
     text-align: center;
     font-size: medium;
-}
-
-.alternate {
-    background-color: #f3f3f3;
 }
 
 .plainText {
@@ -194,14 +186,6 @@ ul#postList {
     width: 100%;
 }
 
-#emphasizedUrl {
-    font-size: x-large;
-    width: 100%;
-    overflow: auto;
-    font-style: italic;
-    padding: 5px;
-}
-
 #showAdminFunctions {
     font-size: xx-small;
     font-weight: bold;
@@ -317,11 +301,6 @@ ul#postList {
         color: #336699;
     }
 
-    img {
-        width: auto;
-        max-width: 100%;
-    }
-
     #siteWrapper {
         width: auto;
     }
@@ -354,10 +333,6 @@ ul#postList {
 
     .spacer {
         display: none;
-    }
-
-    .alternate {
-        background-color: #f3f3f3;
     }
 
     .lineHighlight {
