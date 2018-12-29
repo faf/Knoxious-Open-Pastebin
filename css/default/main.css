@@ -90,15 +90,6 @@ pre {
     color: #000000;
 }
 
-.resizehandle {
-    background: #f0f0f0 scroll 45%;
-    cursor: s-resize;
-    text-align: center;
-    color: #aaaaaa;
-    height: 16px;
-    width: 100%;
-}
-
 .postEnterLabel {
     width: 80%;
     display: block;
@@ -214,11 +205,6 @@ ul#postList {
 #authorContainer {
     width: 48%;
     float: left;
-    margin-bottom: 10px;
-}
-
-#authorContainerReply {
-    padding-right: 52%;
     margin-bottom: 10px;
 }
 
