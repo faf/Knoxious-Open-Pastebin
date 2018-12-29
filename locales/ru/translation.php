@@ -33,7 +33,6 @@ $translation = array(
     'If you want to put a message up asking if the user wants to continue, add an "!" suffix to your URL.' => 'Если Вы хотите спросить пользователя, желает ли он продолжить, добавьте "!" к Вашему URL.',
     'If you wish to view the data' => 'Если Вы хотите увидеть данные',
     'Installing Pastebin' => 'Устанавливаю Pastebin',
-    'It is recommended to adjust directory permissions' => 'Рекомендуется скорректировать права на директорию',
     'Just a sec!' => 'Минуточку!',
     'Just paste your text, sourcecode or log into the textarea below, add a name if you wish then submit the data.' => 'Просто вставьте Ваш текст, исходный код или лог в расположенное ниже текстовое поле, по желанию добавьте имя, а затем отправьте данные.',
     'Line highlighting' => 'Подсветка строк',

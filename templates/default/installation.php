@@ -31,7 +31,6 @@ if ($page->getField('installed')) { ?>
                     <a href="<?php echo $page->getField('baseUrl'); ?>"><?php echo t('Go to main page of installed Pastebin!'); ?></a>
                     <br/>
                 </div>
-                <div id="confirmInstalled" class="warn"><?php echo t('It is recommended to adjust directory permissions'); ?></div>
 <?php } ?>
             </div>
 <!-- End of installation block -->
