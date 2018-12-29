@@ -1,13 +1,14 @@
 /*
  * This file is a part of Simpliest Pastebin.
  *
- * Copyright 2009-2011 the original author or authors.
+ * Copyright 2009-2018 the original author or authors.
  *
  * Licensed under the terms of the MIT License.
  * See the MIT for details (https://opensource.org/licenses/MIT).
  *
  */
 
+// TODO: comment this
 var tab = '    ';
 
 function catchTab(evt) {
@@ -50,7 +51,7 @@ function catchTab(evt) {
     }
 }
 
-function toggleAdminTools(hideMe) {
+function toggleAdminTools() {
     if (document.getElementById('hiddenAdmin').style.display == 'block') {
         document.getElementById('hiddenAdmin').style.display = 'none';
     } else {
@@ -65,11 +66,6 @@ function toggleInstructions() {
     } else {
         document.getElementById('instructions').style.display = 'block';
     }
-    return false;
-}
-
-function hideInstructions() {
-    document.getElementById('instructions').style.display = 'none';
     return false;
 }
 
