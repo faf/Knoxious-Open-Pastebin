@@ -101,10 +101,10 @@ function toggleStyle(){
     return false;
 }
 
-function submitPost(targetButton) {
+function submitPost(targetButton, message) {
     var disabledButton = document.createElement('input');
     var parentContainer = document.getElementById('submitContainer');
-    disabledButton.setAttribute('value', 'Posting...');
+    disabledButton.setAttribute('value', message);
     disabledButton.setAttribute('type', 'button');
     disabledButton.setAttribute('disabled', 'disabled');
     disabledButton.setAttribute('id', 'dummyButton');

@@ -103,7 +103,7 @@ if ($page->getField('privacy')) { ?>
                                 <div class="spacer">&nbsp;</div>
                                 <input type="text" name="email" id="poison" style="display: none;" value=""/>
                                 <div id="submitContainer" class="submitContainer">
-                                    <input type="submit" name="submit" value="<?php echo t('Submit'); ?>" onclick="return submitPost(this);" id="submitButton"/>
+                                    <input type="submit" name="submit" value="<?php echo t('Submit'); ?>" onclick="return submitPost(this, '<?php echo t('Posting...'); ?>');" id="submitButton"/>
                                 </div>
 <?php if ($page->getField('editionMode')) { ?>
                                 <input type="hidden" name="originalPost" id="originalPost" value="<?php echo $page->getField('postPost'); ?>"/>
