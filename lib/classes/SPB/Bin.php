@@ -30,20 +30,53 @@ class Bin
 
     // TODO: refactor, describe
     public function createPost($data) {
-        // TODO: implement hook
-        return $this->storage->createPost($data);
+        if (is_array($this->config['hooks'])
+            && array_key_exists('create_before', $this->config['hooks'])) {
+            system($this->config['hooks']['create_before'] . ' --data=' . escapeshellarg(serialize($data)), $result);
+        }
+        if ($result) {
+            return FALSE;
+        }
+        $result = $this->storage->createPost($data);
+        if ($result && is_array($this->config['hooks'])
+            && array_key_exists('create_after', $this->config['hooks'])) {
+            system($this->config['hooks']['create_after'] . ' --id=' . escapeshellarg($result));
+        }
+        return $result;
     }
 
     // TODO: describe
     public function readPost($id) {
-        // TODO: implement hook
-        return $this->storage->readPost($id);
+        if (is_array($this->config['hooks'])
+            && array_key_exists('read_before', $this->config['hooks'])) {
+            system($this->config['hooks']['read_before'] . ' --id=' . escapeshellarg($id), $result);
+        }
+        if ($result) {
+            return FALSE;
+        }
+        $result = $this->storage->readPost($id);
+        if ($result && is_array($this->config['hooks'])
+            && array_key_exists('read_after', $this->config['hooks'])) {
+            system($this->config['hooks']['read_after'] . ' --data=' . escapeshellarg(serialize($result)));
+        }
+        return $result;
     }
 
     // TODO: describe
     public function deletePost($id) {
-        // TODO: implement hook
-        return $this->storage->deletePost($id);
+        if (is_array($this->config['hooks'])
+            && array_key_exists('delete_before', $this->config['hooks'])) {
+            system($this->config['hooks']['delete_before'] . ' --id=' . escapeshellarg($id), $result);
+        }
+        if ($result) {
+            return FALSE;
+        }
+        $result = $this->storage->deletePost($id);
+        if ($result && is_array($this->config['hooks'])
+            && array_key_exists('delete_after', $this->config['hooks'])) {
+            system($this->config['hooks']['delete_after'] . ' --id=' . escapeshellarg($id));
+        }
+        return $result;
     }
 
     // TODO: decribe

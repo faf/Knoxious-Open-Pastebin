@@ -80,6 +80,10 @@ if (!in_array('theme', $SPB_CONFIG) || !is_dir('templates/' . $SPB_CONFIG['theme
     $SPB_CONFIG['theme'] = 'default';
 }
 
+if (in_array('hooks', $SPB_CONFIG) && !is_array($SPB_CONFIG['hooks'])) {
+    $SPB_CONFIG['hooks'] = FALSE;
+}
+
 // Set timezone
 date_default_timezone_set($SPB_CONFIG['timezone'] ? $SPB_CONFIG['timezone'] : 'UTC');
 

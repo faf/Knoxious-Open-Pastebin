@@ -131,4 +131,16 @@ $SPB_CONFIG = array(
 
 // Timezone (default: UTC)
     'timezone' => 'UTC',
+
+// Hooks
+    'hooks' => FALSE,
+#    'hooks' => array(
+#        'read_before'   => '/bin/true',
+#        'read_after'    => '/bin/true',
+#        'create_before' => '/bin/true',
+#        'create_after'  => '/bin/true',
+#        'delete_before' => '/bin/true',
+#        'delete_after'  => '/bin/true',
+#    ),
+
 );

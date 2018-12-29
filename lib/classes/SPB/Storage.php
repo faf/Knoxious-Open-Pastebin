@@ -233,13 +233,13 @@ class Storage
     {
         $id = $this->newID();
         $post = array( 'ID'         => $id,
-                        'Datetime'   => time(),
-                        'Author'     => $data['Author'],
-                        'Protection' => $data['Protection'],
-                        'Parent'     => $data['Parent'],
-                        'Lifespan'   => $data['Lifespan'],
-                        'IP'         => base64_encode($data['IP']),
-                        'Data'       => addslashes($data['Content'])
+                       'Datetime'   => time(),
+                       'Author'     => $data['Author'],
+                       'Protection' => $data['Protection'],
+                       'Parent'     => $data['Parent'],
+                       'Lifespan'   => $data['Lifespan'],
+                       'IP'         => base64_encode($data['IP']),
+                       'Data'       => addslashes($data['Content'])
         );
         $index = $this->getIndex();
         $index[] = $id;

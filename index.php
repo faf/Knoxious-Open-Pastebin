@@ -212,7 +212,10 @@ if ($post_values['submit']) {
 
             if ($post_values['postEnter'] == $post_values['originalPost'] && strlen($post_values['postEnter']) > MIN_POST_LENGTH) {
                 $errors[] = t('Please don\'t just repost what has already been posted!');
-            } elseif (strlen($post_values['postEnter']) > MIN_POST_LENGTH && mb_strlen($post['Content']) <= $SPB_CONFIG['max_bytes'] && ($post['ID'] = $bin->createPost($post))) {
+            } elseif ((strlen($post_values['postEnter']) < MIN_POST_LENGTH) || (mb_strlen($post['Content']) > $SPB_CONFIG['max_bytes'])) {
+                $errors[] = t('Something went wrong.');
+                $warnings[] = t('The size of data must be between %d bytes and %s', array(MIN_POST_LENGTH, $translator->humanReadableFileSize($SPB_CONFIG['max_bytes'])));
+            } elseif ($post['ID'] = $bin->createPost($post)) {
                 $info[] = t('Your data has been successfully recorded!');
                 $page->setFields(array('confirmUrl' => $bin->makeLink($post['ID']),
                                        'showForms'  => FALSE,
@@ -220,7 +223,6 @@ if ($post_values['submit']) {
                                        'showPost'   => FALSE));
             } else {
                 $errors[] = t('Something went wrong.');
-                $warnings[] = t('The size of data must be between %d bytes and %s', array(MIN_POST_LENGTH, $translator->humanReadableFileSize($SPB_CONFIG['max_bytes'])));
             }
         }
     }
