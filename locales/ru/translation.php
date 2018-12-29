@@ -50,6 +50,7 @@ $translation = array(
     'Please note that the owner of this Pastebin is not responsible for posted data.' => 'Пожалуйста, обратите внимание, что владелец этого Pastebin не несёт ответственности за размещённые данные.',
     'Post text' => 'Публикация текста',
     'Posted by:' => 'Опубликовано:',
+    'Posting...' => 'Публикую...',
     'Private' => 'Личное',
     'Public' => 'Общедоступное',
     'Quick password check.' => 'Быстрая проверка пароля.',
