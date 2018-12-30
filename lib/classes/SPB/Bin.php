@@ -133,6 +133,15 @@ class Bin
     }
 
     // TODO: describe
+    public function clean()
+    {
+        $index = $this->storage->getIndex();
+        foreach ($index as $id) {
+            $this->storage->readPost($id);
+        }
+    }
+
+    // TODO: describe
     public function makeLink($id = FALSE)
     {
         $basepath = $this->config['protocol'] . '://' . $_SERVER['SERVER_NAME'];
