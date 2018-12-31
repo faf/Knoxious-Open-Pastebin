@@ -9,33 +9,37 @@
  *
  */
 
+// Make possible to include parts of code
 define('ISINCLUDED', 1);
+// Initialize Simpliest Pastebin
 require_once('init.php');
 
-$page->setField('contentTemplate', 'installation.php');
-$page->setField('title', t('Installing Pastebin'));
-$page->setField('installed', FALSE);
+// Define initial values for page fields
+$page->setFields(array('contentTemplate' => 'installation.php',
+                       'title'           => t('Installing Pastebin'),
+                       'installed'       => FALSE));
 
 $stop = FALSE;
 $installList = array();
-if (!$stop) {
-    $step = array( 'step'    => t('Quick password check.'),
-                   'success' => FALSE,
-                   'result'  => '' );
 
-    if (!isset($SPB_CONFIG['password'])
-        || $bin->checkPassword('password')) {
+// Check password value
+$step = array( 'step'    => t('Quick password check.'),
+               'success' => FALSE,
+               'result'  => '' );
 
-        $step['result'] = t('Password is still default!');
-        $stop = TRUE;
+if (!isset($SPB_CONFIG['password'])
+    || $bin->checkPassword('password')) {
 
-    } else {
-        $step['result'] = t('Password is not default!');
-        $step['success'] = TRUE;
-    }
-    $installList[] = $step;
+    $step['result'] = t('Password is still default!');
+    $stop = TRUE;
+
+} else {
+    $step['result'] = t('Password is not default!');
+    $step['success'] = TRUE;
 }
+$installList[] = $step;
 
+// Check salts values
 if (!$stop) {
     $step = array( 'step'    => t('Quick salts check.'),
                    'success' => FALSE,
@@ -58,6 +62,7 @@ if (!$stop) {
     $installList[] = $step;
 }
 
+// Check data storage
 if (!$stop) {
     $step = array( 'step'    => t('Checking data storage connection.'),
                    'success' => FALSE,
@@ -74,6 +79,7 @@ if (!$stop) {
 }
 
 if (!$stop) {
+    // Everything seems fine, try to create the first (service) post
     $bin->createPost(array('Author'      => 'System',
                            'IP'          => $_SERVER['REMOTE_ADDR'],
                            'Lifespan'    => (int) time() + 1800,
@@ -83,6 +89,7 @@ if (!$stop) {
     $page->setField('installed', TRUE);
 }
 
+// Store installation result as a field value
 $page->setField('installList', $installList);
 
 // Primitive template

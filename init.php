@@ -13,14 +13,20 @@
 define('MAX_HIGHLIGHT_MARKER_LENGTH', 6);
 // Maximum length of post ID
 define('MAX_ID_LENGTH', 64);
+// Minimal length of a post
 define('MIN_POST_LENGTH', 10);
+// Seconds in a second
 define('SECS_SECOND', 1);
+// Seconds in a minute
 define('SECS_MINUTE', 60);
+// Seconds in an hour
 define('SECS_HOUR', 60 * 60);
+// Seconds in a day
 define('SECS_DAY', 24 * 60 * 60);
+// Seconds in a week
 define('SECS_WEEK', 7 * 24 * 60 * 60);
+// Seconds in a year
 define('SECS_YEAR', 365 * 24 * 60 * 60);
-
 
 // Prevent this code from direct access
 if (ISINCLUDED != '1') {
@@ -34,17 +40,19 @@ if (!include_once('config.php')) {
     die('Configuration not found!');
 }
 
-// TODO: Set default values in case of broken or missed configuration
+// Define initial length of post ID
 if (!in_array('id_length', $SPB_CONFIG) || !is_int($SPB_CONFIG['id_length'])) {
     $SPB_CONFIG['id_length'] = 1;
 } elseif ($SPB_CONFIG['id_length'] > MAX_ID_LENGTH) {
     $SPB_CONFIG['id_length'] = MAX_ID_LENGTH;
 }
 
+// Define maximum depth of subdirectories to store the data
 $SPB_CONFIG['max_folder_depth'] = in_array('max_folder_depth', $SPB_CONFIG)
                                   ? (int) $SPB_CONFIG['max_folder_depth'] || 1
                                   : 1;
 
+// Define possible post lifespan values
 if (is_array($SPB_CONFIG['lifespan'])) {
     // Convert all lifespan values to float
     array_walk($SPB_CONFIG['lifespan'], function(&$val, $name) { $val = (float) $val; } );
@@ -80,6 +88,7 @@ if (!in_array('theme', $SPB_CONFIG) || !is_dir('templates/' . $SPB_CONFIG['theme
     $SPB_CONFIG['theme'] = 'default';
 }
 
+// Define system-based hooks
 if (in_array('hooks', $SPB_CONFIG) && !is_array($SPB_CONFIG['hooks'])) {
     $SPB_CONFIG['hooks'] = FALSE;
 }

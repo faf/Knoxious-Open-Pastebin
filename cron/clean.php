@@ -27,5 +27,5 @@ spl_autoload_register(
 
 // Setup main SPB object
 $bin = new \SPB\Bin($SPB_CONFIG);
-// Read (and therefore remove overdue) all posts
+// Read (and therefore remove expired) all posts
 $bin->clean();

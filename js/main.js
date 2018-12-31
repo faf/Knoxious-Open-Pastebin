@@ -8,7 +8,6 @@
  *
  */
 
-// TODO: comment this
 var tab = '    ';
 
 function catchTab(evt) {

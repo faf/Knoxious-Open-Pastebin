@@ -30,7 +30,7 @@ class Translator
     /**
      * Constructor
      *
-     * @param string Locale to use
+     * @param string $locale Locale to use
      **/
     public function __construct($locale)
     {
@@ -50,7 +50,8 @@ class Translator
             // Locale not specified or invalid, set default locale
             $locale = 'en';
         }
-        // Initialize the object with locale and translated strings
+        // Initialize the object with locale, translated strings
+        // and localization functions
         $this->locale = $locale;
         $this->strings = $translation;
         $this->functions = $translation_functions;
@@ -71,10 +72,15 @@ class Translator
             $string = $this->strings[$string];
         }
         // Populate the string with the data
-        return $this->populate_string($string, $values);
+        return $this->populateString($string, $values);
     }
 
-    // TODO: describe
+    /**
+     * Transform a number of bytes into human readable representation
+     *
+     * @param integer $size Number of bytes to transform
+     * @return string Human readable representation of size
+     */
     public function humanReadableFileSize($size)
     {
         // Based upon snippet from http://www.jonasjohn.de/snippets/php/readable-filesize.htm
@@ -86,17 +92,31 @@ class Translator
         return round($size, 2) . ' ' . $units[$i];
     }
 
-    // TODO: describe
+    /**
+     * Transform a UNIX timestamp into human readable representation of time
+     * passed since that timestamp. The representation comes in two parts
+     * (eg. years and weeks, or minutes and seconds), with one part only if
+     * passed time is less than one minute.
+     *
+     * @param integer $time Timestamp
+     * @param boolean $singleLevel Flag to tell the function that one doesn't
+     *    need to recursively call this function on timestamp remainder.
+     *    This argument is optional and is used only for recursion.
+     * @return string Human readable representation of size
+     */
     public function humanReadableRelativeTime($time, $singleLevel = FALSE)
     {
+        // Setup contexts
         $context = array( array(SECS_YEAR, 'years'),
                           array(SECS_WEEK, 'weeks'),
                           array(SECS_DAY, 'days'),
                           array(SECS_HOUR, 'hours'),
                           array(SECS_MINUTE, 'minutes'),
                           array(SECS_SECOND, 'seconds') );
+        // Compute time difference between the given timestamp and actual time
         $now = gmdate('U');
         $difference = $now - $time;
+        // Compute the context
         $seconds = 0;
         for ($i = 0, $n = count($context); $i < $n; $i ++) {
             $seconds = $context[$i][0];
@@ -105,7 +125,8 @@ class Translator
                 break;
             }
         }
-
+        // Transform context into human readable form using appropriate
+        // localization function
         $result = '';
         if ( array_key_exists('translate_time', $this->functions) &&
              is_callable($this->functions['translate_time']) ) {
@@ -114,11 +135,10 @@ class Translator
         else {
             $result = $count . ' ' . $name;
         }
-
+        // Make the same operation with timestamp remainder if need to
         if (!$singleLevel && ($seconds > 1)) {
             $result .= ' ' . $this->humanReadableRelativeTime($time + $count * $seconds, TRUE);
         }
-
         return $result;
     }
 
@@ -129,7 +149,7 @@ class Translator
      * @param array $values Data to populate the string with
      * @return string A string populated with data
      */
-    protected function populate_string($string, $values) {
+    private function populateString($string, $values) {
         return count($values) ? vsprintf($string, $values) : $string;
     }
 }

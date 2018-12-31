@@ -13,53 +13,46 @@ if (ISINCLUDED != '1') {
     die('ACCESS DENIED!');
 }
 
-/* Config, please read and edit very carefully. */
+// Config, please read and edit very carefully
 $SPB_CONFIG = array(
 
-// Name of the data storage directory
+// Path to data storage directory
     'storage' => 'data',
 
 // Maximum depth of folder structure
-// Example, 2 would be './data/a/b' for the post id 'abcde'
-// 3 would be './data/a/b/c' for the post id 'abcde'. Leave if you are unsure!
-// Note this will always default to be AT LEAST 1.
-// NEVER CHANGE THIS ONCE INSTALLED!!!
+// eg., 2 would be 'data/a/b' for the post id 'abcde',
+// 3 would be 'data/a/b/c' for the post id 'abcde'
     'max_folder_depth' => 1,
 
-// Pastebin title, FALSE value uses the default 'Pastebin on ' . $_SERVER['SERVER_NAME']
+// Pastebin title
+// use FALSE value for default title of 'Pastebin on ' . $_SERVER['SERVER_NAME']
     'title' => FALSE,
 #    'title' => 'Simpliest Pastebin',
 
-// Pastebin tagline (Message under the name/title), FALSE leaves this blank
+// Pastebin tagline (message under the name/title)
+// Use FALSE value to hide the tagline
     'tagline' => FALSE,
 #    'tagline' => 'Some very imporant message.',
 
 // Hashing algorithm, (Default: SHA256)
-// For a full list, consult the function hash_algos();
+// For a full list, consult the function hash_algos()
     'algo' => 'sha256',
 
-// Pastebin admin password, strong one is mucho recommended!
+// Pastebin admin password
 // If a plaintext password is acceptable then use the following
+// However, storing plaintext passwords is strongly unrecommended
     'password' => hash('sha256', 'password'),
-// Storing plaintext passwords is not recommended.
-// You should consider a hashed password using the algorithm chosen above
-// Example:
-//   echo hash('sha256', 'password') . "\n";
-// Then insert the output into the variable below and uncomment
-#    'password' => '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8',
 
-// Pastebin salts, 4 sequences of random letters and numbers!
-// Please make them at least 6 characters or more!
+// Pastebin salts, 4 sequences of random letters and numbers
+// Please make them at least 6 characters or more
     'salts' => array(
-
         'str001',
         'str002',
         'str003',
         'str004'
-
     ),
 
-// Apache/IIS Rewrite enabled? Needs to be like
+// Flag to tell Pastebin that Apache/IIS rewrite rules are enabled
 // https://example.com/id forwards to https://example.com/index.php?i=id or
 // https://example.com/dir/id forwards to https://example.com/dir/index.php?i=id
 // TRUE or FALSE
@@ -68,57 +61,61 @@ $SPB_CONFIG = array(
 // Enable GZip compression (zlib extension is needed)
     'gzip_content' => FALSE,
 
-// Starting ID length, when IDs have run out the script will automatically increment this
-// Number. Default is 16
+// Initial ID length, when IDs have run out Pastebin will automatically
+// increment this value
     'id_length' => 16,
 
-// Hexlike IDs (only uses numbers 0-9, letters a-f)
+// Hexlike IDs (Pastebin will only use [0-9a-f] for IDs)
     'hexlike_ids' => FALSE,
 
 // Layout theme
+// (templates for a theme should be placed in templates/<theme name>/)
     'theme' => 'default',
 
 // URL of the Pastebin stylesheet (one can use own)
     'stylesheet' => 'css/default/main.css',
 
-// Enable Line Highlighting
-// Looks for a 2-6 character long highlight string, FALSE for Disabled.
+// Enable line highlighting
+// Looks for a 2-6 character long highlight string,
+// use FALSE to disable this feature
     'line_highlight' => FALSE,
 //    'line_highlight' => '@@',
 
-// Date Format (see PHP.net's entry on date();)
+// Date format (see PHP documentation on date() function)
     'datetime_format' => 'Y-m-d H:i:s',
 
-// Auto cleanup of posts that have expired?
+// Auto cleanup of expired posts
     'autoclean' => FALSE,
 
-// Number of Recent posts to display, FALSE for none!
-// This number also controls the Autoclean.
+// Number of recent posts to display,
+// Use FALSE to not display posts at all
+// This number also controls the autoclean feature
     'recent_posts' => FALSE,
 #    'recent_posts' => 10,
 
-// Allow editing of posts? (TRUE or FALSE)
+// Allow creation of derivative posts (TRUE or FALSE)
     'editing' => FALSE,
 
-// Maximum post size in Bytes
+// Maximum post size in bytes
     'max_bytes' => 524288,
 
-// Default Author Name
+// Default author name
     'author' => 'Anonymous',
 
 // Store a cookie for the authors name? (FALSE or time in seconds)
-// eg. 3600 == 1 hour, 86400 == 1 day
+// eg., 3600 == 1 hour, 86400 == 1 day
     'author_cookie' => FALSE,
 #    'author_cookie' => 3600,
 
-// Post lifespan (age in days), array for multiple, FALSE for no expiry.
-// first commented out option is 1 week, 10 minutes, 1 hour, 1 day, 1 month, and 1 year.
+// Post lifespan (age in days), array for multiple, FALSE for no expiry
+// first commented out option is 1 week, 10 minutes, 1 hour, 1 day, 1 month, and 1 year
 // second commented out option is 1 week
     'lifespan' => FALSE,
 #    'lifespan' => array(7, 1/24/6, 1/24, 1/24, 1, 30, 365),
 #    'lifespan' => array(7),
 
-// Enables Private Posting (TRUE or FALSE)
+// Enables private posting (TRUE or FALSE)
+// Private posts are not shown in recent posts
     'private' => FALSE,
 
 // Localization (FALSE or valid locale name)
@@ -132,7 +129,7 @@ $SPB_CONFIG = array(
 // Timezone (default: UTC)
     'timezone' => 'UTC',
 
-// Hooks
+// System-based hooks for operations with posts
     'hooks' => FALSE,
 #    'hooks' => array(
 #        'read_before'   => '/bin/true',
@@ -142,5 +139,4 @@ $SPB_CONFIG = array(
 #        'delete_before' => '/bin/true',
 #        'delete_after'  => '/bin/true',
 #    ),
-
 );
