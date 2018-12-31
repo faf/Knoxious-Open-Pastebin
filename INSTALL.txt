@@ -1,10 +1,9 @@
 INSTALLATION
 ------------------------------------------------------------------------------
 
+1. Get the installation archive and unpack it to desired destination on your server
 1. Copy config.php.dist to config.php
 2. Change the $SPB_CONFIG array in config.php
-3. Upload config.php and index.php to your server
-5. (Temporary) Chmod the containing folder to 0777
-6. Visit http(s)://yoursite/path/to/pastebin/index.php
-7. Watch the installation result (and fix the errors if any)
-8. Chmod the folder to 0755.
+3. Visit http(s)://yoursite/path/to/pastebin/index.php
+4. Watch the installation result (and fix the errors if any)
+
