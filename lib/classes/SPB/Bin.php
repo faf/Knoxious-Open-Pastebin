@@ -102,6 +102,7 @@ class Bin
      * @return string Post ID (or FALSE in case of any error)
      **/
     public function createPost($data) {
+        $result = FALSE;
         // Execute system-based hook 'create_before' if needed
         if (is_array($this->config['hooks'])
             && array_key_exists('create_before', $this->config['hooks'])) {
@@ -128,6 +129,7 @@ class Bin
      * @return boolean Deletion result
      **/
     public function deletePost($id) {
+        $result = FALSE;
         // Execute system-based hook 'delete_before' if needed
         if (is_array($this->config['hooks'])
             && array_key_exists('delete_before', $this->config['hooks'])) {
@@ -275,6 +277,7 @@ class Bin
      * @return array Post data (or FALSE in case of any error)
      **/
     public function readPost($id) {
+        $result = FALSE;
         // Execute system-based hook 'read_before' if needed
         if (is_array($this->config['hooks'])
             && array_key_exists('read_before', $this->config['hooks'])) {
