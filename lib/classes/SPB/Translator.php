@@ -118,7 +118,7 @@ class Translator
         $difference = $now - $time;
         // Compute the context
         $seconds = 0;
-        for ($i = 0, $n = count($context); $i < $n; $i ++) {
+        for ($i = 0, $n = count($context); $i < $n; $i++) {
             $seconds = $context[$i][0];
             $name = $context[$i][1];
             if (($count = floor($difference / $seconds)) > 0) {
@@ -136,7 +136,7 @@ class Translator
             $result = $count . ' ' . $name;
         }
         // Make the same operation with timestamp remainder if need to
-        if (!$singleLevel && ($seconds > 1)) {
+        if (!$singleLevel && ($seconds > 1) && ($difference != $seconds)) {
             $result .= ' ' . $this->humanReadableRelativeTime($time + $count * $seconds, TRUE);
         }
         return $result;
