@@ -223,8 +223,10 @@ if ($post_values['submit']) {
             // Define post lifespan
             if (!is_array($SPB_CONFIG['lifespan']) || ($SPB_CONFIG['lifespan'][$post_values['lifespan']] === 0.0)) {
                 $post['Lifespan'] = 0;
+                $page->setField('postLifeString', t('Never'));
             } else {
                 $post['Lifespan'] = time() + ($SPB_CONFIG['lifespan'][$post_values['lifespan']] * SECS_DAY);
+                $page->setField('postLifeString', t('in %s', array($translator->humanReadableRelativeTime(time() - ($post['Lifespan'] - time())))));
             }
             // Trying to create derivative post, need to check whether it's unique
             if ($post_values['postEnter'] == $post_values['originalPost'] && strlen($post_values['postEnter']) > MIN_POST_LENGTH) {
