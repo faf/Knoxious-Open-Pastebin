@@ -16,6 +16,7 @@ $translation = array(
     "Congratulations, your Pastebin has now been installed!\nThis message will expire in 30 minutes!" => "Поздравляю, Ваш Pastebin установлен!\nСрок жизни этого сообщения истечёт через 30 минут!",
     'Connection established!' => 'Соединение установлено!',
     'Control:' => 'Управление:',
+    'Copy to clipboard:' => 'Скопировать в буфер обмена:',
     'Create' => 'Создать',
     'Data %s has been deleted!' => 'Данные %s были удалены!',
     'Data storage is unavailable - check config!' => 'Хранилище данных недоступно - проверьте конфигурацию!',
@@ -80,9 +81,12 @@ $translation = array(
     'You are about to access a data that the author has marked as requiring confirmation to view.' => 'Вы собираетесь получить доступ к данным, которые автор пометил как требующие подтверждения для просмотра.',
     'Your data has been successfully recorded!' => 'Ваши данные были успешно записаны!',
     'Your name' => 'Ваше имя',
+    'as text' => 'как текст',
+    'as HTML' => 'как HTML',
     'b Kb Mb' => 'байт Кб Мб',
     'click here' => 'кликните здесь',
     'in %s' => 'в течение %s',
+    'link only' => 'только ссылку',
     'more info' => 'подробнее',
 );
 

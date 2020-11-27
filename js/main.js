@@ -111,3 +111,29 @@ function submitPost(targetButton, message) {
     parentContainer.appendChild(disabledButton);
     return true;
 }
+
+function copyAsText(el) {
+    var copy = document.createElement('textarea');
+    copy.value = document.getElementById(el).innerText || document.getElementById(el).textContent;
+    return copyValue(copy);
+}
+
+function copyAsHTML(el) {
+    var copy = document.createElement('input');
+    copy.setAttribute('value', document.getElementById(el).innerHTML);
+    return copyValue(copy);
+}
+
+function copyLink(wrap) {
+    var copy = document.createElement('input');
+    copy.setAttribute('value', document.getElementById(wrap).children[0].getAttribute('href'));
+    return copyValue(copy);
+}
+
+function copyValue(el) {
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    return false;
+}

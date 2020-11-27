@@ -19,7 +19,13 @@ include('messages.php');
 
 // Show link to a posted data
 if ($page->getField('confirmUrl')) { ?>
-            <div class="confirmUrl"><?php echo t('URL to your data is'); ?> <a href="<?php echo $page->getField('confirmUrl'); ?>"><?php echo $page->getField('confirmUrl'); ?></a></div>
+            <div id="confirmUrl" class="confirmUrl"><?php echo t('URL to your data is'); ?> <a href="<?php echo $page->getField('confirmUrl'); ?>"><?php echo $page->getField('confirmUrl'); ?></a></div>
+            <div id="copyBar">
+                <strong><?php echo t('Copy to clipboard:'); ?></strong>
+                <a href="#" onclick="javascript: return copyAsText('confirmUrl');"><?php echo t('as text'); ?></a>
+                <a href="#" onclick="javascript: return copyAsHTML('confirmUrl');"><?php echo t('as HTML'); ?></a>
+                <a href="#" onclick="javascript: return copyLink('confirmUrl');"><?php echo t('link only'); ?></a>
+            </div>
 <?php
 }
 

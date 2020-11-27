@@ -249,7 +249,7 @@ ul#postList {
     display: block;
 }
 
-#styleBar {
+#styleBar, #copyBar {
     text-align: left;
     position: relative;
     float: left;
@@ -313,7 +313,7 @@ ul#postList {
         display: none;
     }
 
-    #styleBar {
+    #styleBar, #copyBar {
         display: none;
     }
 
