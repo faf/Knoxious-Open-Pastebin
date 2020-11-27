@@ -126,7 +126,7 @@ function copyAsHTML(el) {
 
 function copyLink(wrap) {
     var copy = document.createElement('input');
-    copy.setAttribute('value', document.getElementById(wrap).children[0].getAttribute('href'));
+    copy.setAttribute('value', document.getElementById(wrap).querySelectorAll('A')[0].getAttribute('href'));
     return copyValue(copy);
 }
 
