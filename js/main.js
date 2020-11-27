@@ -91,7 +91,7 @@ function toggleExpand() {
     return false;
 }
 
-function toggleStyle(){
+function toggleStyle() {
     if (document.getElementById('orderedList').getAttribute('class') == 'monoText' || document.getElementById('orderedList').getAttribute('class') == '') {
         document.getElementById('orderedList').setAttribute('class', 'plainText');
     } else {
